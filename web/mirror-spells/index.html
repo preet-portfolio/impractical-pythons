@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Mirror Spells · Impractical Pythons</title>
-    <meta name="description" content="Some words read the same in a mirror. In this booth, those words are spells. Say one and see if the mirror agrees." />
+    <meta name="description" content="Some words read the same in a mirror. In this booth, those words are spells. Test yours, browse the spellbook, and race a list against a set." />
     <meta name="theme-color" content="#0B2226" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪞</text></svg>" />
   </head>
@@ -41,6 +41,45 @@
         <h2 id="book-title">The Spellbook</h2>
         <p class="book-lede" id="book-lede">The mirror is reading every word in the dictionary…</p>
         <div id="chapters"></div>
+      </section>
+
+      <section class="duets" aria-labelledby="duet-title">
+        <h2 id="duet-title">Two-word spells</h2>
+        <p class="book-lede" id="duet-lede">The mirror is pairing words up…</p>
+        <div class="duet-tools">
+          <button type="button" class="deal" id="deal" disabled>Deal six spells</button>
+          <label class="find">
+            <span>Find spells with</span>
+            <input id="duet-search" type="search" placeholder="cat" autocomplete="off" autocapitalize="none" disabled />
+          </label>
+        </div>
+        <ul class="duet-cards" id="duet-cards" aria-live="polite"></ul>
+        <p class="duet-note" id="duet-note"></p>
+        <p class="hidden-note" id="hidden-note"></p>
+      </section>
+
+      <section class="race" aria-labelledby="race-title">
+        <h2 id="race-title">The race</h2>
+        <p>
+          To find every two-word spell, the mirror asks "is this a real word?" about a million
+          times. How it looks words up makes all the difference. A <em>list</em> reads through
+          the words one by one; a <em>set</em> jumps straight to the right spot, like calling
+          your phone to find it instead of searching every room.
+        </p>
+        <div class="lanes">
+          <div class="lane">
+            <span class="lane-name">The list, word by word</span>
+            <span class="track"><span class="runner runner-list" id="lane-list"></span></span>
+            <span class="lane-time" id="time-list"></span>
+          </div>
+          <div class="lane">
+            <span class="lane-name">The set, straight to the spot</span>
+            <span class="track"><span class="runner runner-set" id="lane-set"></span></span>
+            <span class="lane-time" id="time-set"></span>
+          </div>
+        </div>
+        <button type="button" class="deal" id="race-start" disabled>Start the race</button>
+        <p class="race-result" id="race-result" role="status"></p>
       </section>
 
       <section class="about" aria-labelledby="about-title">

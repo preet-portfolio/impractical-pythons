@@ -12,20 +12,40 @@ const BRIDGE = `
 import json
 from pathlib import Path
 
+import decency
 import mirror
+import palingrams
+import speed_test
 import wordlist
 
-WORDS = Path(wordlist.__file__).parent / "2of4brif.txt"
+WORDS_FILE = Path(wordlist.__file__).parent / "2of4brif.txt"
+_words = None
+
+def words():
+    """Load and tidy the dictionary once, then reuse it."""
+    global _words
+    if _words is None:
+        _words = wordlist.clean_words(wordlist.read_words(WORDS_FILE))
+    return _words
 
 def _bridge(fn, args_json):
     args = json.loads(args_json)
     if fn == "reflect":
         return json.dumps(mirror.reflect(args["text"]))
     if fn == "spellbook":
-        return json.dumps(mirror.spellbook_stats(wordlist.read_words(WORDS)))
+        book = mirror.spellbook_stats(words())
+        shown = decency.family_friendly(book["spells"])
+        book["hidden"] = len(book["spells"]) - len(shown)
+        book["spells"] = shown
+        return json.dumps(book)
+    if fn == "pairs":
+        pairs = palingrams.two_word_spells(words())
+        shown = decency.family_friendly_pairs(pairs)
+        return json.dumps({"total": len(pairs), "hidden": len(pairs) - len(shown), "pairs": shown})
+    if fn == "race":
+        return json.dumps(speed_test.race(words(), args.get("sample", 300)))
     raise ValueError(f"Unknown call {fn!r}")
 `;
-
 type Reflection = {
   letters: string;
   reversed: string;
@@ -39,6 +59,17 @@ type Spellbook = {
   percent: number;
   longest: string[];
   by_length: Record<string, number>;
+  hidden: number;
+};
+type Pairs = { total: number; hidden: number; pairs: [string, string][] };
+type Race = {
+  sample: number;
+  words: number;
+  slow_seconds: number;
+  fast_seconds: number;
+  speedup: number;
+  slow_full_estimate: number;
+  fast_full_seconds: number;
 };
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -49,6 +80,18 @@ const verdict = $("verdict");
 const booth = $("booth");
 const bookLede = $("book-lede");
 const chapters = $("chapters");
+const duetLede = $("duet-lede");
+const duetCards = $<HTMLUListElement>("duet-cards");
+const deal = $<HTMLButtonElement>("deal");
+const search = $<HTMLInputElement>("duet-search");
+const duetNote = $("duet-note");
+const raceButton = $<HTMLButtonElement>("race-start");
+const raceResult = $("race-result");
+const laneList = $("lane-list");
+const laneSet = $("lane-set");
+const timeList = $("time-list");
+const timeSet = $("time-set");
+const hiddenNote = $("hidden-note");
 
 const python = new Python();
 let timer = 0;
@@ -128,6 +171,7 @@ function renderSpellbook(book: Spellbook) {
     strong(book.longest.join(" and ")),
     ". Tap any spell to cast it.",
   );
+  hiddenRude.words = book.hidden;
 
   // Group by length, shortest chapter first; six letters and up share the last chapter.
   const groups = new Map<string, string[]>();
@@ -160,6 +204,92 @@ function renderSpellbook(book: Spellbook) {
   );
 }
 
+let allPairs: [string, string][] = [];
+const hiddenRude = { words: 0, pairs: 0 };
+
+function pairCard([first, second]: [string, string]) {
+  const li = document.createElement("li");
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "duet";
+  const a = document.createElement("span");
+  a.textContent = first;
+  const b = document.createElement("span");
+  b.textContent = second;
+  button.append(a, " ", b);
+  button.addEventListener("click", () => cast(`${first} ${second}`));
+  li.append(button);
+  return li;
+}
+
+function dealSix() {
+  const hand = [...allPairs];
+  // Shuffle just the first six places (a partial Fisher-Yates shuffle).
+  for (let i = 0; i < Math.min(6, hand.length); i++) {
+    const j = i + Math.floor(Math.random() * (hand.length - i));
+    [hand[i], hand[j]] = [hand[j], hand[i]];
+  }
+  search.value = "";
+  duetCards.replaceChildren(...hand.slice(0, 6).map(pairCard));
+  duetNote.textContent = "";
+}
+
+function findPairs() {
+  const needle = search.value.trim().toLowerCase().replace(/[^a-z]/g, "");
+  if (!needle) return dealSix();
+  const matches = allPairs.filter(([a, b]) => a.includes(needle) || b.includes(needle));
+  duetCards.replaceChildren(...matches.slice(0, 48).map(pairCard));
+  duetNote.textContent = matches.length
+    ? matches.length > 48
+      ? `Showing 48 of ${matches.length} spells with "${needle}".`
+      : `${matches.length} ${matches.length === 1 ? "spell" : "spells"} with "${needle}".`
+    : `No two-word spells with "${needle}". Try fewer letters.`;
+}
+
+function renderPairs(data: Pairs) {
+  allPairs = data.pairs;
+  duetLede.replaceChildren(
+    "Some spells need a partner. Say them together and the mirror still agrees. The dictionary hides ",
+    strong(data.total.toLocaleString()),
+    " of them.",
+  );
+  hiddenRude.pairs = data.hidden;
+  const { words, pairs } = hiddenRude;
+  hiddenNote.textContent =
+    words || pairs
+      ? `A few rude words stay in the dictionary, not on the pier: that keeps ${words} single spells and ${pairs} pairs out of sight.`
+      : "";
+  deal.disabled = search.disabled = false;
+  dealSix();
+}
+
+const secs = (s: number) => (s >= 1 ? `${s.toFixed(1)} s` : `${(s * 1000).toFixed(s < 0.01 ? 1 : 0)} ms`);
+
+async function runRace() {
+  raceButton.disabled = true;
+  raceButton.textContent = "Racing…";
+  laneList.style.width = laneSet.style.width = "0%";
+  timeList.textContent = timeSet.textContent = "";
+  raceResult.textContent = "Both lanes are checking the same 300 words against all 60,000…";
+  try {
+    const r = await python.call<Race>("race", { sample: 300 });
+    laneList.style.width = "100%";
+    laneSet.style.width = `${Math.max(1.2, (100 * r.fast_seconds) / r.slow_seconds)}%`;
+    timeList.textContent = secs(r.slow_seconds);
+    timeSet.textContent = secs(r.fast_seconds);
+    raceResult.replaceChildren(
+      "The set wins, about ",
+      strong(`${Math.round(r.speedup).toLocaleString()} times`),
+      ` faster. For the whole dictionary the list would need around ${Math.round(r.slow_full_estimate)} seconds; the set took ${secs(r.fast_full_seconds)}.`,
+    );
+  } catch (error) {
+    console.error(error);
+    raceResult.textContent = "Someone tripped at the start line. Try the race again.";
+  }
+  raceButton.disabled = false;
+  raceButton.textContent = "Race again";
+}
+
 function strong(text: string) {
   const node = document.createElement("strong");
   node.textContent = text;
@@ -187,10 +317,16 @@ async function start() {
 
   try {
     renderSpellbook(await python.call<Spellbook>("spellbook"));
+    renderPairs(await python.call<Pairs>("pairs"));
   } catch (error) {
     console.error(error);
     bookLede.textContent = "The spellbook is stuck shut. Reload the page to try again.";
+    return;
   }
+  deal.addEventListener("click", dealSix);
+  search.addEventListener("input", findPairs);
+  raceButton.addEventListener("click", () => void runRace());
+  raceButton.disabled = false;
 }
 
 void start();

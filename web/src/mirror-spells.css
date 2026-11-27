@@ -313,3 +313,190 @@ body.mirror .site-foot {
     display: none;
   }
 }
+
+/* ---- two-word spells ------------------------------------------------------------------------ */
+
+.duets,
+.race {
+  max-width: 40rem;
+  margin: 3.2rem auto 0;
+}
+
+.duets h2,
+.race h2 {
+  font-family: var(--deco);
+  font-weight: 400;
+  font-size: 1.7rem;
+  color: var(--gilt-light);
+  margin: 0 0 0.4rem;
+}
+
+.duet-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.8rem 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.deal {
+  padding: 0.55rem 1.2rem;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--gilt-light), var(--gilt));
+  color: var(--glass-ink);
+  font: 400 1.05rem/1.2 var(--deco);
+  box-shadow: 0 4px 0 var(--gilt-deep);
+}
+
+.deal:not(:disabled):active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--gilt-deep);
+}
+
+.deal:disabled {
+  opacity: 0.6;
+}
+
+.find {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--page-soft);
+}
+
+.find input {
+  width: 12rem;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid rgb(246 213 126 / 0.55);
+  border-radius: 0.4rem;
+  background: rgb(18 58 64 / 0.85);
+  color: var(--page-text);
+  font: 600 1rem/1.2 var(--body);
+}
+
+.duet-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Each pair is a little mirror card: silver glass with the two words on it. */
+.duet {
+  width: 100%;
+  padding: 0.8rem 0.6rem;
+  border: 3px solid var(--gilt);
+  border-radius: 1.4rem 1.4rem 0.4rem 0.4rem;
+  background:
+    linear-gradient(115deg, transparent 35%, rgb(255 255 255 / 0.5) 45%, transparent 55%),
+    linear-gradient(180deg, var(--silver-1), var(--silver-2));
+  color: var(--glass-ink);
+  font: 400 1.15rem/1.2 var(--deco);
+}
+
+.duet span:first-child {
+  color: #5b3a0d;
+}
+
+.duet:hover {
+  box-shadow: 0 0 16px rgb(255 217 122 / 0.6);
+}
+
+.duet-note,
+.hidden-note {
+  margin: 0.8rem 0 0;
+  font-size: 0.92rem;
+  color: var(--page-soft);
+}
+
+.hidden-note:empty,
+.duet-note:empty {
+  display: none;
+}
+
+/* ---- the race --------------------------------------------------------------------------------- */
+
+.lanes {
+  display: grid;
+  gap: 0.7rem;
+  margin: 1.2rem 0;
+}
+
+.lane {
+  display: grid;
+  grid-template-columns: 12.5rem minmax(0, 1fr) 4.5rem;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.lane-name {
+  font-weight: 650;
+  font-size: 0.95rem;
+}
+
+.track {
+  height: 1rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.08);
+  overflow: hidden;
+}
+
+.runner {
+  display: block;
+  width: 0%;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 1.2s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.runner-list {
+  background: linear-gradient(90deg, #6f8790, var(--silver-2));
+}
+
+.runner-set {
+  background: linear-gradient(90deg, var(--gilt), var(--candle));
+  box-shadow: 0 0 10px rgb(255 217 122 / 0.8);
+}
+
+.lane-time {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: right;
+}
+
+.race-result {
+  min-height: 1.5em;
+  margin: 1rem 0 0;
+}
+
+.race-result strong {
+  color: var(--candle);
+}
+
+@media (max-width: 560px) {
+  .lane {
+    grid-template-columns: minmax(0, 1fr) 4rem;
+    grid-template-areas: "name name" "track time";
+    gap: 0.3rem 0.6rem;
+  }
+
+  .lane-name {
+    grid-area: name;
+  }
+
+  .track {
+    grid-area: track;
+  }
+
+  .lane-time {
+    grid-area: time;
+  }
+
+  .find input {
+    width: 100%;
+  }
+}
