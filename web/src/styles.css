@@ -333,7 +333,7 @@ code {
 
 .reels {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.72fr) minmax(0, 1fr) minmax(0, 1fr);
   gap: 0.6rem;
   padding: 0.7rem;
   background: var(--ink);
@@ -404,6 +404,60 @@ code {
   font-size: clamp(0.82rem, 2.2vw, 1.05rem);
   line-height: 1.1;
   overflow: hidden;
+}
+
+/* The wildcard: dim until a middle name shows up, then it glows like a bulb. */
+.wild-window {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 0.35rem;
+  background: #3a3358;
+  transition: background-color 0.25s;
+}
+
+.wild-window::after {
+  display: none;
+}
+
+.wild-word {
+  font-weight: 700;
+  font-size: clamp(0.8rem, 2vw, 1rem);
+  line-height: 1.1;
+  color: rgb(255 244 220 / 0.55);
+}
+
+.wildcard[data-state="lit"] .wild-window {
+  background: var(--bulb);
+  box-shadow: 0 0 16px 2px rgb(255 227 138 / 0.55);
+}
+
+.wildcard[data-state="lit"] .wild-word {
+  color: var(--ink);
+}
+
+.wildcard[data-state="off"] .wild-word {
+  font-weight: 500;
+  font-style: italic;
+}
+
+.wildcard[data-state="flicker"] .wild-window {
+  animation: flicker 0.32s steps(2) infinite;
+}
+
+@keyframes flicker {
+  50% {
+    background: var(--bulb);
+  }
+}
+
+.wild-chance {
+  margin: 0;
+  align-self: center;
+  padding: 0.3rem 0;
+  font-size: 0.78rem;
+  color: rgb(255 244 220 / 0.75);
 }
 
 .reel.is-held .window {
@@ -682,6 +736,12 @@ code {
 
   .reels {
     grid-template-columns: 1fr;
+  }
+
+  .wild-chance {
+    grid-area: hold;
+    font-size: 0.72rem;
+    text-align: center;
   }
 
   .reel {

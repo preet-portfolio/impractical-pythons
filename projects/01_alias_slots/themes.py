@@ -1,8 +1,11 @@
 """The word reels for every Alias Slots theme.
 
 Each theme is three reels of words plus a template that arranges one word from
-each reel into a full alias. Reels are tuples: the lists never change while the
-program runs, and tuples make that promise in code.
+each reel into a full alias. A fourth "wildcard" reel of middle names only
+shows up on some spins (see ``slots.MIDDLE_CHANCE``).
+
+Reels are tuples: the lists never change while the program runs, and tuples
+make that promise in code.
 """
 
 from __future__ import annotations
@@ -21,6 +24,8 @@ class Theme:
         template: ``str.format`` pattern with ``{0}``, ``{1}``, ``{2}`` for the reels.
         reel_names: What each reel holds, shown above it.
         reels: Three tuples of words.
+        middles: Wildcard middle names, slotted in after the first name on the
+            spins where the wildcard shows up.
     """
 
     key: str
@@ -29,10 +34,14 @@ class Theme:
     template: str
     reel_names: tuple[str, str, str]
     reels: tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]
+    middles: tuple[str, ...] = ()
 
-    def render(self, words: tuple[str, ...]) -> str:
-        """Arrange one word from each reel into the finished alias."""
-        return self.template.format(*words)
+    def render(self, words: tuple[str, ...], middle: str | None = None) -> str:
+        """Arrange one word from each reel (plus any middle name) into an alias."""
+        first, *rest = words
+        if middle:
+            first = f"{first} {middle}"
+        return self.template.format(first, *rest)
 
 
 SIDEKICK = Theme(
@@ -120,6 +129,23 @@ SIDEKICK = Theme(
             "Sidequest",
             "Mild Panic",
         ),
+    ),
+    middles=(
+        "Two-Socks",
+        "Sprinkles",
+        "Wobbles",
+        "Bootlace",
+        "Crumbs",
+        "Noodle",
+        "Pockets",
+        "Hiccup",
+        "Tiptoe",
+        "Squeak",
+        "Dumpling",
+        "Waffles",
+        "Zigzag",
+        "Butterscotch",
+        "Mumbles",
     ),
 )
 
@@ -209,6 +235,23 @@ SPACE_PIRATE = Theme(
             "Elastic Eclipse",
         ),
     ),
+    middles=(
+        "Moonpie",
+        "Stardust",
+        "Zero-G",
+        "Blip",
+        "Asteroid",
+        "Countdown",
+        "Ricochet",
+        "Photon",
+        "Sputnik",
+        "Gravy-Boat",
+        "Warp",
+        "Beeper",
+        "Comet-Tail",
+        "Tractor-Beam",
+        "Orbiter",
+    ),
 )
 
 FANTASY_VILLAIN = Theme(
@@ -296,6 +339,23 @@ FANTASY_VILLAIN = Theme(
             "Collector of Crumbs",
             "Herald of Hiccups",
         ),
+    ),
+    middles=(
+        "the Mildly Cursed",
+        "Grimble",
+        "Sulky",
+        "Hexy",
+        "Moldy",
+        "Gloomdrop",
+        "Snarl",
+        "Ashpocket",
+        "the Damp",
+        "Nettle",
+        "Wartlet",
+        "Shadowsnack",
+        "Cackles",
+        "Murkle",
+        "Brood",
     ),
 )
 
@@ -385,6 +445,23 @@ BOLLYWOOD_BADDIE = Theme(
             "Comedy Uncle",
         ),
     ),
+    middles=(
+        "Dhoom",
+        "Jhakaas",
+        "Filmy",
+        "Total",
+        "Chamko",
+        "Tashan",
+        "Ekdum",
+        "Jugaad",
+        "Fataak",
+        "Dhinchak",
+        "Rangeela",
+        "Tapori",
+        "Masti",
+        "Superhit",
+        "Bholu",
+    ),
 )
 
 COZY_WIZARD = Theme(
@@ -472,6 +549,23 @@ COZY_WIZARD = Theme(
             "Porridge Prophet",
             "Quietly Wise",
         ),
+    ),
+    middles=(
+        "Mossy",
+        "Puddle",
+        "Snugglepot",
+        "Bumble",
+        "Fernwhistle",
+        "Toasty",
+        "Dewdrop",
+        "Hush",
+        "Pinecone",
+        "Teacake",
+        "Mumble",
+        "Velvet",
+        "Acorn",
+        "Snickerdoodle",
+        "Drizzle",
     ),
 )
 

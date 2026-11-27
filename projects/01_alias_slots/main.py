@@ -22,6 +22,7 @@ PRIZE_LINES = {
     "jackpot": "*** JACKPOT! Every reel starts with the same letter! ***",
     "rhyme": "~ Rhyme bonus! ~",
     "pair": "Pair! Two reels match.",
+    "bonus": "+ Wildcard bonus! The middle name matches the first.",
 }
 
 HELP = "[Enter] spin   l1/l2/l3 lock or unlock a reel   t switch theme   q quit"
@@ -43,8 +44,12 @@ def show(result: Spin, locked: dict[int, int], out: TextIO, err: TextIO) -> None
     shown = [f"{word} [locked]" if i in locked else word for i, word in enumerate(result.words)]
     reels = "  |  ".join(shown)
     print(f"  {reels}", file=out)
+    if result.middle_word:
+        print(f"  Wildcard! Middle name: {result.middle_word}", file=out)
     if result.prize:
         print(f"  {PRIZE_LINES[result.prize]}", file=out)
+    if result.bonus:
+        print(f"  {PRIZE_LINES['bonus']}", file=out)
     print(f"  share code: {result.code}", file=out)
 
 

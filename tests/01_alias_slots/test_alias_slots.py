@@ -8,7 +8,9 @@ import pytest
 
 from main import play
 from slots import (
+    MIDDLE_CHANCE,
     PRIZES,
+    bonus_chance,
     catalogue,
     combinations,
     decode,
@@ -18,6 +20,7 @@ from slots import (
     key_letter,
     odds,
     prize_for,
+    reel_combinations,
     spin,
     to_base36,
 )
@@ -116,13 +119,15 @@ def test_same_word_is_not_a_rhyme():
 def test_odds_add_up(key):
     counts = odds(key)
     assert set(counts) == set(PRIZES)
-    assert sum(counts.values()) <= combinations(key)
+    assert sum(counts.values()) <= reel_combinations(key)
     assert counts["jackpot"] > 0, "every machine should be able to pay out a jackpot"
 
 
 @pytest.mark.parametrize("key", THEME_KEYS)
-def test_combinations_is_product_of_reel_lengths(key):
-    assert combinations(key) == math.prod(len(reel) for reel in THEMES[key].reels)
+def test_combinations_count_reels_and_middles(key):
+    theme = THEMES[key]
+    assert reel_combinations(key) == math.prod(len(reel) for reel in theme.reels)
+    assert combinations(key) == reel_combinations(key) * (len(theme.middles) + 1)
 
 
 # --- share codes ------------------------------------------------------------
@@ -144,7 +149,10 @@ def test_codes_are_unique_across_themes():
 
 
 def test_codes_are_short():
-    longest = max(len(encode(key, tuple(len(r) - 1 for r in THEMES[key].reels))) for key in THEMES)
+    longest = max(
+        len(encode(key, tuple(len(r) - 1 for r in THEMES[key].reels), len(THEMES[key].middles) - 1))
+        for key in THEMES
+    )
     assert longest <= 5
 
 
@@ -229,3 +237,73 @@ def test_tidy_slots_makes_three_part_aliases():
     assert alias == make_alias(random.Random(3))
     assert alias.split()[0] in FIRST_WORDS
     assert any(alias.endswith(tag) for tag in TAGS)
+
+
+# --- wildcard middle name ---------------------------------------------------
+
+
+@pytest.mark.parametrize("key", THEME_KEYS)
+def test_every_theme_has_clean_middles(key):
+    middles = THEMES[key].middles
+    assert len(middles) >= 10
+    assert len(set(middles)) == len(middles)
+    assert all(word and word == word.strip() for word in middles)
+
+
+def test_middle_shows_about_one_spin_in_three():
+    shown = sum(spin("sidekick", seed=s).middle is not None for s in range(3000))
+    assert abs(shown / 3000 - MIDDLE_CHANCE) < 0.03
+
+
+def test_middle_goes_after_the_first_name():
+    result = next(r for s in range(100) if (r := spin("cozy_wizard", seed=s)).middle_word)
+    first, middle = result.words[0], result.middle_word
+    assert result.name.startswith(f"{first} {middle} ")
+
+
+def test_same_seed_same_middle():
+    assert [spin("space_pirate", seed=s) for s in range(50)] == [
+        spin("space_pirate", seed=s) for s in range(50)
+    ]
+
+
+def test_holding_a_reel_keeps_the_middle_the_same():
+    for seed in range(100):
+        free = spin("fantasy_villain", seed=seed)
+        held = spin("fantasy_villain", seed=seed, locked={2: 0})
+        assert held.middle == free.middle
+
+
+@pytest.mark.parametrize("key", THEME_KEYS)
+def test_codes_round_trip_with_every_middle(key):
+    theme = THEMES[key]
+    for middle in [None, *range(len(theme.middles))]:
+        result = from_indices(key, (1, 2, 3), middle)
+        assert decode(result.code) == result
+
+
+def test_middle_off_the_reel_is_rejected():
+    with pytest.raises(ValueError, match="wildcard"):
+        from_indices("sidekick", (0, 0, 0), 99)
+
+
+def test_bonus_needs_matching_letters():
+    theme = THEMES["sidekick"]
+    first = theme.reels[0].index("Pudding")
+    pockets = theme.middles.index("Pockets")
+    noodle = theme.middles.index("Noodle")
+    assert from_indices("sidekick", (first, 0, 0), pockets).bonus
+    assert not from_indices("sidekick", (first, 0, 0), noodle).bonus
+    assert not from_indices("sidekick", (first, 0, 0), None).bonus
+
+
+@pytest.mark.parametrize("key", THEME_KEYS)
+def test_bonus_chance_matches_a_brute_force_count(key):
+    theme = THEMES[key]
+    hits = sum(
+        from_indices(key, (f, 0, 0), m).bonus
+        for f in range(len(theme.reels[0]))
+        for m in range(len(theme.middles))
+    )
+    expected = MIDDLE_CHANCE * hits / (len(theme.reels[0]) * len(theme.middles))
+    assert bonus_chance(key) == pytest.approx(expected)
