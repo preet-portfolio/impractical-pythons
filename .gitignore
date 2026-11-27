@@ -9,3 +9,6 @@ __pycache__/
 .claude/settings.local.json
 # large datasets: keep small samples, ignore big downloads
 projects/*/data/large/
+web/node_modules/
+web/dist/
+.vercel
