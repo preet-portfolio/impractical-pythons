@@ -8,6 +8,7 @@ import pytest
 from decency import NOT_ON_THE_PIER, family_friendly, family_friendly_pairs
 from mirror import find_palindromes, is_palindrome, letters_only, reflect, spellbook_stats
 from palingrams import is_palindrome_recursive, two_word_spells, two_word_spells_slow
+from speed_test import profile_report, race
 from wordlist import clean_words, read_words, words_from_text
 
 # Every project has a main.py, so "import main" would grab whichever one
@@ -158,3 +159,15 @@ def test_decency_filter(all_pairs):
     assert all(NOT_ON_THE_PIER.isdisjoint(pair) for pair in kept)
     assert ("nurses", "run") in kept
     assert family_friendly(["kayak", "tit", "level"]) == ["kayak", "level"]
+
+
+def test_race_reports_both_timings():
+    result = race(WORDS[:3000], sample_size=50)
+    assert result["sample"] == 50
+    assert result["slow_seconds"] > 0 and result["fast_seconds"] > 0
+    assert result["slow_full_estimate"] == pytest.approx(result["slow_seconds"] * 60)
+
+
+def test_profile_report_names_the_busy_function():
+    report = profile_report(two_word_spells, ["nurses", "run"])
+    assert "spells_from" in report

@@ -26,7 +26,7 @@ def _is_run(letters: str) -> bool:
     return letters == letters[::-1]
 
 
-def _spells(words: Iterable[str], vocab: Collection[str]) -> list[Pair]:
+def spells_from(words: Iterable[str], vocab: Collection[str]) -> list[Pair]:
     """Find every two-word spell, checking partners with ``in vocab``.
 
     The logic is written once; only the container passed as ``vocab``
@@ -57,7 +57,7 @@ def two_word_spells(words: Iterable[str]) -> list[Pair]:
     whole list.
     """
     vocab = set(words)
-    return _spells(vocab, vocab)
+    return spells_from(vocab, vocab)
 
 
 def two_word_spells_slow(words: list[str]) -> list[Pair]:
@@ -66,7 +66,7 @@ def two_word_spells_slow(words: list[str]) -> list[Pair]:
     ``partner in words`` on a list compares against every word until it
     finds a match (or reaches the end). Kept on purpose, to profile it.
     """
-    return _spells(words, words)
+    return spells_from(words, words)
 
 
 def is_palindrome_recursive(letters: str) -> bool:
