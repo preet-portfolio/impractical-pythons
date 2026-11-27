@@ -39,7 +39,7 @@ export const projects: Project[] = [
     number: 4,
     slug: "mirror-spells",
     title: "Mirror Spells",
-    line: "Some words read the same in a mirror, and here those words are spells. Test yours, then browse the spellbook.",
+    line: "Some words read the same in a mirror, and here those words are spells. Test yours, find two-word spells, and watch a list race a set.",
     stall: "mirror",
     cue: "Step up to the mirror",
   },
