@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shuffle Café · Impractical Pythons</title>
+    <meta name="description" content="Put your name on the café letterboard and watch the letters re-peg themselves into new words. Listen becomes silent; Daniel gets nailed." />
+    <meta name="theme-color" content="#1d1b1e" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
+  </head>
+  <body class="cafe">
+    <a class="skip" href="#board">Skip to the letterboard</a>
+    <nav class="crumbs"><a href="/">Back to the pier</a></nav>
+
+    <main id="main">
+      <header class="cafe-sign">
+        <h1 class="sign-board" aria-label="Shuffle Café">
+          <span aria-hidden="true" class="sign-pegs" id="sign-pegs">SHUFFLE CAFÉ</span>
+        </h1>
+        <p class="sign-lede">
+          Pop your name up on the café board. The waiter pulls the letters out and pegs them back
+          as other words, made from exactly the same letters.
+        </p>
+      </header>
+
+      <section class="counter" id="board" aria-labelledby="board-title">
+        <h2 id="board-title" class="sr-only">The letterboard</h2>
+        <label class="order" for="word">
+          <span>Your name or a word</span>
+          <input id="word" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="20" disabled />
+        </label>
+
+        <div class="frame">
+          <div class="felt">
+            <p class="felt-head" aria-hidden="true">On the board</p>
+            <ol class="pegs" id="pegs" aria-hidden="true"></ol>
+            <p class="felt-foot" id="felt-foot" aria-hidden="true"></p>
+          </div>
+        </div>
+        <p class="status" id="status" role="status" aria-live="polite">Opening up the café…</p>
+
+        <div class="specials-wrap">
+          <h3 class="specials-title">Today's specials</h3>
+          <ul class="specials" id="specials"></ul>
+        </div>
+
+        <div class="regulars" role="group" aria-labelledby="regulars-title">
+          <span id="regulars-title" class="regulars-title">Or try a regular:</span>
+          <button type="button" data-word="listen">listen</button>
+          <button type="button" data-word="Daniel">Daniel</button>
+          <button type="button" data-word="petal">petal</button>
+          <button type="button" data-word="ocean">ocean</button>
+          <button type="button" data-word="shore">shore</button>
+          <button type="button" data-word="pastel">pastel</button>
+        </div>
+      </section>
+
+      <section class="menu" aria-labelledby="menu-title">
+        <div class="menu-card">
+          <h2 id="menu-title">The big families</h2>
+          <p class="menu-lede" id="menu-lede">The kitchen is sorting every word in the dictionary…</p>
+          <ol class="families" id="families"></ol>
+          <p class="hidden-note" id="hidden-note"></p>
+        </div>
+      </section>
+
+      <section class="about" aria-labelledby="about-title">
+        <h2 id="about-title">How the board works</h2>
+        <p>
+          Two words are anagrams when they use the same letters, the same number of times. The
+          trick is to put each word's letters in alphabetical order: <em>listen</em> and
+          <em>silent</em> both become <em>eilnst</em>. Same sorted letters, same family.
+        </p>
+        <p>
+          The café does that sorting for all 60,388 words of a free dictionary once, when it
+          opens, and files each word under its sorted letters. After that, finding your name's
+          anagrams is a single look in the right drawer, all in Python, right here in your
+          browser.
+          <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/05_shuffle_cafe">Peek at the Python</a>.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <p>
+        Inspired by the anagram project in
+        <a href="https://nostarch.com/impracticalpython"><cite>Impractical Python Projects</cite></a>
+        by Lee Vaughan, a great book if you want to make your own silly, clever programs. Words
+        from Alan Beale's public-domain <a href="http://wordlist.aspell.net/12dicts/">12dicts</a>
+        lists. This version, its words and its code are new. One of the stalls on the
+        <a href="/">Impractical Pythons</a> pier.
+      </p>
+    </footer>
+    <script type="module" src="/src/shuffle-cafe-page.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,443 @@
+@import "@fontsource/big-shoulders-display/600";
+@import "@fontsource/big-shoulders-display/800";
+
+/* Shuffle Café: a seafront café. White subway tiles, a black ribbed-felt letterboard in an
+   oak frame with white peg letters, a gingham counter, ketchup and mustard on the side. */
+body.cafe {
+  --felt: #1d1c20;
+  --felt-rib: #2a292e;
+  --peg: #f8f6f0;
+  --oak: #a2693a;
+  --oak-deep: #6f4321;
+  --ketchup: #c4332a;
+  --ketchup-deep: #9c2620;
+  --mustard: #ebb82a;
+  --paper: #fffdf8;
+  --ink: #2a2522;
+  --peg-font: "Big Shoulders Display", "Oswald", "Arial Narrow", sans-serif;
+
+  --page-text: var(--ink);
+  --page-soft: #5e534c;
+  --link: var(--ketchup-deep);
+  color: var(--page-text);
+}
+
+/* Subway tiles: one brick-pattern tile of grout lines, repeated. */
+html:has(body.cafe) {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40'%3E%3Cpath d='M0 .5H80M0 20.5H80M.5 0V20M40.5 20V40' stroke='%23d9d4cb' fill='none'/%3E%3C/svg%3E"),
+    #f4f1ec;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* After hours: the lights are low, but the board and the menu are still lit. */
+  html:has(body.cafe) {
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='40'%3E%3Cpath d='M0 .5H80M0 20.5H80M.5 0V20M40.5 20V40' stroke='%23332d29' fill='none'/%3E%3C/svg%3E"),
+      #221e1c;
+  }
+
+  body.cafe {
+    --page-text: #f2ece5;
+    --page-soft: #cdc1b5;
+    --link: #ffab95;
+  }
+}
+
+body.cafe :focus-visible {
+  outline: 3px solid var(--mustard);
+  box-shadow: 0 0 0 6px var(--felt);
+}
+
+body.cafe .skip {
+  background: var(--felt);
+  color: var(--peg);
+}
+
+/* ---- the sign: the café's name, pegged onto a strip of felt -------------------------------- */
+
+.cafe-sign {
+  text-align: center;
+  padding-top: 0.6rem;
+}
+
+.sign-board {
+  display: inline-block;
+  position: relative;
+  margin: 1.6rem 0 0;
+  padding: 0.55rem 1.1rem 0.45rem;
+  background: repeating-linear-gradient(180deg, var(--felt-rib) 0 2px, var(--felt) 2px 5px);
+  border: 7px solid var(--oak);
+  border-radius: 0.3rem;
+  box-shadow:
+    inset 0 0 0 2px var(--oak-deep),
+    0 12px 22px -12px rgb(0 0 0 / 0.6);
+  rotate: -1.5deg;
+  font: 800 clamp(2.2rem, 9vw, 3.6rem) / 1 var(--peg-font);
+  color: var(--peg);
+}
+
+/* The two strings it hangs from. */
+.sign-board::before,
+.sign-board::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  width: 2px;
+  height: 1.9rem;
+  margin-bottom: 7px;
+  background: var(--oak-deep);
+}
+
+.sign-board::before {
+  left: 18%;
+  rotate: 18deg;
+}
+
+.sign-board::after {
+  right: 18%;
+  rotate: -18deg;
+}
+
+.sign-pegs {
+  display: inline-flex;
+  gap: 0.06em;
+}
+
+.sign-pegs .peg {
+  text-shadow: 0 2px 0 rgb(0 0 0 / 0.55);
+}
+
+.sign-pegs .peg:nth-child(4n + 2) {
+  rotate: -3deg;
+}
+
+.sign-pegs .peg:nth-child(5n) {
+  rotate: 2.5deg;
+  translate: 0 1px;
+}
+
+.sign-pegs .gap {
+  width: 0.3em;
+}
+
+.sign-lede {
+  max-width: 33rem;
+  margin: 1.1rem auto 0;
+  font-size: 1.06rem;
+  font-weight: 560;
+}
+
+/* ---- the counter: order box, the board, the specials ----------------------------------- */
+
+.counter {
+  max-width: 46rem;
+  margin: 1.6rem auto 0;
+}
+
+.order {
+  display: grid;
+  gap: 0.35rem;
+  max-width: 22rem;
+  margin: 0 auto 1rem;
+  font-weight: 700;
+}
+
+.order input {
+  padding: 0.55rem 0.8rem;
+  border: 3px solid var(--felt);
+  border-radius: 0.4rem;
+  background: var(--paper);
+  color: var(--ink);
+  font: 800 1.5rem/1.1 var(--peg-font);
+  letter-spacing: 0.06em;
+}
+
+.order input:disabled {
+  opacity: 0.6;
+}
+
+.frame {
+  padding: clamp(0.6rem, 2vw, 0.9rem);
+  background: linear-gradient(135deg, #b77a46, var(--oak) 40%, #8d5a2e);
+  border-radius: 0.5rem;
+  box-shadow:
+    inset 0 0 0 2px var(--oak-deep),
+    0 18px 30px -16px rgb(0 0 0 / 0.65);
+}
+
+/* Ribbed felt: the grooves the letters push into. */
+.felt {
+  container-type: inline-size;
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+  min-height: 11rem;
+  padding: 1rem clamp(0.5rem, 3vw, 1.5rem) 0.9rem;
+  background: repeating-linear-gradient(180deg, var(--felt-rib) 0 3px, var(--felt) 3px 8px);
+  box-shadow: inset 0 0 22px rgb(0 0 0 / 0.65);
+  border-radius: 0.2rem;
+  color: var(--peg);
+}
+
+/* Letterboards come with a handful of coloured pegs for headings. */
+.felt-head,
+.felt-foot {
+  margin: 0;
+  min-height: 1.2em;
+  font: 600 1.05rem/1.2 var(--peg-font);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--mustard);
+}
+
+.felt-foot {
+  color: #ff8c7d;
+}
+
+.pegs {
+  --gap: 0.15rem;
+  --size: min(4.2rem, calc((100cqi - (var(--n, 1) - 1) * var(--gap)) / var(--n, 1) / 0.58));
+  display: flex;
+  justify-content: center;
+  gap: var(--gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-height: var(--size);
+}
+
+.pegs li {
+  width: calc(var(--size) * 0.58);
+  font: 800 var(--size) / 1 var(--peg-font);
+  text-align: center;
+  color: var(--peg);
+  text-shadow:
+    0 2px 0 rgb(0 0 0 / 0.6),
+    0 0 1px rgb(255 255 255 / 0.5);
+  will-change: transform;
+}
+
+/* Hand-pegged letters are never quite straight. */
+.pegs li:nth-child(3n + 1) {
+  rotate: -2deg;
+}
+
+.pegs li:nth-child(4n + 2) {
+  rotate: 1.5deg;
+  translate: 0 1px;
+}
+
+.status {
+  min-height: 2.8em;
+  margin: 0.8rem auto 0;
+  max-width: 34rem;
+  text-align: center;
+  font-weight: 650;
+}
+
+/* The specials are order slips on a gingham tablecloth. */
+.specials-wrap {
+  color-scheme: light;
+  margin-top: 0.8rem;
+  padding: 1rem clamp(0.7rem, 3vw, 1.4rem) 1.2rem;
+  background:
+    repeating-linear-gradient(90deg, rgb(196 51 42 / 0.45) 0 14px, transparent 14px 28px),
+    repeating-linear-gradient(0deg, rgb(196 51 42 / 0.45) 0 14px, transparent 14px 28px),
+    #fffaf6;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 20px -14px rgb(0 0 0 / 0.5);
+}
+
+.specials-title {
+  display: inline-block;
+  margin: 0 0 0.7rem;
+  padding: 0.1rem 0.7rem;
+  background: var(--paper);
+  border-radius: 0.3rem;
+  font: 800 1.35rem/1.2 var(--peg-font);
+  letter-spacing: 0.04em;
+  color: var(--ketchup-deep);
+}
+
+.specials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-height: 2.8rem;
+}
+
+.specials:empty::before {
+  content: "Nothing on today. Try another word.";
+  padding: 0.4rem 0.8rem;
+  background: var(--paper);
+  border-radius: 0.3rem;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.special {
+  padding: 0.45rem 0.95rem 0.4rem;
+  border: 0;
+  border-left: 5px solid var(--ketchup);
+  border-radius: 0.15rem;
+  background: var(--paper);
+  color: var(--ink);
+  font: 800 1.35rem/1.1 var(--peg-font);
+  letter-spacing: 0.05em;
+  box-shadow: 0 3px 0 rgb(0 0 0 / 0.15);
+  cursor: pointer;
+  transition: translate 0.12s ease;
+}
+
+.specials li:nth-child(even) .special {
+  rotate: 1.2deg;
+}
+
+.specials li:nth-child(3n) .special {
+  rotate: -1.4deg;
+}
+
+.special:hover {
+  translate: 0 -2px;
+}
+
+.special.is-home {
+  border-left-color: var(--mustard);
+  font-weight: 600;
+}
+
+.special[aria-pressed="true"] {
+  background: var(--ketchup);
+  color: var(--paper);
+}
+
+.special.is-home[aria-pressed="true"] {
+  background: var(--felt);
+}
+
+.regulars {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.regulars-title {
+  font-weight: 700;
+}
+
+.regulars button {
+  padding: 0.25rem 0.85rem;
+  border: 2px solid #b78a10;
+  border-radius: 999px;
+  background: var(--mustard);
+  color: var(--ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.regulars button:hover {
+  background: #f7d266;
+}
+
+/* ---- the menu card: the dictionary's biggest families ----------------------------------- */
+
+.menu {
+  max-width: 40rem;
+  margin: 3rem auto 0;
+}
+
+.menu-card {
+  color-scheme: light;
+  padding: 1.5rem clamp(1rem, 4vw, 2rem) 1.3rem;
+  background: var(--paper);
+  color: var(--ink);
+  border: 3px double var(--ketchup);
+  outline: 6px solid var(--paper);
+  border-radius: 0.3rem;
+  box-shadow: 0 16px 28px -18px rgb(0 0 0 / 0.6);
+}
+
+.menu-card h2 {
+  margin: 0;
+  text-align: center;
+  font: 800 2rem/1.1 var(--peg-font);
+  letter-spacing: 0.03em;
+  color: var(--ketchup-deep);
+}
+
+.menu-lede {
+  margin: 0.5rem 0 1rem;
+  text-align: center;
+}
+
+.families {
+  display: grid;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.families button {
+  display: grid;
+  grid-template-columns: 2.2rem 1fr;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  padding: 0.45rem 0.5rem;
+  border: 0;
+  border-bottom: 2px dotted rgb(42 37 34 / 0.25);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.families button:hover {
+  background: #fff1d6;
+}
+
+.family-size {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  background: var(--mustard);
+  font: 800 1.2rem/1 var(--peg-font);
+}
+
+.family-words {
+  font-weight: 600;
+}
+
+.hidden-note {
+  margin: 0.9rem 0 0;
+  font-size: 0.85rem;
+  color: #6b5f57;
+}
+
+/* ---- the rest of the page --------------------------------------------------------------- */
+
+body.cafe .about h2 {
+  font: 800 1.6rem/1.2 var(--peg-font);
+  letter-spacing: 0.03em;
+}
+
+@media (max-width: 560px) {
+  .felt {
+    min-height: 8.5rem;
+  }
+
+  .special {
+    font-size: 1.2rem;
+  }
+}

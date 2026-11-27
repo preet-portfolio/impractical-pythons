@@ -6,7 +6,7 @@ export type Project = {
   slug: string;
   title: string;
   line: string;
-  stall: "slots" | "talk" | "rock" | "mirror";
+  stall: "slots" | "talk" | "rock" | "mirror" | "cafe";
   cue: string;
 };
 
@@ -42,5 +42,13 @@ export const projects: Project[] = [
     line: "Some words read the same in a mirror, and here those words are spells. Test yours, find two-word spells, and watch a list race a set.",
     stall: "mirror",
     cue: "Step up to the mirror",
+  },
+  {
+    number: 5,
+    slug: "shuffle-cafe",
+    title: "Shuffle Café",
+    line: "Put your name on the café letterboard and watch the letters re-peg themselves into new words. Listen turns silent.",
+    stall: "cafe",
+    cue: "Take a seat",
   },
 ];

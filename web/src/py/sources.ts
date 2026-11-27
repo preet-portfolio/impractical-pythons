@@ -20,3 +20,6 @@ export const letterBarsSources = byName(
 export const mirrorSpellsSources = byName(
   import.meta.glob("../../../projects/04_mirror_spells/*.py", { query: "?raw", import: "default", eager: true }),
 );
+export const shuffleCafeSources = byName(
+  import.meta.glob("../../../projects/05_shuffle_cafe/*.py", { query: "?raw", import: "default", eager: true }),
+);

@@ -15,6 +15,7 @@ export default defineConfig({
         codeTalk: resolve(import.meta.dirname, "code-talk/index.html"),
         letterBars: resolve(import.meta.dirname, "letter-bars/index.html"),
         mirrorSpells: resolve(import.meta.dirname, "mirror-spells/index.html"),
+        shuffleCafe: resolve(import.meta.dirname, "shuffle-cafe/index.html"),
       },
     },
   },

@@ -2,6 +2,7 @@ import "./styles.css";
 import "@fontsource/special-elite/400.css";
 import "@fontsource/shrikhand/400.css";
 import "@fontsource/limelight/400.css";
+import "@fontsource/big-shoulders-display/800";
 import { projects } from "./projects";
 
 const list = document.getElementById("projects")!;
