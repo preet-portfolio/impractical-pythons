@@ -1,8 +1,9 @@
-"""Find every single-word anagram of a word or name.
+"""Find anagrams of a word or name, or build an anagram phrase.
 
 Usage (from the repo root):
     uv run python projects/05_shuffle_cafe/main.py listen
     uv run python projects/05_shuffle_cafe/main.py          # asks you
+    uv run python projects/05_shuffle_cafe/main.py "Donkey Rides" --phrase
     uv run python projects/05_shuffle_cafe/main.py --families 5
     uv run python projects/05_shuffle_cafe/main.py Daniel --words my_words.txt
 """
@@ -12,6 +13,7 @@ import sys
 from pathlib import Path
 
 import anagrams
+from phrase_session import run_session
 
 # The word list is shared by several stalls, so it lives in
 # projects/common. Python only looks next to this file by default.
@@ -22,11 +24,12 @@ from wordlist import DEFAULT_WORDS, clean_words, read_words  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> None:
-    """Print a word's anagrams, or the dictionary's biggest families."""
+    """Print anagrams, the biggest families, or build a phrase."""
     parser = argparse.ArgumentParser(description="Find anagrams.")
     parser.add_argument("word", nargs="?", help="a word or name")
     parser.add_argument("--words", default=DEFAULT_WORDS, help="word list")
     parser.add_argument("--families", type=int, metavar="N", help="top N")
+    parser.add_argument("--phrase", action="store_true", help="build a phrase")
     args = parser.parse_args(argv)
 
     try:
@@ -45,6 +48,10 @@ def main(argv: list[str] | None = None) -> None:
     word = args.word or input("Your word or name: ")
     if not anagrams.letters_only(word):
         print("That has no letters to shuffle.")
+        return
+
+    if args.phrase:
+        run_session(word, words)
         return
 
     found = anagrams.find_anagrams(word, words)

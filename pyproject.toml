@@ -35,7 +35,7 @@ convention = "google"
 "tests/**" = ["D"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["slots", "themes", "main", "code_talk", "letter_bars", "mirror", "wordlist", "palingrams", "decency", "speed_test", "anagrams"]
+known-first-party = ["slots", "themes", "main", "code_talk", "letter_bars", "mirror", "wordlist", "palingrams", "decency", "speed_test", "anagrams", "phrases", "phrase_session"]
 
 # Pylint reads this instead of a .pylintrc. Keep it in step with ruff's line length.
 [tool.pylint.format]

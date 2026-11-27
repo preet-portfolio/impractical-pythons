@@ -10,11 +10,12 @@ what's hidden.
 # One string split on spaces keeps the list short enough to read at once.
 NOT_ON_THE_PIER = frozenset(
     """
-    anus arse arses bonk bonks boob boobs booby crap craps cum dago enema
-    enemas fag fart farts fecal gyps lewd nude nudes pee peed pees penis
-    piss pisses poo poop poops rape raped rapes rapist rapists sex sexed
-    sexes sexing slut sluts smut smuts spank spik spiks tit tits turd turds
-    twat twats wog wop wops
+    anus arse arses bonk bonks boob boobs booby crap craps cum dago
+    darkie darkies dyke dykes enema enemas fag fart farts fecal gyps
+    lewd nude nudes pee peed pees penis piss pisses poo poop poops
+    rape raped rapes rapist rapists sex sexed sexes sexing slut
+    sluts smut smuts spank spik spiks tit tits turd turds twat twats
+    wog wop wops
     """.split()  # noqa: SIM905
 )
 
