@@ -1,11 +1,13 @@
-// The gallery's list of projects, in build order.
+// The gallery's list of projects, in build order. Each one is a stall on the pier with its
+// own look; `stall` picks that look on the home page (see .stall-* in styles.css).
 
 export type Project = {
   number: number;
   slug: string;
   title: string;
   line: string;
-  python: string;
+  stall: "slots" | "talk" | "rock";
+  cue: string;
 };
 
 export const projects: Project[] = [
@@ -13,14 +15,24 @@ export const projects: Project[] = [
     number: 1,
     slug: "alias-slots",
     title: "Alias Slots",
-    line: "A fruit machine for ridiculous aliases. Hold the reels you like and spin the rest.",
-    python: "tuples, random.Random(seed), dataclasses, a base-36 share code",
+    line: "A fruit machine that pays out ridiculous secret identities. Hold the reels you love and spin the rest.",
+    stall: "slots",
+    cue: "Pull the lever",
   },
   {
     number: 2,
     slug: "code-talk",
     title: "Code-Talk",
-    line: "Pig Latin you can take back. Type English or Code-Talk and the other side translates as you type.",
-    python: "string slicing, regular expressions, re.sub with a function",
+    line: "Pig Latin with a secret handshake. Scramble a message for a friend, then turn it back.",
+    stall: "talk",
+    cue: "Open the case file",
+  },
+  {
+    number: 3,
+    slug: "letter-bars",
+    title: "Letter Bars",
+    line: "Seaside rock pulled from your words: a candy stick for every letter. Every language has its own flavour.",
+    stall: "rock",
+    cue: "Weigh your words",
   },
 ];

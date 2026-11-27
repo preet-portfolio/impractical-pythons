@@ -1,0 +1,400 @@
+@import "@fontsource/shrikhand/400.css";
+
+/* Letter Bars: a seaside rock shop. Mint candy-stripe wallpaper, a striped awning, a cream
+   counter, and every letter as a stick of pink-and-white rock. */
+body.rock {
+  --raspberry: #d93d72;
+  --raspberry-deep: #a82556;
+  --mint: #33a98d;
+  --mint-deep: #1f7d68;
+  --chocolate: #4a2c2a;
+  --cream: #fffaf0;
+  --sugar: #ffffff;
+  --wall: #d7f1e5;
+  --wall-stripe: #c4e9d8;
+  --shop-font: "Shrikhand", "Cooper Black", serif;
+
+  --page-text: #2f2423;
+  --page-soft: #5b4744;
+  --link: var(--raspberry-deep);
+  color: var(--page-text);
+}
+
+html:has(body.rock) {
+  background: repeating-linear-gradient(90deg, #d7f1e5 0 22px, #c4e9d8 22px 44px);
+}
+
+@media (prefers-color-scheme: dark) {
+  html:has(body.rock) {
+    /* After dark the shop's lights are on and the street is navy. */
+    background: repeating-linear-gradient(90deg, #1c2235 0 22px, #20283d 22px 44px);
+  }
+
+  body.rock {
+    --page-text: #f7ecdf;
+    --page-soft: #d7c5b6;
+    --link: #ff9cbf;
+  }
+}
+
+body.rock :focus-visible {
+  outline: 3px solid var(--raspberry);
+  box-shadow: 0 0 0 6px var(--cream);
+}
+
+body.rock .skip {
+  background: var(--chocolate);
+  color: var(--cream);
+}
+
+/* ---- the shop front ------------------------------------------------------------------- */
+
+.shop {
+  color-scheme: light; /* paper and cream stay light, even after dark */
+  position: relative;
+  margin: 1rem auto 0;
+  max-width: 48rem;
+  padding: 0 clamp(0.9rem, 3vw, 2rem) 1.8rem;
+  background: var(--cream);
+  color: var(--chocolate);
+  border: 4px solid var(--chocolate);
+  border-radius: 0 0 1.4rem 1.4rem;
+  box-shadow: 0 16px 0 -6px rgb(74 44 42 / 0.25);
+}
+
+/* A striped awning: candy stripes, cut into scallops along the bottom edge by a mask. */
+.awning {
+  height: 4.2rem;
+  margin: 0 calc(-1 * clamp(0.9rem, 3vw, 2rem));
+  background: repeating-linear-gradient(90deg, var(--raspberry) 0 2.5rem, var(--sugar) 2.5rem 5rem);
+  -webkit-mask:
+    linear-gradient(#000 0 0) 0 0 / 100% calc(100% - 1.25rem) no-repeat,
+    radial-gradient(1.25rem at 50% 0, #000 98%, transparent) 0 100% / 2.5rem 1.25rem repeat-x;
+  mask:
+    linear-gradient(#000 0 0) 0 0 / 100% calc(100% - 1.25rem) no-repeat,
+    radial-gradient(1.25rem at 50% 0, #000 98%, transparent) 0 100% / 2.5rem 1.25rem repeat-x;
+}
+
+.shop-sign {
+  text-align: center;
+  padding: 1.2rem 0 0.6rem;
+}
+
+.sign-title {
+  margin: 0;
+  font-family: var(--shop-font);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 9vw, 4.2rem);
+  line-height: 1.05;
+  color: var(--raspberry);
+  text-shadow:
+    3px 3px 0 var(--sugar),
+    6px 6px 0 var(--chocolate);
+}
+
+.sign-lede {
+  max-width: 32rem;
+  margin: 0.7rem auto 0;
+  font-size: 1.05rem;
+  font-weight: 560;
+}
+
+/* ---- the counter: what you type ------------------------------------------------------- */
+
+.counter {
+  margin-top: 1rem;
+}
+
+.scoops {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+}
+
+.scoop {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.scoop[hidden] {
+  display: none;
+}
+
+.scoop-label {
+  font-family: var(--shop-font);
+  font-size: 1.15rem;
+  color: var(--raspberry-deep);
+}
+
+.scoop-b .scoop-label {
+  color: var(--mint-deep);
+}
+
+.scoop textarea {
+  width: 100%;
+  min-height: 7.5rem;
+  resize: vertical;
+  padding: 0.7rem 0.85rem;
+  border: 3px solid var(--chocolate);
+  border-radius: 1rem;
+  background: var(--sugar);
+  color: var(--chocolate);
+  font: 550 1.02rem/1.45 var(--body);
+}
+
+.scoop textarea:disabled {
+  opacity: 0.6;
+}
+
+.flavours {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Sample buttons are little paper sweet bags. */
+.flavours button {
+  border: 2px solid var(--chocolate);
+  border-radius: 0.3rem 0.3rem 0.8rem 0.8rem;
+  background: #ffe1ec;
+  color: var(--chocolate);
+  padding: 0.2rem 0.75rem;
+  font-weight: 700;
+  font-size: 0.86rem;
+}
+
+.scoop-b .flavours button {
+  background: #d4f3e8;
+}
+
+.flavours button:hover {
+  background: var(--sugar);
+}
+
+.switches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.4rem;
+  margin-top: 1rem;
+}
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.switch input {
+  width: 1.2rem;
+  height: 1.2rem;
+  accent-color: var(--raspberry);
+}
+
+.status {
+  margin: 0.7rem 0 0;
+  min-height: 1.4em;
+  font-size: 0.92rem;
+  color: rgb(74 44 42 / 0.75);
+}
+
+/* ---- the jar: one stick of rock per letter --------------------------------------------- */
+
+.jar {
+  margin: 1.3rem 0 0;
+  padding: 1rem clamp(0.6rem, 2vw, 1.2rem) 1.1rem;
+  background: linear-gradient(90deg, rgb(255 255 255 / 0.7), rgb(215 241 229 / 0.45));
+  border: 3px solid var(--chocolate);
+  border-radius: 1.2rem;
+}
+
+.jar-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.2rem;
+  margin-bottom: 0.8rem;
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.key[hidden] {
+  display: none;
+}
+
+.key::before {
+  content: "";
+  width: 1.6rem;
+  height: 0.7rem;
+  border-radius: 0.35rem;
+}
+
+.key-a::before {
+  background: repeating-linear-gradient(-55deg, var(--raspberry) 0 5px, var(--sugar) 5px 9px);
+  box-shadow: inset 0 0 0 1px var(--raspberry-deep);
+}
+
+.key-b::before {
+  background: repeating-linear-gradient(-55deg, var(--mint) 0 5px, var(--sugar) 5px 9px);
+  box-shadow: inset 0 0 0 1px var(--mint-deep);
+}
+
+.key-usual::before {
+  width: 4px;
+  height: 1.1rem;
+  border-radius: 2px;
+  background: var(--chocolate);
+}
+
+.sticks {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stick-row {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) 6.2rem;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+/* The letter sits in a cross-section of the rock, the way seaside rock has words inside. */
+.rock-end {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--sugar);
+  box-shadow:
+    inset 0 0 0 4px var(--raspberry),
+    0 0 0 2px var(--chocolate);
+  font-family: var(--shop-font);
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--raspberry-deep);
+}
+
+.stick-track {
+  position: relative;
+  display: grid;
+  gap: 3px;
+  min-height: 1.2rem;
+  align-content: center;
+}
+
+.stick {
+  height: 0.85rem;
+  min-width: 0;
+  border-radius: 0.45rem;
+  background: repeating-linear-gradient(-55deg, var(--raspberry) 0 7px, var(--sugar) 7px 12px);
+  box-shadow: inset 0 0 0 1.5px var(--raspberry-deep);
+  transition: width 0.35s cubic-bezier(0.3, 1.3, 0.5, 1);
+}
+
+.stick-b {
+  height: 0.6rem;
+  background: repeating-linear-gradient(-55deg, var(--mint) 0 6px, var(--sugar) 6px 10px);
+  box-shadow: inset 0 0 0 1.5px var(--mint-deep);
+}
+
+.stick.is-zero {
+  box-shadow: none;
+}
+
+.usual {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 4px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: var(--chocolate);
+  opacity: 0.85;
+  transition: left 0.35s ease;
+}
+
+.stick-value {
+  font-size: 0.82rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sticks-empty {
+  padding: 1rem 0;
+  text-align: center;
+  font-weight: 650;
+}
+
+/* ---- the receipt ------------------------------------------------------------------------ */
+
+.receipt {
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 1rem;
+  padding: 0.8rem 1rem;
+  background: var(--sugar);
+  border: 2px dashed var(--chocolate);
+  border-radius: 0.5rem;
+  font-size: 0.92rem;
+}
+
+.receipt strong {
+  font-family: var(--shop-font);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--raspberry-deep);
+}
+
+.receipt .is-b strong {
+  color: var(--mint-deep);
+}
+
+body.rock .about h2 {
+  font-family: var(--shop-font);
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: var(--raspberry-deep);
+}
+
+body.rock .site-foot {
+  border-top-color: var(--chocolate);
+}
+
+@media (prefers-color-scheme: dark) {
+  body.rock .about h2 {
+    color: #ff9cbf;
+  }
+
+  body.rock .site-foot {
+    border-top-color: var(--page-text);
+  }
+}
+
+@media (max-width: 560px) {
+  .stick-row {
+    grid-template-columns: 1.8rem minmax(0, 1fr) 4.6rem;
+    gap: 0.45rem;
+  }
+
+  .rock-end {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+
+  .stick-value {
+    font-size: 0.74rem;
+  }
+}

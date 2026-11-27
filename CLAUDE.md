@@ -20,6 +20,15 @@ Each project should feel like its own idea, with real-world flavour where possib
   "Source"), following that repo's own CLAUDE.md. Never list it before it's live.
 - **Own design, not a copy of `../tiny-python-tested`.** The user wants this site to
   be its own thing; don't borrow that project's setup or look.
+- **Every project is its own stall, with its own look.** The gallery is a seaside pier;
+  each project page gets a distinct palette, typefaces and centrepiece (Alias Slots is a
+  fruit machine, Code-Talk a spy's case file, Letter Bars a seaside rock shop). Never
+  reuse a previous project's design; the gallery card borrows the stall's look too.
+- **Fun first, for portfolio visitors.** Page copy is playful and plain, with no code words
+  above the fold; the Python detail lives in the README and a "Peek at the Python" link.
+  Every page and the gallery credit *Impractical Python Projects* by Lee Vaughan with a
+  link to the book. Check each page against `docs/ux-research.md` (proto-personas and
+  checklist) before calling it done.
 
 ## How Python runs on the web
 
@@ -34,8 +43,16 @@ Each project should feel like its own idea, with real-world flavour where possib
   worker `web/src/py/worker.ts` loads Pyodide from jsDelivr (pinned
   `PYODIDE_VERSION`, currently Python 3.14), writes the files into Pyodide's
   filesystem and calls them through one `_bridge` function that returns JSON.
-  `web/src/py/python.ts` wraps the worker in promises. Add a project = add a source
-  glob and a bridge, reuse the worker pattern.
+  `web/src/py/python.ts` wraps the worker in promises:
+  `python.init(project, files, BRIDGE)` then `python.call(fn, args)`.
+- **Adding a project page:** add a glob to `sources.ts` (options written inline: Vite
+  needs literals), write the page's own `BRIDGE` (a small Python string defining
+  `_bridge(fn, args_json)`) in `web/src/<slug>-page.ts`, give the page its own stylesheet
+  `web/src/<slug>.css` scoped under a body class (`body.talk`, `body.rock`) so stalls
+  don't leak into each other, and add the input to `vite.config.ts` and the card to
+  `projects.ts`. Pyodide keeps each project under `/home/pyodide/projects/<project>`.
+  If the dev server was running when a new `projects/NN_*` folder appeared, touch
+  `sources.ts` so Vite re-runs the glob.
 - Project logic must be **pure, importable functions** (no `input()`/`print` loops in
   the core). `main.py` is a thin CLI wrapper; the web page calls the same functions.
 - Only use packages Pyodide ships (stdlib, numpy, matplotlib, pillow, etc. — check the

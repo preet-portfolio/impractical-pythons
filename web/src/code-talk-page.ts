@@ -1,4 +1,5 @@
 import "./styles.css";
+import "./code-talk.css";
 import { Python } from "./py/python";
 import { codeTalkSources } from "./py/sources";
 
@@ -57,7 +58,7 @@ async function translate(from: "plain" | "coded") {
     });
   } catch (error) {
     console.error(error);
-    status.textContent = "That text couldn't be translated. Try editing it, or reload the page.";
+    status.textContent = "That one jammed the typewriter. Try editing it, or reload the page.";
     return;
   }
   if (mine !== request) return;
@@ -93,7 +94,7 @@ function renderBreakdown(words: Explained[]) {
 async function copy(box: HTMLTextAreaElement, label: string) {
   try {
     await navigator.clipboard.writeText(box.value);
-    status.textContent = `Copied the ${label}.`;
+    status.textContent = `Copied the ${label}. Pass it on.`;
   } catch {
     box.select();
     status.textContent = "Copying isn't allowed here. The text is selected, so press Ctrl-C or ⌘-C.";
@@ -116,9 +117,9 @@ async function start() {
     void translate("plain");
     plain.focus();
   });
-  document.querySelectorAll<HTMLButtonElement>(".pane-copy").forEach((button) => {
+  document.querySelectorAll<HTMLButtonElement>(".sheet-copy").forEach((button) => {
     const box = button.dataset.copy === "plain" ? plain : coded;
-    button.addEventListener("click", () => copy(box, button.dataset.copy === "plain" ? "plain text" : "Code-Talk"));
+    button.addEventListener("click", () => copy(box, button.dataset.copy === "plain" ? "plain English" : "Code-Talk"));
   });
   for (const text of SAMPLES) {
     const button = document.createElement("button");
@@ -133,7 +134,7 @@ async function start() {
   plain.disabled = coded.disabled = swap.disabled = false;
   plain.value = SAMPLES[0];
   await translate("plain");
-  status.textContent = "Type in either box.";
+  status.textContent = "Type on either sheet. The other one keeps up.";
 }
 
 void start();

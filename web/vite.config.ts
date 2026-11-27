@@ -13,6 +13,7 @@ export default defineConfig({
         home: resolve(import.meta.dirname, "index.html"),
         aliasSlots: resolve(import.meta.dirname, "alias-slots/index.html"),
         codeTalk: resolve(import.meta.dirname, "code-talk/index.html"),
+        letterBars: resolve(import.meta.dirname, "letter-bars/index.html"),
       },
     },
   },

@@ -4,69 +4,79 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Code-Talk · Impractical Pythons</title>
-    <meta name="description" content="A Pig Latin you can undo. Type plain English or Code-Talk and the other side translates as you type." />
-    <meta name="theme-color" content="#0E5E6F" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐷</text></svg>" />
+    <meta name="description" content="Pig Latin with a secret handshake. Type a message, get it in Code-Talk, and turn it back any time." />
+    <meta name="theme-color" content="#24473F" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕵️</text></svg>" />
   </head>
   <body class="talk">
     <a class="skip" href="#translator">Skip to the translator</a>
-    <nav class="crumbs"><a href="/">Impractical Pythons</a></nav>
+    <nav class="crumbs"><a href="/">Back to the pier</a></nav>
 
     <main id="main">
-      <section class="cabinet" id="translator" aria-labelledby="title">
-        <div class="marquee">
-          <span class="bulbs" aria-hidden="true"></span>
-          <h1 id="title" class="marquee-title">Code-Talk</h1>
-          <span class="bulbs" aria-hidden="true"></span>
-        </div>
-        <p class="blurb">Pig Latin you can take back. The hyphen remembers what moved.</p>
+      <section class="dossier" id="translator" aria-labelledby="title">
+        <header class="dossier-head">
+          <h1 id="title" class="stamp-title">Code-Talk</h1>
+          <p class="dossier-lede">
+            Pig Latin with a secret handshake. Every word remembers where it was snipped, so a
+            message can always be turned back.
+          </p>
+        </header>
 
-        <div class="talk-panes">
-          <div class="pane">
-            <label for="plain" class="pane-label">Plain English</label>
+        <div class="folder">
+          <div class="sheet sheet-plain">
+            <label for="plain" class="sheet-label">Plain English</label>
             <textarea id="plain" rows="5" spellcheck="true" disabled></textarea>
-            <button type="button" class="pane-copy" data-copy="plain">Copy plain</button>
+            <button type="button" class="sheet-copy" data-copy="plain">Copy</button>
           </div>
-          <button type="button" class="swap" id="swap" aria-label="Swap which side I type in" disabled>⇄</button>
-          <div class="pane">
-            <label for="coded" class="pane-label">Code-Talk</label>
+          <button type="button" class="flip" id="swap" disabled>
+            <span aria-hidden="true">⇄</span>
+            <span class="flip-word">Flip</span>
+          </button>
+          <div class="sheet sheet-coded">
+            <span class="clip" aria-hidden="true"></span>
+            <label for="coded" class="sheet-label">Code-Talk</label>
             <textarea id="coded" rows="5" spellcheck="false" disabled></textarea>
-            <button type="button" class="pane-copy" data-copy="coded">Copy Code-Talk</button>
+            <button type="button" class="sheet-copy" data-copy="coded">Copy</button>
           </div>
         </div>
-        <p class="status" id="status" role="status">Warming up Python…</p>
+        <p class="status" id="status" role="status">Waking up the code room…</p>
 
-        <div class="samples" id="samples" aria-label="Try a sample"></div>
+        <div class="messages">
+          <p class="messages-label" id="messages-label">Need a message? Grab one:</p>
+          <div class="samples" id="samples" role="group" aria-labelledby="messages-label"></div>
+        </div>
       </section>
 
-      <section class="breakdown-area" aria-labelledby="breakdown-title">
-        <h2 id="breakdown-title">Word by word</h2>
-        <p class="breakdown-hint">The letters in red are the ones that move to the end.</p>
-        <ol class="breakdown" id="breakdown"></ol>
+      <section class="decoder" aria-labelledby="decoder-title">
+        <h2 id="decoder-title">The decoder strip</h2>
+        <p class="decoder-hint">The violet letters hop to the end of the word, then pick up an <em>-ay</em>.</p>
+        <ol class="tape" id="breakdown"></ol>
       </section>
 
       <section class="about" aria-labelledby="about-title">
-        <h2 id="about-title">How it works</h2>
+        <h2 id="about-title">The rules of the room</h2>
         <p>
-          Classic Pig Latin moves a word's opening consonants to the end and adds <em>ay</em>, so
-          <em>nix</em> becomes <em>ixnay</em>. But it can't be undone reliably: does <em>away</em> come
-          from <em>way</em> or from <em>a</em>? Code-Talk puts a hyphen where the word was cut
-          (<em>ix-nay</em>, <em>apple-ay</em>), so every word carries the instructions to put it back.
+          Grab the consonants at the front of a word, move them to the back, and add <em>ay</em>:
+          <em>nix</em> becomes <em>ix-nay</em>. Words that start with a vowel just get the
+          <em>ay</em>: <em>apple-ay</em>. A <em>qu</em> sticks together like a good partner
+          (<em>queen</em> is <em>een-quay</em>).
         </p>
         <p>
-          The Python finds words with a regular expression and rebuilds each one with string slicing:
-          <code>word[split:] + "-" + word[:split] + "ay"</code>. The whole consonant cluster moves
-          (<em>string</em> becomes <em>ing-stray</em>), <em>qu</em> stays together, and <em>y</em> is a
-          consonant only at the start. Capitals, punctuation, numbers and real hyphens stay where they were.
-          <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/02_code_talk">Read the Python</a>.
+          Plain old Pig Latin has a weakness: does <em>away</em> mean <em>way</em> or <em>a</em>?
+          Code-Talk's little hyphen marks the snip, so the trip back is never a guess. Capitals,
+          numbers and punctuation keep their places. Curious how a few lines of Python pull this
+          off? <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/02_code_talk">Peek at the Python</a>.
         </p>
       </section>
     </main>
 
     <footer class="site-foot">
       <p>
-        Part of <a href="/">Impractical Pythons</a>. Sparked by the Pig Latin practice project in
-        <cite>Impractical Python Projects</cite> by Lee Vaughan.
+        Inspired by the Pig Latin project in
+        <a href="https://nostarch.com/impracticalpython"><cite>Impractical Python Projects</cite></a>
+        by Lee Vaughan, a great book if you want to make your own silly, clever programs. This
+        version, its words and its code are new. One of the stalls on the
+        <a href="/">Impractical Pythons</a> pier.
       </p>
     </footer>
     <script type="module" src="/src/code-talk-page.ts"></script>
