@@ -62,6 +62,12 @@
           the waiter pegs it up. Keep going until the tray is empty: <em>Ice Cream Van</em> can be
           a <em>caveman rice</em>, and <em>Donkey Rides</em> turn into <em>kidneys rode</em>.
         </p>
+        <p class="phrase-lede">
+          Stuck with letters no English word wants? Shuffle them. They might spell a word from
+          another language, or a name nobody has made up yet. Take <em>paddles</em> and
+          <em>ate</em> from <em>Paddle Steamer</em>, shuffle the E, M and R, and you'll find
+          <em>mer</em>: French for the sea.
+        </p>
 
         <label class="order" for="phrase-name">
           <span>A name or a few words</span>
@@ -74,6 +80,7 @@
           <button type="button" data-name="Seaside Town">Seaside Town</button>
           <button type="button" data-name="Penny Arcade">Penny Arcade</button>
           <button type="button" data-name="Brighton Pier">Brighton Pier</button>
+          <button type="button" data-name="Paddle Steamer">Paddle Steamer</button>
         </div>
 
         <div class="frame">
@@ -83,8 +90,15 @@
           </div>
         </div>
         <div class="tray-box">
-          <span class="tray-label">Letters in the tray</span>
+          <div class="tray-top">
+            <span class="tray-label">Letters in the tray</span>
+            <button type="button" class="shake" id="shake" disabled>Shuffle the leftovers</button>
+          </div>
           <ol class="tray" id="tray" aria-hidden="true"></ol>
+        </div>
+        <div class="shuffles" id="shuffles" hidden>
+          <p class="shuffles-lede" id="shuffles-lede"></p>
+          <ul class="shuffle-list" id="shuffle-list"></ul>
         </div>
         <p class="status" id="phrase-status" role="status" aria-live="polite"></p>
         <div class="phrase-tools">
@@ -133,6 +147,11 @@
           one <em>v</em>; a word fits if it never needs more of any letter than the tray holds.
           Python picks out every word that fits, you pick the one that makes sense, and the
           count goes down. The computer is quick and the human has taste.
+        </p>
+        <p>
+          Shuffling is where computers stop being quick. Three letters can be ordered 6 ways,
+          six letters 720 ways, ten letters over three million. The waiter lays out every
+          arrangement when there are a few hundred, and a random handful when there are more.
           <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/05_shuffle_cafe">Peek at the Python</a>.
         </p>
       </section>

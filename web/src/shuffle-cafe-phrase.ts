@@ -11,6 +11,8 @@ type PhraseStatus = {
   options: string[];
 };
 
+type Shuffles = { letters: string; count: number; complete: boolean; arrangements: string[] };
+
 const SHOWN = 48; // option slips shown at once
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -26,6 +28,10 @@ const undo = $<HTMLButtonElement>("phrase-undo");
 const restart = $<HTMLButtonElement>("phrase-restart");
 const copy = $<HTMLButtonElement>("phrase-copy");
 const slips = $("phrase-slips");
+const shake = $<HTMLButtonElement>("shake");
+const shuffles = $("shuffles");
+const shufflesLede = $("shuffles-lede");
+const shuffleList = $<HTMLUListElement>("shuffle-list");
 
 let python: Python;
 let chosen: string[] = [];
@@ -84,6 +90,8 @@ function render(next: PhraseStatus, added: string | null) {
     });
   }
 
+  shake.disabled = next.left.length < 2;
+  shuffles.hidden = true; // a fresh tray needs a fresh shuffle
   undo.disabled = chosen.length === 0;
   restart.disabled = chosen.length === 0;
   copy.hidden = !next.done;
@@ -138,6 +146,51 @@ async function refresh(added: string | null = null) {
   }
 }
 
+/** "About 2 days": how long reading every arrangement would take at one a second. */
+function readingTime(seconds: number) {
+  const units: [number, string][] = [
+    [365 * 24 * 3600, "year"],
+    [24 * 3600, "day"],
+    [3600, "hour"],
+    [60, "minute"],
+    [1, "second"],
+  ];
+  const [size, name] = units.find(([unit]) => seconds >= unit) ?? [1, "second"];
+  const amount = Math.round(seconds / size);
+  return `about ${amount.toLocaleString()} ${name}${amount === 1 ? "" : "s"}`;
+}
+
+async function shuffleLeftovers() {
+  if (!current) return;
+  const letters = current.left;
+  shake.disabled = true;
+  try {
+    const result = await python.call<Shuffles>("leftovers", { letters });
+    if (current?.left !== letters) return; // the tray changed while we were shuffling
+    const shown = letters.toUpperCase().split("").join("-");
+    const ways = result.count.toLocaleString();
+    shufflesLede.textContent = result.complete
+      ? `${shown} can be arranged ${ways} ${result.count === 1 ? "way" : "ways"}. Spot one that looks like a word or a name? Tap it to peg it up.`
+      : `${shown} can be arranged ${ways} ways. Reading them all, one a second, would take ${readingTime(result.count)}. Here are ${result.arrangements.length} at random; shuffle again, or peg another word first.`;
+    shuffleList.replaceChildren(
+      ...result.arrangements.map((guess) => {
+        const li = document.createElement("li");
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = guess;
+        button.addEventListener("click", () => void choose(guess));
+        li.append(button);
+        return li;
+      }),
+    );
+    shuffles.hidden = false;
+  } catch (error) {
+    console.error(error);
+    status.textContent = "The letters scattered. Try shuffling again.";
+  }
+  shake.disabled = false;
+}
+
 async function choose(word: string) {
   chosen = [...chosen, word];
   find.value = "";
@@ -160,6 +213,7 @@ export async function startPhrases(py: Python) {
     timer = window.setTimeout(() => void refresh(), 150);
   });
   find.addEventListener("input", renderOptions);
+  shake.addEventListener("click", () => void shuffleLeftovers());
   undo.addEventListener("click", () => {
     chosen = chosen.slice(0, -1);
     void refresh();

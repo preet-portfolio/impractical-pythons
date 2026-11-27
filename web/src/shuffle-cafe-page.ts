@@ -14,6 +14,7 @@ from pathlib import Path
 
 import anagrams
 import decency
+import leftovers
 import phrases
 import wordlist
 
@@ -53,6 +54,8 @@ def _bridge(fn, args_json):
             return json.dumps(None)
         status["options"] = decency.family_friendly(status["options"])
         return json.dumps(status)
+    if fn == "leftovers":
+        return json.dumps(leftovers.shuffle_report(args["letters"]))
     raise ValueError(f"Unknown call {fn!r}")
 `;
 

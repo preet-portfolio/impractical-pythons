@@ -408,6 +408,79 @@ body.cafe .skip {
   color: #f1dcc4;
 }
 
+.tray-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+/* Shuffle: a little brass bell-push on the drawer. */
+.shake {
+  padding: 0.2rem 0.75rem;
+  border: 2px solid #f1dcc4;
+  border-radius: 999px;
+  background: var(--mustard);
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.shake:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* The shuffled arrangements, spilled out on a sheet of chip paper. */
+.shuffles {
+  color-scheme: light;
+  margin: 0.8rem 1.2rem 0;
+  padding: 0.8rem 1rem 1rem;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 22px, rgb(42 37 34 / 0.06) 22px 23px),
+    var(--paper);
+  color: var(--ink);
+  border-radius: 0.3rem;
+  box-shadow: 0 10px 18px -14px rgb(0 0 0 / 0.6);
+}
+
+.shuffles[hidden] {
+  display: none;
+}
+
+.shuffles-lede {
+  margin: 0 0 0.6rem;
+  font-weight: 600;
+}
+
+.shuffle-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  max-height: 14rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.1rem;
+  list-style: none;
+}
+
+.shuffle-list button {
+  padding: 0.15rem 0.5rem;
+  border: 1.5px solid rgb(42 37 34 / 0.35);
+  border-radius: 0.25rem;
+  background: #fff;
+  color: var(--ink);
+  font: 800 1.05rem/1.2 var(--peg-font);
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.shuffle-list button:hover {
+  background: var(--mustard);
+}
+
 .tray {
   display: flex;
   flex-wrap: wrap;
