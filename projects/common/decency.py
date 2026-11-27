@@ -20,6 +20,24 @@ NOT_ON_THE_PIER = frozenset(
 )
 
 
+# Made-up words can hide a rude word inside them, including some no
+# dictionary lists. Checked as substrings, so only longer, unambiguous
+# words go here (a short one like "tit" would hide "titanic").
+NOT_INSIDE = frozenset(
+    {word for word in NOT_ON_THE_PIER if len(word) >= 4}
+    | {"cock", "cunt", "dick", "fuck", "shag", "shit", "wank"}
+)
+
+
+def nothing_rude_inside(made_up: list[str]) -> list[str]:
+    """Drop made-up strings that contain a rude word anywhere inside."""
+
+    def clean(text: str) -> bool:
+        return not any(rude in text for rude in NOT_INSIDE)
+
+    return [text for text in made_up if clean(text)]
+
+
 def family_friendly(words: list[str]) -> list[str]:
     """Drop single words that are on the hidden list."""
     return [word for word in words if word not in NOT_ON_THE_PIER]

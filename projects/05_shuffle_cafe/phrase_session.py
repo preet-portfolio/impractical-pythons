@@ -14,10 +14,12 @@ from collections.abc import Callable
 
 from leftovers import shuffle_report
 from phrases import phrase_status, remaining
+from sieve import SIEVE_LIMIT, LetterStats, strain
 
 HELP = (
     "Type word(s) to add, '-' to undo, '?' to shuffle the leftovers,\n"
-    "Enter to start over, '#' to quit. Any letters count, even made-up words."
+    "'!' to strain them, Enter to start over, '#' to quit.\n"
+    "Any letters count, even made-up words."
 )
 SHOWN = 60  # options listed at once; the rest are counted
 
@@ -40,6 +42,21 @@ def show_shuffle(letters: str, say: Callable) -> None:
     say(textwrap.fill(" ".join(report["arrangements"]), width=72))
 
 
+def show_strain(letters: str, stats: LetterStats, say: Callable) -> None:
+    """Print how many orderings each sieve let through, then the best."""
+    if len(letters) > SIEVE_LIMIT:
+        say(f"{len(letters)} letters is too many to strain. Add a word first.")
+        return
+    report = strain(letters, stats)
+    counts = [f"{report['start']:,} orderings"]
+    for stage in report["stages"]:
+        counts.append(f"{stage['left']:,} after {stage['sieve']}")
+    say(" -> ".join(counts))
+    by_letter = ", ".join(f"{k}: {v}" for k, v in report["by_letter"].items())
+    say(f"Survivors by first letter: {by_letter or 'none'}")
+    say(textwrap.fill(" ".join(report["survivors"][:SHOWN]), width=72))
+
+
 def run_session(
     name: str,
     words: list[str],
@@ -48,6 +65,7 @@ def run_session(
 ) -> str | None:
     """Build one phrase from ``name``; return it, or ``None`` on quit."""
     chosen: list[str] = []
+    stats = None  # counted the first time '!' asks for it
     say(HELP)
     while True:
         status = phrase_status(name, chosen, words)
@@ -68,6 +86,9 @@ def run_session(
             chosen = chosen[:-1]
         elif reply == "?":
             show_shuffle(status["left"], say)
+        elif reply == "!":
+            stats = stats or LetterStats(words)
+            show_strain(status["left"], stats, say)
         elif remaining(name, [*chosen, reply]) is None:
             say(f"{reply!r} needs letters you don't have left.")
         else:

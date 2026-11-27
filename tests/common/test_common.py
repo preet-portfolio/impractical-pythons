@@ -2,7 +2,12 @@
 
 import pytest
 
-from decency import NOT_ON_THE_PIER, family_friendly, family_friendly_pairs
+from decency import (
+    NOT_ON_THE_PIER,
+    family_friendly,
+    family_friendly_pairs,
+    nothing_rude_inside,
+)
 from wordlist import DEFAULT_WORDS, clean_words, read_words, words_from_text
 
 
@@ -37,3 +42,8 @@ def test_family_friendly_drops_listed_words():
     assert family_friendly(["kayak", "tit", "level"]) == ["kayak", "level"]
     assert family_friendly_pairs([("go", "dog"), ("pee", "p")]) == [("go", "dog")]
     assert all(word == word.lower() for word in NOT_ON_THE_PIER)
+
+
+def test_nothing_rude_inside_checks_substrings():
+    assert nothing_rude_inside(["latorment", "brashite", "pennarse"]) == ["latorment"]
+    assert nothing_rude_inside(["titanic"]) == ["titanic"]  # short words aren't checked inside

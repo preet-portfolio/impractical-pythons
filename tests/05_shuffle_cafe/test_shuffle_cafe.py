@@ -121,3 +121,14 @@ def test_cli_exits_with_1_on_a_missing_file(tmp_path, capsys):
         cli.main(["listen", "--words", str(tmp_path / "nope.txt")])
     assert exit_info.value.code == 1
     assert "Couldn't open" in capsys.readouterr().err
+
+
+def test_cli_strains_checks_and_cooks(capsys):
+    cli.main(["teacakes", "--strain"])
+    assert capsys.readouterr().out.startswith("10,080 orderings -> 3,168 after shape")
+    cli.main(["doughnut", "--check"])
+    assert '"hnu"' in capsys.readouterr().out
+    cli.main(["biscuit", "--check"])
+    assert capsys.readouterr().out == "It gets through!\n"
+    cli.main(["Ice Cream Van", "--chef"])
+    assert "caveman rice" in capsys.readouterr().out
