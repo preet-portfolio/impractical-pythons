@@ -16,6 +16,27 @@ type Theme = {
 type Spin = { theme: string; indices: number[]; words: string[]; name: string; prize: Prize; code: string };
 type DecodeResult = Spin | { error: string };
 
+// Python side of the page: called by the worker as _bridge(fn, args_json) -> JSON.
+const BRIDGE = `
+import json
+from dataclasses import asdict
+import slots
+
+def _bridge(fn, args_json):
+    args = json.loads(args_json)
+    if fn == "catalogue":
+        return json.dumps(slots.catalogue())
+    if fn == "spin":
+        locked = {int(k): v for k, v in args["locked"].items()}
+        return json.dumps(asdict(slots.spin(args["theme"], None, locked)))
+    if fn == "decode":
+        try:
+            return json.dumps(asdict(slots.decode(args["code"])))
+        except ValueError as error:
+            return json.dumps({"error": str(error)})
+    raise ValueError(f"Unknown call {fn!r}")
+`;
+
 const COPIES = 7; // each strip repeats its words so a spin can travel several loops
 const HISTORY_KEY = "alias-slots-history";
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -344,7 +365,7 @@ async function start() {
   wireUp();
   python.onProgress = (stage) => (els.spin.textContent = `${stage}…`);
   try {
-    await python.init(aliasSlotsSources);
+    await python.init("alias_slots", aliasSlotsSources, BRIDGE);
     themes = await python.call<Theme[]>("catalogue");
     buildThemePicker();
     await loadHistory();
