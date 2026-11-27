@@ -13,8 +13,14 @@ uv sync
 uv run pytest
 ```
 
-Run a project:
+Play a project in the terminal:
 
 ```bash
-uv run python projects/01_example/main.py
+uv run python projects/01_alias_slots/main.py
+```
+
+Run the web gallery locally (Python runs in the browser via Pyodide):
+
+```bash
+cd web && npm install && npm run dev
 ```
