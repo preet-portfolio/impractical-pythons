@@ -215,3 +215,17 @@ def test_unknown_command_shows_help_without_spinning():
     spins, out, _ = run("dance\nq\n")
     assert spins == 1
     assert "lock or unlock" in out
+
+
+# --- style clinic -----------------------------------------------------------
+
+
+def test_tidy_slots_makes_three_part_aliases():
+    import random
+
+    from tidy_slots import FIRST_WORDS, TAGS, make_alias
+
+    alias = make_alias(random.Random(3))
+    assert alias == make_alias(random.Random(3))
+    assert alias.split()[0] in FIRST_WORDS
+    assert any(alias.endswith(tag) for tag in TAGS)

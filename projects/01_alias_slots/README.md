@@ -64,6 +64,9 @@ until the player quits
 - **Printing to `sys.stderr`** with `print(..., file=sys.stderr)` to colour the output red.
 - **Style guides as tools.** PEP 8 (code style) and PEP 257 (docstrings) are checked by
   `ruff`, which does the job of `pylint` and `pydocstyle` in one fast tool.
+- **A style clinic.** [`style_clinic/`](style_clinic/STYLE_CLINIC.md) takes a deliberately
+  messy spinner from a Pylint score of 3.10 to 10.00, fix by fix, and shows why passing
+  pydocstyle doesn't make a docstring good.
 - **Testable I/O.** `play()` takes its input and output streams as parameters, so tests
   type keys with `io.StringIO` and read what came out.
 
