@@ -6,7 +6,7 @@ export type Project = {
   slug: string;
   title: string;
   line: string;
-  stall: "slots" | "talk" | "rock";
+  stall: "slots" | "talk" | "rock" | "mirror";
   cue: string;
 };
 
@@ -34,5 +34,13 @@ export const projects: Project[] = [
     line: "Seaside rock pulled from your words: a candy stick for every letter. Every language has its own flavour.",
     stall: "rock",
     cue: "Weigh your words",
+  },
+  {
+    number: 4,
+    slug: "mirror-spells",
+    title: "Mirror Spells",
+    line: "Some words read the same in a mirror, and here those words are spells. Test yours, then browse the spellbook.",
+    stall: "mirror",
+    cue: "Step up to the mirror",
   },
 ];

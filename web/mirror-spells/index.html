@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mirror Spells · Impractical Pythons</title>
+    <meta name="description" content="Some words read the same in a mirror. In this booth, those words are spells. Say one and see if the mirror agrees." />
+    <meta name="theme-color" content="#0B2226" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪞</text></svg>" />
+  </head>
+  <body class="mirror">
+    <a class="skip" href="#booth">Skip to the magic mirror</a>
+    <nav class="crumbs"><a href="/">Back to the pier</a></nav>
+
+    <main id="main">
+      <header class="booth-sign">
+        <h1 class="sign">Mirror Spells</h1>
+        <p class="sign-lede">
+          Some words read the same in a mirror. In this booth, those words are spells.
+          Say one and see if the mirror agrees.
+        </p>
+      </header>
+
+      <section class="booth" id="booth" aria-labelledby="mirror-title">
+        <h2 id="mirror-title" class="sr-only">The magic mirror</h2>
+        <div class="frame">
+          <div class="glass">
+            <label for="spell" class="speak">Speak your spell</label>
+            <input id="spell" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="40" disabled />
+            <div class="rows" aria-hidden="true">
+              <ol class="tiles" id="forward"></ol>
+              <div class="line"></div>
+              <ol class="tiles reflection" id="backward"></ol>
+            </div>
+          </div>
+        </div>
+        <p class="verdict" id="verdict" role="status" aria-live="polite">The mirror is waking up…</p>
+      </section>
+
+      <section class="spellbook" aria-labelledby="book-title">
+        <h2 id="book-title">The Spellbook</h2>
+        <p class="book-lede" id="book-lede">The mirror is reading every word in the dictionary…</p>
+        <div id="chapters"></div>
+      </section>
+
+      <section class="about" aria-labelledby="about-title">
+        <h2 id="about-title">How the mirror decides</h2>
+        <p>
+          The mirror writes your word backwards underneath and checks every letter against the one
+          above it. If they all match, it's a spell. Spaces, capitals and commas don't count, so
+          whole sentences can be spells too: try <em>Was it a car or a cat I saw?</em>
+        </p>
+        <p>
+          In Python, writing a word backwards is a tiny trick: <code>word[::-1]</code>, a slice
+          that walks the word one step at a time in reverse. For the spellbook the same check runs
+          on all 60,388 words of a free dictionary, right here in your browser.
+          <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/04_mirror_spells">Peek at the Python</a>.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <p>
+        Inspired by the palindrome project in
+        <a href="https://nostarch.com/impracticalpython"><cite>Impractical Python Projects</cite></a>
+        by Lee Vaughan, a great book if you want to make your own silly, clever programs. Words
+        from Alan Beale's public-domain <a href="http://wordlist.aspell.net/12dicts/">12dicts</a>
+        lists. This version, its words and its code are new. One of the stalls on the
+        <a href="/">Impractical Pythons</a> pier.
+      </p>
+    </footer>
+    <script type="module" src="/src/mirror-spells-page.ts"></script>
+  </body>
+</html>

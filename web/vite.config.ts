@@ -14,6 +14,7 @@ export default defineConfig({
         aliasSlots: resolve(import.meta.dirname, "alias-slots/index.html"),
         codeTalk: resolve(import.meta.dirname, "code-talk/index.html"),
         letterBars: resolve(import.meta.dirname, "letter-bars/index.html"),
+        mirrorSpells: resolve(import.meta.dirname, "mirror-spells/index.html"),
       },
     },
   },

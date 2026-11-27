@@ -13,3 +13,6 @@ export const codeTalkSources = byName(
 export const letterBarsSources = byName(
   import.meta.glob("../../../projects/03_letter_bars/*.py", { query: "?raw", import: "default", eager: true }),
 );
+export const mirrorSpellsSources = byName(
+  import.meta.glob("../../../projects/04_mirror_spells/*.py", { query: "?raw", import: "default", eager: true }),
+);
