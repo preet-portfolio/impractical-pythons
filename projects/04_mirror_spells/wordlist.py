@@ -31,3 +31,16 @@ def read_words(path: str | Path = DEFAULT_WORDS) -> list[str]:
     """
     with open(path, encoding="utf-8") as word_file:
         return words_from_text(word_file.read())
+
+
+def clean_words(words: list[str], keep: tuple = ("a", "i")) -> list[str]:
+    """Tidy a loaded word list without editing the file by hand.
+
+    Some dictionaries list every letter of the alphabet as a "word"
+    (a heading for that letter's section). This drops one-letter entries
+    except the real words in ``keep``, and removes repeats. ``dict.fromkeys``
+    remembers the order keys arrive in, so it de-duplicates while
+    keeping the list in its original order.
+    """
+    wanted = [word for word in words if len(word) > 1 or word in keep]
+    return list(dict.fromkeys(wanted))

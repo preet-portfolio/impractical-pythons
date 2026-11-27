@@ -5,8 +5,10 @@ from pathlib import Path
 
 import pytest
 
+from decency import NOT_ON_THE_PIER, family_friendly, family_friendly_pairs
 from mirror import find_palindromes, is_palindrome, letters_only, reflect, spellbook_stats
-from wordlist import read_words, words_from_text
+from palingrams import is_palindrome_recursive, two_word_spells, two_word_spells_slow
+from wordlist import clean_words, read_words, words_from_text
 
 # Every project has a main.py, so "import main" would grab whichever one
 # another test file loaded first. Load this one by path, under its own name.
@@ -94,3 +96,65 @@ def test_bundled_word_list_has_familiar_spells():
     for word in ["kayak", "level", "radar", "rotor", "deified"]:
         assert word in spells
     assert 40 < len(spells) < 120
+
+
+# ---- two-word spells -------------------------------------------------------------------
+
+
+WORDS = read_words()
+
+
+@pytest.fixture(scope="module")
+def all_pairs():
+    return two_word_spells(WORDS)
+
+
+def test_known_two_word_spells(all_pairs):
+    for pair in [("nurses", "run"), ("stir", "grits"), ("stack", "cats"), ("stab", "bats")]:
+        assert pair in all_pairs
+
+
+def test_every_pair_reads_the_same_backwards(all_pairs):
+    assert all(is_palindrome(first + second) for first, second in all_pairs)
+
+
+def test_pairs_are_sorted_unique_and_use_real_words(all_pairs):
+    vocab = set(WORDS)
+    assert all_pairs == sorted(set(all_pairs))
+    assert all(first in vocab and second in vocab for first, second in all_pairs)
+
+
+def test_the_full_list_finds_2230_spells(all_pairs):
+    assert len(all_pairs) == 2230
+
+
+def test_small_hand_made_list():
+    assert two_word_spells(["nurses", "run", "stir", "grits", "cat", "x"]) == [
+        ("nurses", "run"),
+        ("stir", "grits"),
+    ]
+
+
+def test_slow_and_fast_agree_on_a_sample():
+    sample = WORDS[::40]  # every 40th word: about 1,500 words
+    assert two_word_spells_slow(sample) == two_word_spells(sample)
+
+
+def test_recursive_check_matches_the_slice():
+    for word in WORDS[::7] + ["", "a", "abba", "abca"]:
+        assert is_palindrome_recursive(word) == (word == word[::-1])
+    assert is_palindrome_recursive(letters_only("Step on no pets"))
+
+
+def test_clean_words_drops_letter_headings():
+    words = ["a", "aardvark", "b", "c", "i", "cat", "cat", "dog"]
+    assert clean_words(words) == ["a", "aardvark", "i", "cat", "dog"]
+    assert clean_words(words, keep=()) == ["aardvark", "cat", "dog"]
+
+
+def test_decency_filter(all_pairs):
+    kept = family_friendly_pairs(all_pairs)
+    assert 0 < len(all_pairs) - len(kept) < 150
+    assert all(NOT_ON_THE_PIER.isdisjoint(pair) for pair in kept)
+    assert ("nurses", "run") in kept
+    assert family_friendly(["kayak", "tit", "level"]) == ["kayak", "level"]
