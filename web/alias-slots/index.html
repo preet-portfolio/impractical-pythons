@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Alias Slots · Impractical Pythons</title>
+    <meta name="description" content="A fruit machine for ridiculous aliases. Pick a theme, hold the reels you like, and pull the lever." />
+    <meta name="theme-color" content="#0E5E6F" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎰</text></svg>" />
+  </head>
+  <body class="slots">
+    <a class="skip" href="#machine">Skip to the machine</a>
+    <nav class="crumbs"><a href="/">Impractical Pythons</a></nav>
+
+    <main id="main">
+      <section class="cabinet" id="machine" aria-labelledby="title">
+        <div class="marquee" id="marquee">
+          <span class="bulbs" aria-hidden="true"></span>
+          <h1 id="title" class="marquee-title">Alias Slots</h1>
+          <span class="bulbs" aria-hidden="true"></span>
+        </div>
+
+        <fieldset class="themes" id="themes" disabled>
+          <legend class="sr-only">Machine</legend>
+        </fieldset>
+        <p class="blurb" id="blurb">&nbsp;</p>
+
+        <div class="reel-bank">
+          <div class="reels" id="reels"></div>
+          <button class="lever" id="lever" type="button" aria-hidden="true" tabindex="-1" disabled>
+            <span class="lever-knob"></span><span class="lever-arm"></span>
+          </button>
+        </div>
+
+        <div class="controls">
+          <button class="spin" id="spin" type="button" disabled>Warming up Python…</button>
+          <p class="hint">Space spins. 1, 2 and 3 hold a reel.</p>
+        </div>
+        <p class="odds" id="odds"></p>
+      </section>
+
+      <section class="ticket-area" aria-label="Your alias">
+        <div class="ticket" id="ticket" hidden>
+          <p class="ticket-prize" id="ticket-prize"></p>
+          <p class="ticket-name" id="ticket-name"></p>
+          <div class="ticket-actions">
+            <button type="button" id="copy-name">Copy name</button>
+            <button type="button" id="copy-link">Copy link</button>
+            <span class="copied" id="copied" role="status"></span>
+          </div>
+        </div>
+        <p class="ticket-empty" id="ticket-empty">Pull the lever to print your first alias.</p>
+        <p class="sr-only" id="announce" aria-live="polite"></p>
+
+        <h2 class="history-title" id="history-title" hidden>Earlier tickets</h2>
+        <ol class="history" id="history"></ol>
+      </section>
+
+      <section class="about" aria-labelledby="about-title">
+        <h2 id="about-title">How it works</h2>
+        <p>
+          Every spin runs real Python in your browser, using <a href="https://pyodide.org">Pyodide</a>.
+          Each reel is a tuple of words. A seeded <code>random.Random</code> picks where every reel stops,
+          and a held reel keeps its place. Three reels starting with the same letter pays the jackpot.
+          Two reels ending in the same three letters is a rhyme, and two matching first letters is a pair.
+          The odds come from trying every possible spin with <code>itertools.product</code>.
+        </p>
+        <p>
+          The link for each alias is a short base-36 number that packs in the machine and where each reel
+          stopped. <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/01_alias_slots">Read the Python</a>.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <p>
+        Part of <a href="/">Impractical Pythons</a>. Sparked by the name generator in
+        <cite>Impractical Python Projects</cite> by Lee Vaughan. All the words here are new.
+      </p>
+    </footer>
+    <script type="module" src="/src/slots-page.ts"></script>
+  </body>
+</html>

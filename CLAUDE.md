@@ -9,26 +9,33 @@ Each project should feel like its own idea, with real-world flavour where possib
 
 - **Web-first and interactive.** Every project must be playable by visitors in the
   browser, not just runnable in a terminal.
-- **One gallery site** on Vercel (planned: `impractical-pythons.vercel.app`, Vercel
-  team `preetportfolios-projects`), with a page per project.
-- **Public GitHub repo** (planned: `preet-portfolio/impractical-pythons`). Public means
-  no personal data, keys or private details in code, copy or commits.
+- **One gallery site** on Vercel (project `impractical-pythons`, team
+  `preetportfolios-projects`, root directory `web/`), with a page per project.
+- **Public GitHub repo** `preet-portfolio/impractical-pythons`. Public means no
+  personal data, keys or private details in code, copy or commits.
 - **Listed on the portfolio.** The main site is `preet-portfolio.github.io` (Next.js
   static export on GitHub Pages, local copy at `../preet-portfolio.github.io`). Once
   the gallery is live, add one entry to its `src/data/work.json` under
   `"group": "projects"` (fields: id, name, line, status, kind, links: "Open ..." +
   "Source"), following that repo's own CLAUDE.md. Never list it before it's live.
-- **Sibling to copy from:** `../tiny-python-tested` already runs Python in the
-  browser this way (`web/` Next.js static export, Pyodide, `web/vercel.json` with
-  security headers and `frame-ancestors` allowing the portfolio). Reuse its patterns
-  (`web/src/lib/py.ts`, `scripts/fetch-pyodide.mjs`) rather than reinventing them,
-  but give this site its own look.
+- **Own design, not a copy of `../tiny-python-tested`.** The user wants this site to
+  be its own thing; don't borrow that project's setup or look.
 
 ## How Python runs on the web
 
 - **Pyodide (CPython in WebAssembly) in the visitor's browser.** No backend, no API
-  routes; the site is a static export. The exact same Python modules in `projects/`
-  are loaded by the web page, so tests cover what visitors run.
+  routes; the site is static. The exact same Python modules in `projects/` are loaded
+  by the web page, so tests cover what visitors run.
+- **Web stack:** Vite + TypeScript, no framework, one HTML page per project
+  (`web/<slug>/index.html`, registered in `web/vite.config.ts` inputs and listed in
+  `web/src/projects.ts` for the gallery home).
+- **How the Python gets in:** `web/src/py/sources.ts` imports a project's `.py` files
+  as text with `import.meta.glob(..., { query: "?raw" })` (no copy step). The module
+  worker `web/src/py/worker.ts` loads Pyodide from jsDelivr (pinned
+  `PYODIDE_VERSION`, currently Python 3.14), writes the files into Pyodide's
+  filesystem and calls them through one `_bridge` function that returns JSON.
+  `web/src/py/python.ts` wraps the worker in promises. Add a project = add a source
+  glob and a bridge, reuse the worker pattern.
 - Project logic must be **pure, importable functions** (no `input()`/`print` loops in
   the core). `main.py` is a thin CLI wrapper; the web page calls the same functions.
 - Only use packages Pyodide ships (stdlib, numpy, matplotlib, pillow, etc. — check the
@@ -78,7 +85,14 @@ PROJECTS.md               # index of all projects with one-line summaries
   project more fun or teach something worthwhile.
 - Run a project: `uv run python projects/NN_name/main.py`
 - Tests: `uv run pytest` (or `uv run pytest tests/NN_name`)
-- Lint/format: `uv run ruff check .` and `uv run ruff format .`
+- Lint/format: `uv run ruff check .` and `uv run ruff format .` (docstrings follow
+  PEP 257, Google style; ruff enforces it outside `tests/`)
+- Web: `cd web && npm install`, then `npm run dev` (http://localhost:5180) or
+  `npm run build` (type-checks, outputs `web/dist`). The browser pane can start the
+  dev server from `.claude/launch.json` ("web").
+- Tests import a project's modules by adding its folder to `sys.path` in a
+  per-project `tests/NN_name/conftest.py` (folders start with digits, so they can't
+  be packages). Give test files unique names (`test_<project>.py`).
 
 ## Conventions
 
