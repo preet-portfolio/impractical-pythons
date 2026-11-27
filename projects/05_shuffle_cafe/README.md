@@ -19,10 +19,11 @@ uv run python projects/05_shuffle_cafe/main.py                # asks you for a w
 uv run python projects/05_shuffle_cafe/main.py --families 5   # the biggest families
 uv run python projects/05_shuffle_cafe/main.py Daniel --words my_words.txt
 uv run python projects/05_shuffle_cafe/main.py "Ice Cream Van" --phrase   # build a phrase
+uv run python projects/05_shuffle_cafe/main.py emr --shuffle  # every order of some letters
 ```
 
-In a phrase session, type a word (or several) to add it, `-` to undo the last word, just Enter
-to start over, or `#` to quit.
+In a phrase session, type a word (or several) to add it, `-` to undo the last word, `?` to
+shuffle the leftover letters, just Enter to start over, or `#` to quit.
 
 ## Design first: the pseudocode
 
@@ -110,6 +111,26 @@ and the web page uses the very same functions: it keeps the list, Python does th
 that default to `input` and `print`. The tests pass in a list of scripted replies instead, so a
 whole session (a bad word, an undo, a restart, a quit) runs without a keyboard.
 
+## Shuffling the leftovers
+
+Sometimes the last few letters won't make an English word. *Paddle Steamer* gives
+*paddles ate* easily, and then *e, m, r* are left. No dictionary word fits, but shuffle them
+and one ordering is *mer*, French for sea. A name doesn't have to be in the dictionary, so the
+tray's **Shuffle the leftovers** button (and `?` on the command line) lists every ordering
+for you to eyeball.
+
+**How many orderings?** Six different letters can be put in 6! = 720 orders
+(`math.factorial(6)`). Repeated letters cut that down, because swapping the two e's in
+*teeth* changes nothing you can see, so divide by the factorial of each letter's count:
+5! / (2! × 2!) = 30. `arrangement_count` does exactly that, before any orderings are made.
+
+**Making them.** `itertools.permutations("emr")` yields tuples like `('m', 'e', 'r')`;
+`"".join` turns each into a string, and a set drops the repeats that identical letters cause.
+
+**Too many to read.** Thirteen leftover letters have 259,459,200 orderings: about eight years
+of reading at one a second. Above 720, `shuffle_report` shows a random handful instead
+(`random.Random(seed).sample`), and the page says how long the full list would take.
+
 ## Shared with other stalls
 
 The word list, its loader and the "not on the pier" filter now live in
@@ -125,6 +146,7 @@ everything.
 |---|---|
 | `anagrams.py` | `letters_only`, `letter_key`, `is_anagram`, `find_anagrams`, `anagram_families`, `anagrams_from_families`, `biggest_families`, `menu_stats` |
 | `phrases.py` | `letter_count`, `fits`, `remaining`, `words_that_fit`, `spell_out`, `phrase_status` |
+| `leftovers.py` | `arrangement_count`, `arrangements`, `sample_arrangements`, `shuffle_report` |
 | `phrase_session.py` | `run_session`: the interactive phrase builder, with `ask`/`say` you can swap |
 | `main.py` | The command line: `argparse`, an `input()` fallback, `--families`, `--phrase`, `try`/`except OSError` |
 | `../common/wordlist.py` | Shared: `read_words`, `clean_words` and the bundled dictionary |
@@ -149,6 +171,9 @@ everything.
   slower Counter check runs.
 - **Stateless steps.** Passing "the words chosen so far" in each time makes undo and restart
   free, and lets the command line and the web page share every function.
+- **`itertools.permutations`** makes every ordering; **`math.factorial`** says how many
+  there will be first, so you know whether to ask.
+- **Random samples** with `random.Random(seed)`, repeatable in tests and fresh on the page.
 - **Dependency injection, lightly.** Giving `run_session` its `ask` and `say` makes an
   interactive program testable.
 
