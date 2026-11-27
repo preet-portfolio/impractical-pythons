@@ -25,8 +25,9 @@ BASE36 = "0123456789abcdefghijklmnopqrstuvwxyz"
 MIDDLE_CHANCE = 1 / 3
 
 
+# A spin is a plain record of what landed, so its many fields are fine here.
 @dataclass(frozen=True)
-class Spin:
+class Spin:  # pylint: disable=too-many-instance-attributes
     """The result of one pull of the lever.
 
     Attributes:
