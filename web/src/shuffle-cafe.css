@@ -598,6 +598,564 @@ body.cafe .skip {
   display: none;
 }
 
+/* The tray's two bell-pushes sit side by side; Strain is the ketchup one. */
+.tray-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.shake.strain {
+  background: var(--ketchup);
+  color: var(--paper);
+}
+
+/* ---- Chef's choice: an order ticket from the pass ------------------------------------------ */
+
+.chef,
+.sieve {
+  max-width: 46rem;
+  margin: 3.2rem auto 0;
+}
+
+.ticket {
+  color-scheme: light;
+  position: relative;
+  max-width: 30rem;
+  margin: 0 auto;
+  padding: 0.9rem 1.1rem 1.6rem;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 2.1rem, rgb(42 37 34 / 0.09) 2.1rem calc(2.1rem + 1px)),
+    #f7f2d8;
+  color: var(--ink);
+  box-shadow: 0 14px 22px -16px rgb(0 0 0 / 0.6);
+  rotate: 0.6deg;
+  /* A torn bottom edge: a row of little triangles cut out of the paper. */
+  --tear: 10px;
+  mask:
+    linear-gradient(#000 0 0) top / 100% calc(100% - var(--tear)) no-repeat,
+    conic-gradient(from 135deg at 50% 0, #000 90deg, transparent 0) bottom / calc(2 * var(--tear)) var(--tear) repeat-x;
+}
+
+.ticket-head {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px dashed rgb(42 37 34 / 0.35);
+  font: 800 1.05rem/1.2 var(--peg-font);
+  letter-spacing: 0.06em;
+  color: var(--ketchup-deep);
+}
+
+.ticket-lines {
+  display: grid;
+  gap: 0.25rem;
+  min-height: 3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: dish;
+}
+
+.ticket-lines li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  counter-increment: dish;
+}
+
+.ticket-lines li::before {
+  content: counter(dish) "x";
+  min-width: 1.6rem;
+  font: 800 0.95rem/1 var(--peg-font);
+  color: rgb(42 37 34 / 0.55);
+}
+
+.dish {
+  flex: 1 1 10rem;
+  padding: 0.2rem 0.1rem;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: 800 1.45rem/1.15 var(--peg-font);
+  letter-spacing: 0.04em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dish:hover {
+  text-decoration: underline wavy var(--ketchup);
+}
+
+/* Keep and Send back are rubber stamps. */
+.stamps {
+  display: flex;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+
+.stamp {
+  padding: 0.15rem 0.6rem;
+  border: 2px solid currentColor;
+  border-radius: 0.3rem;
+  background: transparent;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: lowercase;
+  cursor: pointer;
+}
+
+.stamp-keep {
+  color: #2d6a3e;
+}
+
+.stamp-keep[aria-pressed="true"] {
+  background: #2d6a3e;
+  color: #f7f2d8;
+  rotate: -4deg;
+}
+
+.stamp-back {
+  color: var(--ketchup-deep);
+}
+
+.ticket-lines li.is-sent-back {
+  animation: sent-back 0.45s ease-in forwards;
+}
+
+.ticket-lines li.is-sent-back .dish {
+  text-decoration: line-through 3px var(--ketchup);
+}
+
+@keyframes sent-back {
+  40% {
+    opacity: 1;
+    translate: 0;
+  }
+  to {
+    opacity: 0;
+    translate: 3rem 0;
+  }
+}
+
+.ticket-status {
+  margin: 0.7rem 0 0.5rem;
+  font-weight: 650;
+}
+
+.ticket-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ticket .tool {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.ticket .tool[hidden] {
+  display: none;
+}
+
+.full-menu {
+  margin-top: 0.9rem;
+}
+
+.full-menu summary {
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.full-menu-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  max-height: 16rem;
+  overflow-y: auto;
+  margin: 0.6rem 0 0;
+  padding: 0.1rem;
+  list-style: none;
+}
+
+.menu-dish {
+  padding: 0.15rem 0.5rem;
+  border: 1px solid rgb(42 37 34 / 0.3);
+  border-radius: 0.2rem;
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.menu-dish:hover {
+  background: #fff1d6;
+}
+
+/* Your order: the kept phrases, written up on a clean slip. */
+.order-card {
+  color-scheme: light;
+  max-width: 26rem;
+  margin: 1.6rem auto 0;
+  padding: 1rem 1.2rem 1.1rem;
+  background: var(--paper);
+  color: var(--ink);
+  border-top: 8px solid var(--ketchup);
+  border-radius: 0.2rem;
+  box-shadow: 0 12px 20px -14px rgb(0 0 0 / 0.6);
+  rotate: -0.8deg;
+}
+
+.order-card[hidden] {
+  display: none;
+}
+
+.order-card h3 {
+  margin: 0 0 0.4rem;
+  font: 800 1.4rem/1.1 var(--peg-font);
+  letter-spacing: 0.04em;
+  color: var(--ketchup-deep);
+}
+
+.order-list {
+  margin: 0 0 0.9rem;
+  padding-left: 1.3rem;
+  list-style: "✓  ";
+  font: 800 1.25rem/1.5 var(--peg-font);
+  letter-spacing: 0.03em;
+}
+
+/* ---- The kitchen sieve: stacked colanders over a mixing bowl ---------------------------- */
+
+.colanders {
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+.pour {
+  min-height: 1.5em;
+  margin: 0 0 0.6rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+.colander-stack {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Perforated steel: a grid of dark holes over a brushed gradient, with a bowl-shaped bottom. */
+.colander {
+  color-scheme: light;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 0.8rem;
+  width: 100%;
+  padding: 0.7rem 1.1rem 0.9rem;
+  border: 2px solid #7d858b;
+  border-radius: 0.6rem 0.6rem 45% 45% / 0.6rem 0.6rem 1.6rem 1.6rem;
+  background:
+    radial-gradient(circle, rgb(40 44 48 / 0.32) 1.6px, transparent 2.2px) 0 0 / 11px 11px,
+    linear-gradient(180deg, #eef1f3, #b9c0c5);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.colander-name {
+  font: 800 1.25rem/1.1 var(--peg-font);
+  letter-spacing: 0.04em;
+}
+
+.colander-what {
+  grid-column: 1;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.colander-left {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  justify-self: end;
+  padding: 0.2rem 0.6rem;
+  background: var(--paper);
+  border-radius: 0.3rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.colander-count {
+  font: 800 1.35rem/1 var(--peg-font);
+  font-variant-numeric: tabular-nums;
+}
+
+/* What dripped through, as a pile of mustard crumbs that shrinks sieve by sieve. */
+.colander-pile {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: calc(var(--pile, 1) * 100%);
+  height: 0.45rem;
+  margin-top: 0.3rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, var(--mustard) 2px, #c9921a 3px) 0 0 / 7px 7px;
+  transition: width 0.7s cubic-bezier(0.3, 0.7, 0.3, 1);
+}
+
+.colander.is-off {
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+.colander.is-off .colander-name::after {
+  content: " (taken out)";
+  font-size: 0.85rem;
+}
+
+.colander-hint {
+  margin: 0.5rem 0 0;
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--page-soft);
+}
+
+/* The best survivor, written on a little folded price tent like a new bake. */
+.invention {
+  color-scheme: light;
+  max-width: 24rem;
+  margin: 1.6rem auto 0;
+  padding: 1rem 1.2rem 1.1rem;
+  background: var(--paper);
+  color: var(--ink);
+  border: 3px double var(--ketchup);
+  outline: 5px solid var(--paper);
+  border-radius: 0.3rem;
+  text-align: center;
+  box-shadow: 0 14px 22px -16px rgb(0 0 0 / 0.6);
+}
+
+.invention[hidden] {
+  display: none;
+}
+
+.invention-label {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ketchup-deep);
+}
+
+.invention-name {
+  margin: 0.1rem 0;
+  font: 800 clamp(2.2rem, 9vw, 3rem)/1.05 var(--peg-font);
+  letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
+}
+
+.invention-from {
+  margin: 0 0 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.invention-tools {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.invention .tool {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.invention .tool-copy {
+  border-color: var(--ketchup);
+  color: var(--paper);
+}
+
+.invention .tool[hidden] {
+  display: none;
+}
+
+/* Everything that got through, spread on a lined baking sheet. */
+.drips {
+  color-scheme: light;
+  margin-top: 1.4rem;
+  padding: 1rem clamp(0.7rem, 3vw, 1.2rem);
+  background:
+    radial-gradient(circle, rgb(42 37 34 / 0.07) 1px, transparent 1.5px) 0 0 / 9px 9px,
+    #fbf6ee;
+  color: var(--ink);
+  border: 2px solid #c9bfb2;
+  border-radius: 0.5rem;
+}
+
+.drips-title {
+  margin: 0 0 0.6rem;
+  font: 800 1.3rem/1.2 var(--peg-font);
+  letter-spacing: 0.04em;
+  color: var(--ketchup-deep);
+}
+
+.first-letters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.7rem;
+}
+
+.letter-chip {
+  padding: 0.2rem 0.6rem;
+  border: 2px solid var(--felt);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.letter-chip[aria-pressed="true"] {
+  background: var(--felt);
+  color: var(--peg);
+}
+
+.drip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  max-height: 15rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.1rem;
+  list-style: none;
+}
+
+.drip-list button {
+  padding: 0.15rem 0.5rem;
+  border: 1px solid rgb(42 37 34 / 0.3);
+  border-radius: 0.2rem;
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.drip-list button[aria-pressed="true"] {
+  border-color: var(--ketchup);
+  background: var(--ketchup);
+  color: var(--paper);
+}
+
+.drips .slip-note {
+  color: #5e534c;
+}
+
+/* Would it get through? */
+.check {
+  margin-top: 1.8rem;
+}
+
+.check-result {
+  max-width: 32rem;
+  min-height: 1.5em;
+  margin: 0 auto;
+  padding: 0.6rem 0.9rem;
+  border-left: 6px solid transparent;
+  font-weight: 650;
+}
+
+.check-result:empty {
+  padding: 0;
+}
+
+.check-result.is-pass {
+  border-color: #2d6a3e;
+  background: rgb(45 106 62 / 0.12);
+}
+
+.check-result.is-caught {
+  border-color: var(--ketchup);
+  background: rgb(196 51 42 / 0.1);
+}
+
+/* The pair chart: a pastry-case board, darker where English uses the pair more. */
+.pair-chart {
+  max-width: 34rem;
+  margin: 1.6rem auto 0;
+}
+
+.pair-chart summary {
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.pair-fact {
+  font-weight: 650;
+}
+
+.pair-scroll {
+  overflow-x: auto;
+}
+
+.pair-chart table {
+  color-scheme: light;
+  margin: 0 auto;
+  border-collapse: separate;
+  border-spacing: 3px;
+  background: var(--felt);
+  border: 5px solid var(--oak);
+  border-radius: 0.3rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.pair-chart th {
+  padding: 0.2rem 0.35rem;
+  font: 800 1.05rem/1 var(--peg-font);
+  color: var(--peg);
+}
+
+.pair-chart td {
+  min-width: 2.4rem;
+  padding: 0.35rem 0.2rem;
+  border-radius: 0.15rem;
+  background: color-mix(in srgb, var(--mustard) calc(var(--heat, 0) * 100%), var(--paper));
+  color: var(--ink);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.pair-chart td.is-rare {
+  background:
+    linear-gradient(to top right, transparent calc(50% - 1.5px), var(--ketchup) 50%, transparent calc(50% + 1.5px)),
+    var(--paper);
+  color: var(--ketchup-deep);
+}
+
+.pair-chart td.is-none {
+  background: repeating-linear-gradient(45deg, #4a474d 0 3px, #3a383d 3px 6px);
+}
+
+.pair-key {
+  font-size: 0.88rem;
+  color: var(--page-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .colander-pile {
+    transition: none;
+  }
+}
+
 /* ---- the menu card: the dictionary's biggest families ----------------------------------- */
 
 .menu {

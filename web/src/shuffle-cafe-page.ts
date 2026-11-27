@@ -2,7 +2,9 @@ import "./styles.css";
 import "./shuffle-cafe.css";
 import { Python } from "./py/python";
 import { commonSources, shuffleCafeSources } from "./py/sources";
+import { startChef } from "./shuffle-cafe-chef";
 import { startPhrases } from "./shuffle-cafe-phrase";
+import { startSieve } from "./shuffle-cafe-sieve";
 // The dictionary ships as its own file (not inside the JavaScript) and is fetched at start.
 import wordListUrl from "../../projects/common/data/2of4brif.txt?url";
 
@@ -13,9 +15,12 @@ import json
 from pathlib import Path
 
 import anagrams
+import chef
 import decency
 import leftovers
+import ngrams
 import phrases
+import sieve
 import wordlist
 
 WORDS_FILE = Path(wordlist.__file__).parent / "2of4brif.txt"
@@ -32,6 +37,31 @@ def families():
     if "families" not in _cache:
         _cache["families"] = anagrams.anagram_families(words())
     return _cache["families"]
+
+def letter_stats():
+    """Count pairs, triples and shapes once, for the sieve."""
+    if "stats" not in _cache:
+        _cache["stats"] = sieve.LetterStats(words())
+    return _cache["stats"]
+
+def strained(letters, active):
+    """Strain the letters and add the pair chart; rude made-up words stay hidden."""
+    if len(letters) > sieve.SIEVE_LIMIT:
+        return {"letters": letters, "too_many": True}
+    report = sieve.strain(letters, letter_stats(), tuple(active))
+    shown = decency.nothing_rude_inside(report["survivors"])
+    report["hidden"] = len(report["survivors"]) - len(shown)
+    report["survivors"] = shown
+    by_letter = {}
+    for word in shown:
+        by_letter[word[0]] = by_letter.get(word[0], 0) + 1
+    report["by_letter"] = dict(sorted(by_letter.items()))
+    table = ngrams.pair_table(letters, letter_stats().pairs)
+    report["pairs"] = [
+        {"pair": pair, "share": share, "rare": letter_stats().rare_pair(pair)}
+        for pair, share in table.items()
+    ]
+    return report
 
 def _bridge(fn, args_json):
     args = json.loads(args_json)
@@ -56,6 +86,16 @@ def _bridge(fn, args_json):
         return json.dumps(status)
     if fn == "leftovers":
         return json.dumps(leftovers.shuffle_report(args["letters"]))
+    if fn == "strain":
+        letters = anagrams.letters_only(args["letters"])
+        return json.dumps(strained(letters, args["active"]))
+    if fn == "check":
+        name = anagrams.letters_only(args["name"])
+        return json.dumps(sieve.verdict(name, letter_stats(), tuple(args["active"])) if name else None)
+    if fn == "chef":
+        found = chef.chefs_choice(args["name"], words())
+        kind = [p for p in found if decency.NOT_ON_THE_PIER.isdisjoint(p.split())]
+        return json.dumps({"phrases": kind, "hidden": len(found) - len(kind)})
     raise ValueError(f"Unknown call {fn!r}")
 `;
 
@@ -278,6 +318,8 @@ async function start() {
   input.value = "Daniel";
   await look();
   await startPhrases(python);
+  await startChef(python);
+  await startSieve(python);
 }
 
 void start();

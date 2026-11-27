@@ -1,6 +1,14 @@
 // The phrase builder: a second board where a name's letters wait in a tray, and the visitor
 // pegs words onto the board one at a time until every letter is used. Python decides what
 // fits; the page only remembers which words were chosen.
+//
+// The chef and the sieve live in their own modules. They talk to this one through events on
+// `document`, so no module has to import another:
+//   "cafe:name"   the name on the board changed (the chef listens)
+//   "cafe:tray"   these letters are left in the tray (the sieve listens)
+//   "cafe:strain" strain these leftovers, please (the sieve listens)
+//   "cafe:peg"    peg one more word onto the phrase (this module listens)
+//   "cafe:load"   load this whole phrase onto the board (this module listens)
 import type { Python } from "./py/python";
 
 type PhraseStatus = {
@@ -29,6 +37,7 @@ const restart = $<HTMLButtonElement>("phrase-restart");
 const copy = $<HTMLButtonElement>("phrase-copy");
 const slips = $("phrase-slips");
 const shake = $<HTMLButtonElement>("shake");
+const strainButton = $<HTMLButtonElement>("strain");
 const shuffles = $("shuffles");
 const shufflesLede = $("shuffles-lede");
 const shuffleList = $<HTMLUListElement>("shuffle-list");
@@ -91,6 +100,9 @@ function render(next: PhraseStatus, added: string | null) {
   }
 
   shake.disabled = next.left.length < 2;
+  strainButton.disabled = next.left.length < 3 || next.left.length > 9;
+  strainButton.title = next.left.length > 9 ? "Nine letters at most. Peg a word first." : "";
+  document.dispatchEvent(new CustomEvent("cafe:tray", { detail: next.done ? "" : next.left }));
   shuffles.hidden = true; // a fresh tray needs a fresh shuffle
   undo.disabled = chosen.length === 0;
   restart.disabled = chosen.length === 0;
@@ -197,11 +209,25 @@ async function choose(word: string) {
   await refresh(word);
 }
 
+/** Tell the chef (and anyone else listening) which name is on the board now. */
+function announceName() {
+  document.dispatchEvent(new CustomEvent("cafe:name", { detail: nameInput.value }));
+}
+
 function newName(name: string) {
   nameInput.value = name;
   chosen = [];
   find.value = "";
   void refresh();
+  announceName();
+}
+
+/** Load a finished phrase (from the chef) onto the board, word by word. */
+function loadPhrase(phrase: string) {
+  chosen = phrase.split(" ");
+  find.value = "";
+  void refresh(phrase.split(" ").at(-1) ?? null);
+  $("phrase").scrollIntoView({ behavior: calm() ? "auto" : "smooth", block: "start" });
 }
 
 export async function startPhrases(py: Python) {
@@ -210,10 +236,22 @@ export async function startPhrases(py: Python) {
   nameInput.addEventListener("input", () => {
     window.clearTimeout(timer);
     chosen = [];
-    timer = window.setTimeout(() => void refresh(), 150);
+    timer = window.setTimeout(() => {
+      void refresh();
+      announceName();
+    }, 150);
   });
   find.addEventListener("input", renderOptions);
   shake.addEventListener("click", () => void shuffleLeftovers());
+  strainButton.addEventListener("click", () => {
+    if (current) document.dispatchEvent(new CustomEvent("cafe:strain", { detail: current.left }));
+  });
+  document.addEventListener("cafe:peg", (event) => {
+    const word = (event as CustomEvent<string>).detail;
+    void choose(word);
+    $("phrase").scrollIntoView({ behavior: calm() ? "auto" : "smooth", block: "start" });
+  });
+  document.addEventListener("cafe:load", (event) => loadPhrase((event as CustomEvent<string>).detail));
   undo.addEventListener("click", () => {
     chosen = chosen.slice(0, -1);
     void refresh();

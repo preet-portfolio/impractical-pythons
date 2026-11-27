@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Shuffle Café · Impractical Pythons</title>
-    <meta name="description" content="Put your name on the café letterboard and watch the letters re-peg themselves into new words, then build a whole phrase from a name, one word at a time." />
+    <meta name="description" content="Put your name on the café letterboard and watch it re-peg into new words, build a phrase from a name, let the chef invent some, and strain letters into brand-new words." />
     <meta name="theme-color" content="#1d1b1e" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
   </head>
@@ -92,7 +92,10 @@
         <div class="tray-box">
           <div class="tray-top">
             <span class="tray-label">Letters in the tray</span>
-            <button type="button" class="shake" id="shake" disabled>Shuffle the leftovers</button>
+            <span class="tray-buttons">
+              <button type="button" class="shake" id="shake" disabled>Shuffle the leftovers</button>
+              <button type="button" class="shake strain" id="strain" disabled>Strain them</button>
+            </span>
           </div>
           <ol class="tray" id="tray" aria-hidden="true"></ol>
         </div>
@@ -118,6 +121,120 @@
           <ul class="specials" id="phrase-options" aria-live="polite"></ul>
           <p class="slip-note" id="phrase-note"></p>
         </div>
+      </section>
+
+      <section class="chef" id="chef" aria-labelledby="chef-title">
+        <h2 id="chef-title" class="phrase-title">Chef's choice</h2>
+        <p class="phrase-lede">
+          Too busy to pick words? The chef will try thousands of combinations of
+          <strong id="chef-name">your name</strong> and bring the tastiest out five at a time. Keep
+          the ones that make you laugh, send the rest back.
+        </p>
+        <div class="ticket" id="ticket-box">
+          <p class="ticket-head"><span>Order no. 5</span><span id="chef-table">Table for one</span></p>
+          <ol class="ticket-lines" id="ticket"></ol>
+          <p class="ticket-status" id="chef-status" role="status" aria-live="polite">The chef is warming up…</p>
+          <div class="ticket-tools">
+            <button type="button" class="tool" id="chef-ask" disabled>Ask the chef</button>
+            <button type="button" class="tool" id="chef-next" hidden>Five more</button>
+          </div>
+          <details class="full-menu" id="chef-menu" hidden>
+            <summary id="chef-menu-title">See the full menu</summary>
+            <ul class="full-menu-list" id="chef-menu-list"></ul>
+          </details>
+        </div>
+        <div class="order-card" id="order-card" hidden>
+          <h3>Your order</h3>
+          <ul class="order-list" id="order-list"></ul>
+          <button type="button" class="tool tool-copy" id="order-copy">Copy my order</button>
+        </div>
+      </section>
+
+      <section class="sieve" id="sieve" aria-labelledby="sieve-title">
+        <h2 id="sieve-title" class="phrase-title">The kitchen sieve</h2>
+        <p class="phrase-lede">
+          Need a brand-new word? Give the kitchen up to nine letters. It lays out every order
+          they can go in, then pours the lot through three sieves that catch anything no English
+          speaker could say. Whatever drips through is yours to name a cake, a cat or a boat.
+        </p>
+
+        <label class="order" for="sieve-letters">
+          <span>Letters to strain</span>
+          <input id="sieve-letters" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="20" disabled />
+        </label>
+        <div class="regulars" role="group" aria-labelledby="sieve-regulars-title">
+          <span id="sieve-regulars-title" class="regulars-title">Or strain something from the counter:</span>
+          <button type="button" data-letters="teacakes">teacakes</button>
+          <button type="button" data-letters="crumpets">crumpets</button>
+          <button type="button" data-letters="mermaids">mermaids</button>
+          <button type="button" data-letters="lemontart">lemon tart</button>
+        </div>
+
+        <div class="colanders">
+          <p class="pour" id="sieve-start" role="status" aria-live="polite">Fetching the sieves…</p>
+          <ol class="colander-stack" id="colanders">
+            <li>
+              <button type="button" class="colander" data-sieve="shape" aria-pressed="true">
+                <span class="colander-name">The shape sieve</span>
+                <span class="colander-what">Catches words built like no real word, such as five consonants in a row.</span>
+                <span class="colander-left"><span class="colander-count">…</span> left</span>
+                <span class="colander-pile" aria-hidden="true"></span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="colander" data-sieve="triples" aria-pressed="true">
+                <span class="colander-name">The three-letter sieve</span>
+                <span class="colander-what">Catches runs of three letters that hardly any word has.</span>
+                <span class="colander-left"><span class="colander-count">…</span> left</span>
+                <span class="colander-pile" aria-hidden="true"></span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="colander" data-sieve="pairs" aria-pressed="true">
+                <span class="colander-name">The two-letter sieve</span>
+                <span class="colander-what">Catches English's rarest letter pairs, and starts no word begins with.</span>
+                <span class="colander-left"><span class="colander-count">…</span> left</span>
+                <span class="colander-pile" aria-hidden="true"></span>
+              </button>
+            </li>
+          </ol>
+          <p class="colander-hint">Tap a sieve to take it out and see how much it was catching.</p>
+        </div>
+
+        <div class="invention" id="invention" hidden>
+          <p class="invention-label">Fresh out of the sieve</p>
+          <p class="invention-name" id="invention-name"></p>
+          <p class="invention-from" id="invention-from"></p>
+          <div class="invention-tools">
+            <button type="button" class="tool tool-copy" id="invention-copy">Copy this word</button>
+            <button type="button" class="tool" id="invention-peg" hidden>Peg it onto my phrase</button>
+          </div>
+        </div>
+
+        <div class="drips" id="drips">
+          <h3 class="drips-title">Everything that got through</h3>
+          <div class="first-letters" id="first-letters" role="group" aria-label="Show words starting with"></div>
+          <ul class="drip-list" id="drip-list"></ul>
+          <p class="slip-note" id="drip-note"></p>
+        </div>
+
+        <div class="check">
+          <label class="order" for="check-name">
+            <span>Would your word get through?</span>
+            <input id="check-name" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="20" disabled />
+          </label>
+          <p class="check-result" id="check-result" role="status" aria-live="polite"></p>
+        </div>
+
+        <details class="pair-chart">
+          <summary>Which letter pairs does English like?</summary>
+          <p class="pair-fact" id="pair-fact"></p>
+          <div class="pair-scroll"><table id="pair-table"></table></div>
+          <p class="pair-key">
+            The more mustard in a square, the more English uses that pair, out of all the pairs these letters can
+            make. Crossed-out pairs are so rare the two-letter sieve catches them.
+          </p>
+        </details>
       </section>
 
       <section class="menu" aria-labelledby="menu-title">
@@ -152,6 +269,19 @@
           Shuffling is where computers stop being quick. Three letters can be ordered 6 ways,
           six letters 720 ways, ten letters over three million. The waiter lays out every
           arrangement when there are a few hundred, and a random handful when there are more.
+        </p>
+        <p>
+          The sieve uses a code-breaker's trick: every language leaves fingerprints. The café
+          counts every pair and every run of three letters in its 60,388 words, and notes the
+          pattern of consonants and vowels each word has. Orderings with a fingerprint English
+          almost never leaves get caught. It isn't perfect: <em>doughnut</em> is caught, because
+          hardly any word has <em>hnu</em> in it.
+        </p>
+        <p>
+          The chef searches like someone packing a suitcase: try the biggest word that fits,
+          then the next, and back up when nothing fits the gap. It gives up after a few hundred
+          thousand tries, so a long name never keeps you waiting, and ranks what it found so
+          long words come first.
           <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/05_shuffle_cafe">Peek at the Python</a>.
         </p>
       </section>
