@@ -12,3 +12,4 @@ projects/*/data/large/
 web/node_modules/
 web/dist/
 .vercel
+.env*
