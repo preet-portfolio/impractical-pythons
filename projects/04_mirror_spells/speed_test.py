@@ -15,11 +15,19 @@ import cProfile
 import io
 import pstats
 import random
+import sys
 import time
 from collections.abc import Callable
+from pathlib import Path
 
 from palingrams import spells_from
-from wordlist import clean_words, read_words
+
+# The word list and the filter are shared by several stalls, so they live
+# in projects/common. Python only looks next to this file by default.
+sys.path.append(str(Path(__file__).resolve().parents[1] / "common"))
+
+# pylint: disable-next=wrong-import-position
+from wordlist import clean_words, read_words  # noqa: E402
 
 
 def timed(func: Callable, *args) -> tuple[object, float]:

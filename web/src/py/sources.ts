@@ -4,6 +4,10 @@ type Files = Record<string, string>;
 const byName = (files: Files): Files =>
   Object.fromEntries(Object.entries(files).map(([path, text]) => [path.split("/").pop()!, text]));
 
+// Shared by several stalls (the word list loader and the "not on the pier" filter).
+export const commonSources = byName(
+  import.meta.glob("../../../projects/common/*.py", { query: "?raw", import: "default", eager: true }),
+);
 export const aliasSlotsSources = byName(
   import.meta.glob("../../../projects/01_alias_slots/*.py", { query: "?raw", import: "default", eager: true }),
 );

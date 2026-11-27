@@ -9,10 +9,17 @@ Usage (from the repo root):
 
 import argparse
 import sys
+from pathlib import Path
 
 from mirror import is_palindrome, spellbook_stats
 from palingrams import two_word_spells
-from wordlist import DEFAULT_WORDS, clean_words, read_words
+
+# The word list and the filter are shared by several stalls, so they live
+# in projects/common. Python only looks next to this file by default.
+sys.path.append(str(Path(__file__).resolve().parents[1] / "common"))
+
+# pylint: disable-next=wrong-import-position
+from wordlist import DEFAULT_WORDS, clean_words, read_words  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> None:

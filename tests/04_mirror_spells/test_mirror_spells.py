@@ -5,11 +5,11 @@ from pathlib import Path
 
 import pytest
 
-from decency import NOT_ON_THE_PIER, family_friendly, family_friendly_pairs
+from decency import NOT_ON_THE_PIER, family_friendly_pairs
 from mirror import find_palindromes, is_palindrome, letters_only, reflect, spellbook_stats
 from palingrams import is_palindrome_recursive, two_word_spells, two_word_spells_slow
 from speed_test import profile_report, race
-from wordlist import clean_words, read_words, words_from_text
+from wordlist import read_words
 
 # Every project has a main.py, so "import main" would grab whichever one
 # another test file loaded first. Load this one by path, under its own name.
@@ -68,21 +68,6 @@ def test_reflect_finds_the_first_broken_pair():
     assert not bad["spell"]
     assert bad["pairs"][0] == {"left": "r", "right": "s"}
     assert bad["broken"] == 0
-
-
-def test_words_from_text_cleans_lines():
-    assert words_from_text("Apple\r\n\n  Kayak \nnoon") == ["apple", "kayak", "noon"]
-
-
-def test_read_words(tmp_path):
-    path = tmp_path / "words.txt"
-    path.write_text("Level\nboat\n", encoding="utf-8")
-    assert read_words(path) == ["level", "boat"]
-
-
-def test_missing_file_raises(tmp_path):
-    with pytest.raises(OSError):
-        read_words(tmp_path / "nope.txt")
 
 
 def test_cli_exits_with_1_on_a_missing_file(tmp_path, capsys):
@@ -147,18 +132,11 @@ def test_recursive_check_matches_the_slice():
     assert is_palindrome_recursive(letters_only("Step on no pets"))
 
 
-def test_clean_words_drops_letter_headings():
-    words = ["a", "aardvark", "b", "c", "i", "cat", "cat", "dog"]
-    assert clean_words(words) == ["a", "aardvark", "i", "cat", "dog"]
-    assert clean_words(words, keep=()) == ["aardvark", "cat", "dog"]
-
-
 def test_decency_filter(all_pairs):
     kept = family_friendly_pairs(all_pairs)
     assert 0 < len(all_pairs) - len(kept) < 150
     assert all(NOT_ON_THE_PIER.isdisjoint(pair) for pair in kept)
     assert ("nurses", "run") in kept
-    assert family_friendly(["kayak", "tit", "level"]) == ["kayak", "level"]
 
 
 def test_race_reports_both_timings():

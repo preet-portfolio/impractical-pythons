@@ -115,7 +115,7 @@ version barely notices.
 
 ## Not on the pier
 
-`decency.py` holds a short list of crude words. The web page uses it to keep a handful of
+`common/decency.py` holds a short list of crude words. The web page uses it to keep a handful of
 spells (4 single words and 87 pairs) out of sight. The Python, the command line and the
 tests still find everything, so nothing about the algorithm is hidden.
 
@@ -123,13 +123,13 @@ tests still find everything, so nothing about the algorithm is hidden.
 
 | File | What's in it |
 |---|---|
-| `wordlist.py` | `read_words`, `words_from_text` and `clean_words`: loading and tidying |
 | `mirror.py` | `letters_only`, `is_palindrome`, `find_palindromes`, `spellbook_stats`, `reflect` |
 | `palingrams.py` | `two_word_spells` (set), `two_word_spells_slow` (list), `is_palindrome_recursive` |
 | `speed_test.py` | `timed`, `race` and `profile_report`: the stopwatch and cProfile |
-| `decency.py` | `NOT_ON_THE_PIER`, `family_friendly`, `family_friendly_pairs` (web only) |
 | `main.py` | The command line: `argparse`, `try`/`except OSError`, `sys.exit(1)`, `--pairs` |
-| `data/2of4brif.txt` | 60,388 common English words (see [data/SOURCE.md](data/SOURCE.md)) |
+| `../common/wordlist.py` | Shared: `read_words`, `words_from_text` and `clean_words` |
+| `../common/decency.py` | Shared: `NOT_ON_THE_PIER`, `family_friendly`, `family_friendly_pairs` (web only) |
+| `../common/data/2of4brif.txt` | 60,388 common English words (see [SOURCE.md](../common/data/SOURCE.md)) |
 
 The word list is `2of4brif.txt` from Alan Beale's **12dicts**
 (<http://wordlist.aspell.net/12dicts/>), which he released to the public domain. Thank you, Alan.

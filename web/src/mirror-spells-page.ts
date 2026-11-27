@@ -1,9 +1,9 @@
 import "./styles.css";
 import "./mirror-spells.css";
 import { Python } from "./py/python";
-import { mirrorSpellsSources } from "./py/sources";
+import { commonSources, mirrorSpellsSources } from "./py/sources";
 // The dictionary ships as its own file (not inside the JavaScript) and is fetched at start.
-import wordListUrl from "../../projects/04_mirror_spells/data/2of4brif.txt?url";
+import wordListUrl from "../../projects/common/data/2of4brif.txt?url";
 
 // Python side of the page: called by the worker as _bridge(fn, args_json) -> JSON.
 // The word list is written next to the .py files, so read_words() opens a real file,
@@ -303,7 +303,7 @@ async function start() {
       if (!response.ok) throw new Error(`Word list: HTTP ${response.status}`);
       return response.text();
     });
-    await python.init("mirror_spells", { ...mirrorSpellsSources, "2of4brif.txt": words }, BRIDGE);
+    await python.init("mirror_spells", { ...commonSources, ...mirrorSpellsSources, "2of4brif.txt": words }, BRIDGE);
   } catch (error) {
     console.error(error);
     verdict.textContent = "The mirror couldn't wake up. Check your connection and reload the page.";
