@@ -5,6 +5,37 @@ A playground of original, creative, fun Python projects, inspired by the ideas i
 genetic algorithms, astronomy...), but **not** copies of the book's chapters.
 Each project should feel like its own idea, with real-world flavour where possible.
 
+## Where it lives
+
+- **Web-first and interactive.** Every project must be playable by visitors in the
+  browser, not just runnable in a terminal.
+- **One gallery site** on Vercel (planned: `impractical-pythons.vercel.app`, Vercel
+  team `preetportfolios-projects`), with a page per project.
+- **Public GitHub repo** (planned: `preet-portfolio/impractical-pythons`). Public means
+  no personal data, keys or private details in code, copy or commits.
+- **Listed on the portfolio.** The main site is `preet-portfolio.github.io` (Next.js
+  static export on GitHub Pages, local copy at `../preet-portfolio.github.io`). Once
+  the gallery is live, add one entry to its `src/data/work.json` under
+  `"group": "projects"` (fields: id, name, line, status, kind, links: "Open ..." +
+  "Source"), following that repo's own CLAUDE.md. Never list it before it's live.
+- **Sibling to copy from:** `../tiny-python-tested` already runs Python in the
+  browser this way (`web/` Next.js static export, Pyodide, `web/vercel.json` with
+  security headers and `frame-ancestors` allowing the portfolio). Reuse its patterns
+  (`web/src/lib/py.ts`, `scripts/fetch-pyodide.mjs`) rather than reinventing them,
+  but give this site its own look.
+
+## How Python runs on the web
+
+- **Pyodide (CPython in WebAssembly) in the visitor's browser.** No backend, no API
+  routes; the site is a static export. The exact same Python modules in `projects/`
+  are loaded by the web page, so tests cover what visitors run.
+- Project logic must be **pure, importable functions** (no `input()`/`print` loops in
+  the core). `main.py` is a thin CLI wrapper; the web page calls the same functions.
+- Only use packages Pyodide ships (stdlib, numpy, matplotlib, pillow, etc. — check the
+  Pyodide package list before adding one). Pyodide's Python can lag the local one
+  (local is 3.15), so avoid brand-new syntax/stdlib features.
+- Heavy work runs in a Web Worker so the page stays responsive.
+
 ## How we work
 
 - **Claude builds, then explains.** Claude writes the full project, then walks the
@@ -29,6 +60,7 @@ projects/
     data/                 # small input files (word lists, datasets), if any
 tests/
   NN_short_name/          # pytest tests per project, mirroring projects/
+web/                      # Next.js static-export gallery (added with the first project)
 PROJECTS.md               # index of all projects with one-line summaries
 ```
 
@@ -57,4 +89,10 @@ PROJECTS.md               # index of all projects with one-line summaries
 - Write tests for the core logic (pure functions), not for printing/UI.
 - Large downloaded datasets go in `data/` and are git-ignored if over ~5 MB;
   the README says where to get them.
-- Before calling a project done: it runs, `pytest` passes, `ruff check` is clean.
+- Before calling a project done: it runs, `pytest` passes, `ruff check` is clean,
+  `npm run build` in `web/` passes, and it works in the browser.
+
+## Git
+
+- Imperative commit subjects with a body that says why. One change per commit.
+- Branch, open a PR, merge to `main`; Vercel deploys `main`.
