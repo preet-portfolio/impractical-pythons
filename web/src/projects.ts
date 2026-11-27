@@ -6,7 +6,7 @@ export type Project = {
   slug: string;
   title: string;
   line: string;
-  stall: "slots" | "talk" | "rock" | "mirror" | "cafe";
+  stall: "slots" | "talk" | "rock" | "mirror" | "cafe" | "telegraph";
   cue: string;
 };
 
@@ -50,5 +50,13 @@ export const projects: Project[] = [
     line: "Put your name on the café letterboard and watch the letters re-peg into new words, then build a whole phrase from a name.",
     stall: "cafe",
     cue: "Take a seat",
+  },
+  {
+    number: 6,
+    slug: "pier-telegraph",
+    title: "Pier Telegraph",
+    line: "Send a secret telegram: the clerk files your words in pigeonholes and wires them out scrambled. Then crack the one waiting on the counter.",
+    stall: "telegraph",
+    cue: "Step up to the counter",
   },
 ];

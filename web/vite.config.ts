@@ -16,6 +16,7 @@ export default defineConfig({
         letterBars: resolve(import.meta.dirname, "letter-bars/index.html"),
         mirrorSpells: resolve(import.meta.dirname, "mirror-spells/index.html"),
         shuffleCafe: resolve(import.meta.dirname, "shuffle-cafe/index.html"),
+        pierTelegraph: resolve(import.meta.dirname, "pier-telegraph/index.html"),
       },
     },
   },

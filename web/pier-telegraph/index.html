@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pier Telegraph Office · Impractical Pythons</title>
+    <meta name="description" content="Send a secret telegram: the clerk files your words into pigeonholes and sends them down the wire in a scrambled order. Then crack one that's waiting on the counter." />
+    <meta name="theme-color" content="#1f4d40" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📨</text></svg>" />
+  </head>
+  <body class="telegraph">
+    <a class="skip" href="#send">Skip to the telegram form</a>
+    <nav class="crumbs"><a href="/">Back to the pier</a></nav>
+
+    <main id="main">
+      <header class="office-sign">
+        <h1 class="sign-plate">Pier Telegraph Office</h1>
+        <p class="sign-lede">
+          Hand your message over the counter. The clerk files each word in a pigeonhole, then
+          sends the words down the wire in a scrambled order that only the office at the other
+          end knows how to undo.
+        </p>
+      </header>
+
+      <section class="counter" id="send" aria-labelledby="send-title">
+        <h2 id="send-title" class="counter-title">Send a telegram</h2>
+
+        <div class="form-and-book">
+          <label class="telegram-form" for="message">
+            <span class="form-head"><span>Telegram</span><span class="form-no">No. 0611</span></span>
+            <span class="form-label">Your message</span>
+            <textarea id="message" rows="3" maxlength="240" spellcheck="false" disabled></textarea>
+          </label>
+
+          <aside class="code-book" aria-labelledby="book-title">
+            <h3 id="book-title">The office code book</h3>
+            <dl id="code-list"></dl>
+            <label class="use-book">
+              <input type="checkbox" id="use-book" checked disabled />
+              Swap in code words
+            </label>
+          </aside>
+        </div>
+
+        <div class="picker" role="group" aria-labelledby="size-title">
+          <h3 id="size-title" class="picker-title">How big is the rack?</h3>
+          <div class="size-chips" id="send-sizes"></div>
+        </div>
+
+        <div class="rack-wrap">
+          <div class="route-head" id="send-heads" aria-hidden="true"></div>
+          <div class="rack" id="send-rack">
+            <ol class="holes" id="send-holes"></ol>
+            <svg class="route-line" id="send-line" aria-hidden="true"></svg>
+          </div>
+        </div>
+
+        <div class="picker" role="group" aria-labelledby="send-route-title">
+          <h3 id="send-route-title" class="picker-title">The route through the rack</h3>
+          <p class="picker-help">
+            Tap a column to flip its arrow. Use the little arrows to change the order.
+          </p>
+          <ol class="route-chips" id="send-route"></ol>
+          <p class="key-line">Key: <code id="send-key"></code></p>
+        </div>
+
+        <div class="tape-wrap">
+          <p class="tape-label">Down the wire</p>
+          <ol class="tape" id="send-tape" aria-label="The scrambled telegram"></ol>
+        </div>
+        <p class="office-status" id="send-status" role="status" aria-live="polite">The clerk is putting on the kettle…</p>
+        <div class="counter-tools">
+          <button type="button" class="brass-button" id="send-copy" disabled>Copy the telegram</button>
+        </div>
+      </section>
+
+      <section class="counter crack" id="crack" aria-labelledby="crack-title">
+        <h2 id="crack-title" class="counter-title">Crack a telegram</h2>
+        <p class="counter-lede">
+          This one came in this morning, and nobody wrote down the route. Choose the size of the
+          rack and try routes until the words read as a sentence.
+        </p>
+        <label class="practice">
+          <input type="checkbox" id="practice" disabled />
+          Practise on numbered deckchair tickets first (they read 1 to 15 when you get it right)
+        </label>
+
+        <div class="tape-wrap">
+          <p class="tape-label" id="crack-tape-label">Received at 9:14</p>
+          <ol class="tape" id="crack-tape"></ol>
+        </div>
+
+        <div class="picker" role="group" aria-labelledby="crack-size-title">
+          <h3 id="crack-size-title" class="picker-title">How big was the rack?</h3>
+          <div class="size-chips" id="crack-sizes"></div>
+        </div>
+
+        <div class="picker" role="group" aria-labelledby="crack-route-title">
+          <h3 id="crack-route-title" class="picker-title">Your guess at the route</h3>
+          <ol class="route-chips" id="crack-route"></ol>
+          <p class="key-line">Key: <code id="crack-key"></code></p>
+        </div>
+
+        <div class="rack-wrap">
+          <div class="route-head" id="crack-heads" aria-hidden="true"></div>
+          <div class="rack" id="crack-rack">
+            <ol class="holes" id="crack-holes"></ol>
+            <svg class="route-line" id="crack-line" aria-hidden="true"></svg>
+            <p class="delivered" id="delivered" hidden>Delivered</p>
+          </div>
+        </div>
+        <p class="office-status" id="crack-status" role="status" aria-live="polite"></p>
+        <p class="decoded" id="decoded" hidden></p>
+
+        <details class="hint">
+          <summary>A clerk's hint</summary>
+          <p>
+            People write left to right, and the route turns round at the top and bottom of the
+            rack. So where it turns, two words that belong side by side sit next to each other
+            on the tape. Find a pair that makes sense together, then count the words between
+            pairs: that's how many rows the rack had.
+          </p>
+        </details>
+      </section>
+
+      <section class="about" aria-labelledby="about-title">
+        <h2 id="about-title">How the office works</h2>
+        <p>
+          This is a <strong>route cipher</strong>. It doesn't change any words, it only shuffles
+          them. The message goes into the rack left to right, a row at a time. Then it comes out
+          up and down the columns, in an order called the key: <code>-1 2 -3 4</code> means up the
+          first column, down the second, up the third, down the fourth.
+        </p>
+        <p>
+          Shuffling alone is easy to undo, so the clerks swap the important words for code words
+          (<em>the money</em> goes out as DONKEY) and fill any empty pigeonholes with harmless
+          words. Untangle the route and you still read "meet GULL by BANDSTAND".
+        </p>
+        <p>
+          Telegraph clerks liked it because every word is a real word. Strings of random letters
+          get mangled on a busy wire; whole words come through. The page is built the same way:
+          you can only pick rack sizes that fit and routes that exist, so there's no wrong button
+          to press. All the shuffling is Python, running right here in your browser.
+          <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/06_pier_telegraph">Peek at the Python</a>.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <p>
+        Inspired by the route cipher project in
+        <a href="https://nostarch.com/impracticalpython"><cite>Impractical Python Projects</cite></a>
+        by Lee Vaughan, a great book if you want to make your own silly, clever programs. The
+        code book, telegrams and code are new. One of the stalls on the
+        <a href="/">Impractical Pythons</a> pier.
+      </p>
+    </footer>
+    <script type="module" src="/src/pier-telegraph-page.ts"></script>
+  </body>
+</html>

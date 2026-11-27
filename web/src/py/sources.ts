@@ -23,3 +23,6 @@ export const mirrorSpellsSources = byName(
 export const shuffleCafeSources = byName(
   import.meta.glob("../../../projects/05_shuffle_cafe/*.py", { query: "?raw", import: "default", eager: true }),
 );
+export const pierTelegraphSources = byName(
+  import.meta.glob("../../../projects/06_pier_telegraph/*.py", { query: "?raw", import: "default", eager: true }),
+);

@@ -323,6 +323,25 @@ code {
   color: #2a2522;
 }
 
+.stall-telegraph .stall-link {
+  background: #1f5d4c;
+  color: #f6efd9;
+  border: 5px solid #c19a4b;
+  border-radius: 0.6rem;
+  box-shadow: inset 0 0 0 3px #154236, inset 0 0 0 5px rgb(246 239 217 / 0.5);
+}
+
+.stall-telegraph .stall-title {
+  font-family: "Ultra", "Rockwell Extra Bold", serif;
+  font-weight: 400;
+  text-shadow: 0 2px 0 #154236;
+}
+
+.stall-telegraph .stall-cue {
+  background: #f4d35e;
+  color: #1f2433;
+}
+
 /* ---- the cabinet ------------------------------------------------------------------ */
 
 .crumbs {
