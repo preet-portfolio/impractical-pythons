@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.DS_Store
+*.egg-info/
+.remember/
+.claude/settings.local.json
+# large datasets: keep small samples, ignore big downloads
+projects/*/data/large/
