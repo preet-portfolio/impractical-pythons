@@ -2,6 +2,7 @@ import "./styles.css";
 import "./shuffle-cafe.css";
 import { Python } from "./py/python";
 import { commonSources, shuffleCafeSources } from "./py/sources";
+import { startPhrases } from "./shuffle-cafe-phrase";
 // The dictionary ships as its own file (not inside the JavaScript) and is fetched at start.
 import wordListUrl from "../../projects/common/data/2of4brif.txt?url";
 
@@ -13,6 +14,7 @@ from pathlib import Path
 
 import anagrams
 import decency
+import phrases
 import wordlist
 
 WORDS_FILE = Path(wordlist.__file__).parent / "2of4brif.txt"
@@ -45,6 +47,12 @@ def _bridge(fn, args_json):
         stats["top"] = anagrams.biggest_families(friendly, args.get("count", 8))
         del stats["biggest"]  # the unfiltered biggest family has a rude word in it
         return json.dumps(stats)
+    if fn == "phrase":
+        status = phrases.phrase_status(args["name"], args["chosen"], words())
+        if status is None:
+            return json.dumps(None)
+        status["options"] = decency.family_friendly(status["options"])
+        return json.dumps(status)
     raise ValueError(f"Unknown call {fn!r}")
 `;
 
@@ -266,6 +274,7 @@ async function start() {
   }
   input.value = "Daniel";
   await look();
+  await startPhrases(python);
 }
 
 void start();

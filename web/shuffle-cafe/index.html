@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Shuffle Café · Impractical Pythons</title>
-    <meta name="description" content="Put your name on the café letterboard and watch the letters re-peg themselves into new words. Listen becomes silent; Daniel gets nailed." />
+    <meta name="description" content="Put your name on the café letterboard and watch the letters re-peg themselves into new words, then build a whole phrase from a name, one word at a time." />
     <meta name="theme-color" content="#1d1b1e" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
   </head>
@@ -55,6 +55,57 @@
         </div>
       </section>
 
+      <section class="phrase" id="phrase" aria-labelledby="phrase-title">
+        <h2 id="phrase-title" class="phrase-title">Make a phrase from a name</h2>
+        <p class="phrase-lede">
+          Most names won't shuffle into one word, but they hide a few. Pick a word that fits, and
+          the waiter pegs it up. Keep going until the tray is empty: <em>Ice Cream Van</em> can be
+          a <em>caveman rice</em>, and <em>Donkey Rides</em> turn into <em>kidneys rode</em>.
+        </p>
+
+        <label class="order" for="phrase-name">
+          <span>A name or a few words</span>
+          <input id="phrase-name" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="30" disabled />
+        </label>
+        <div class="regulars phrase-regulars" role="group" aria-labelledby="phrase-regulars-title">
+          <span id="phrase-regulars-title" class="regulars-title">Or borrow one from the pier:</span>
+          <button type="button" data-name="Ice Cream Van">Ice Cream Van</button>
+          <button type="button" data-name="Donkey Rides">Donkey Rides</button>
+          <button type="button" data-name="Seaside Town">Seaside Town</button>
+          <button type="button" data-name="Penny Arcade">Penny Arcade</button>
+          <button type="button" data-name="Brighton Pier">Brighton Pier</button>
+        </div>
+
+        <div class="frame">
+          <div class="felt">
+            <p class="felt-head" id="phrase-head" aria-hidden="true">Pick a word below</p>
+            <ol class="pegs pegs-phrase" id="phrase-pegs" aria-hidden="true"></ol>
+          </div>
+        </div>
+        <div class="tray-box">
+          <span class="tray-label">Letters in the tray</span>
+          <ol class="tray" id="tray" aria-hidden="true"></ol>
+        </div>
+        <p class="status" id="phrase-status" role="status" aria-live="polite"></p>
+        <div class="phrase-tools">
+          <button type="button" class="tool" id="phrase-undo" disabled>Undo last word</button>
+          <button type="button" class="tool" id="phrase-restart" disabled>Start over</button>
+          <button type="button" class="tool tool-copy" id="phrase-copy" hidden>Copy the phrase</button>
+        </div>
+
+        <div class="specials-wrap" id="phrase-slips">
+          <div class="slips-head">
+            <h3 class="specials-title">Words that fit</h3>
+            <label class="slip-find">
+              <span>Find words with</span>
+              <input id="phrase-find" type="search" placeholder="ice" autocomplete="off" autocapitalize="none" disabled />
+            </label>
+          </div>
+          <ul class="specials" id="phrase-options" aria-live="polite"></ul>
+          <p class="slip-note" id="phrase-note"></p>
+        </div>
+      </section>
+
       <section class="menu" aria-labelledby="menu-title">
         <div class="menu-card">
           <h2 id="menu-title">The big families</h2>
@@ -76,6 +127,12 @@
           opens, and files each word under its sorted letters. After that, finding your name's
           anagrams is a single look in the right drawer, all in Python, right here in your
           browser.
+        </p>
+        <p>
+          For phrases the café counts letters instead. Your name might have three <em>e</em>s and
+          one <em>v</em>; a word fits if it never needs more of any letter than the tray holds.
+          Python picks out every word that fits, you pick the one that makes sense, and the
+          count goes down. The computer is quick and the human has taste.
           <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/05_shuffle_cafe">Peek at the Python</a>.
         </p>
       </section>

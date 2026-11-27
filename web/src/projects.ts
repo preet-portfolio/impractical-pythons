@@ -47,7 +47,7 @@ export const projects: Project[] = [
     number: 5,
     slug: "shuffle-cafe",
     title: "Shuffle Café",
-    line: "Put your name on the café letterboard and watch the letters re-peg themselves into new words. Listen turns silent.",
+    line: "Put your name on the café letterboard and watch the letters re-peg into new words, then build a whole phrase from a name.",
     stall: "cafe",
     cue: "Take a seat",
   },
