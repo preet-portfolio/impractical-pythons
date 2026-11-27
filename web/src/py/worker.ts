@@ -27,10 +27,11 @@ async function init(project: string, files: Record<string, string>, bridgeSource
   const { loadPyodide } = await import(/* @vite-ignore */ `${INDEX_URL}pyodide.mjs`);
   py = (await loadPyodide({ indexURL: INDEX_URL })) as PyodideAPI;
   post({ type: "progress", stage: "Loading the project" });
-  const dir = `/home/pyodide/${project}`;
+  // A folder per project under projects/, so a folder never shadows a module of the same name.
+  const dir = `/home/pyodide/projects/${project}`;
   py.FS.mkdirTree(dir);
   for (const [name, text] of Object.entries(files)) py.FS.writeFile(`${dir}/${name}`, text);
-  py.runPython(`import sys\nsys.path.insert(0, ${JSON.stringify(dir)})`);
+  py.runPython(`import importlib, sys\nsys.path.insert(0, ${JSON.stringify(dir)})\nimportlib.invalidate_caches()`);
   py.runPython(bridgeSource);
   bridge = py.globals.get("_bridge");
 }

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Code-Talk · Impractical Pythons</title>
+    <meta name="description" content="A Pig Latin you can undo. Type plain English or Code-Talk and the other side translates as you type." />
+    <meta name="theme-color" content="#0E5E6F" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐷</text></svg>" />
+  </head>
+  <body class="talk">
+    <a class="skip" href="#translator">Skip to the translator</a>
+    <nav class="crumbs"><a href="/">Impractical Pythons</a></nav>
+
+    <main id="main">
+      <section class="cabinet" id="translator" aria-labelledby="title">
+        <div class="marquee">
+          <span class="bulbs" aria-hidden="true"></span>
+          <h1 id="title" class="marquee-title">Code-Talk</h1>
+          <span class="bulbs" aria-hidden="true"></span>
+        </div>
+        <p class="blurb">Pig Latin you can take back. The hyphen remembers what moved.</p>
+
+        <div class="talk-panes">
+          <div class="pane">
+            <label for="plain" class="pane-label">Plain English</label>
+            <textarea id="plain" rows="5" spellcheck="true" disabled></textarea>
+            <button type="button" class="pane-copy" data-copy="plain">Copy plain</button>
+          </div>
+          <button type="button" class="swap" id="swap" aria-label="Swap which side I type in" disabled>⇄</button>
+          <div class="pane">
+            <label for="coded" class="pane-label">Code-Talk</label>
+            <textarea id="coded" rows="5" spellcheck="false" disabled></textarea>
+            <button type="button" class="pane-copy" data-copy="coded">Copy Code-Talk</button>
+          </div>
+        </div>
+        <p class="status" id="status" role="status">Warming up Python…</p>
+
+        <div class="samples" id="samples" aria-label="Try a sample"></div>
+      </section>
+
+      <section class="breakdown-area" aria-labelledby="breakdown-title">
+        <h2 id="breakdown-title">Word by word</h2>
+        <p class="breakdown-hint">The letters in red are the ones that move to the end.</p>
+        <ol class="breakdown" id="breakdown"></ol>
+      </section>
+
+      <section class="about" aria-labelledby="about-title">
+        <h2 id="about-title">How it works</h2>
+        <p>
+          Classic Pig Latin moves a word's opening consonants to the end and adds <em>ay</em>, so
+          <em>nix</em> becomes <em>ixnay</em>. But it can't be undone reliably: does <em>away</em> come
+          from <em>way</em> or from <em>a</em>? Code-Talk puts a hyphen where the word was cut
+          (<em>ix-nay</em>, <em>apple-ay</em>), so every word carries the instructions to put it back.
+        </p>
+        <p>
+          The Python finds words with a regular expression and rebuilds each one with string slicing:
+          <code>word[split:] + "-" + word[:split] + "ay"</code>. The whole consonant cluster moves
+          (<em>string</em> becomes <em>ing-stray</em>), <em>qu</em> stays together, and <em>y</em> is a
+          consonant only at the start. Capitals, punctuation, numbers and real hyphens stay where they were.
+          <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/02_code_talk">Read the Python</a>.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <p>
+        Part of <a href="/">Impractical Pythons</a>. Sparked by the Pig Latin practice project in
+        <cite>Impractical Python Projects</cite> by Lee Vaughan.
+      </p>
+    </footer>
+    <script type="module" src="/src/code-talk-page.ts"></script>
+  </body>
+</html>
