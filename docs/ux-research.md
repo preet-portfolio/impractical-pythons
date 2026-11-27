@@ -61,3 +61,43 @@ help. Afterwards ask:
 
 Five people reliably uncover most of the obvious problems; write down what they *did*, not just
 what they said, and fold the findings back into this file.
+
+## Anagram tools: what's out there (Shuffle Café, part 4)
+
+Before building the automatic anagram generator and the letter sieve, we looked at the tools the
+book points to: the Internet Anagram Server (its main and advanced pages, and its Hall of Fame),
+dCode's anagram generator, and Jumble. (Wordplays refused our visit.)
+
+**What they do**
+
+- **Form first.** dCode offers a dictionary in eight languages and three sizes, must-include
+  and must-exclude boxes, word-count modes and minimum lengths, and some labels only make sense
+  after reading its FAQ. The Anagram Server's advanced page has eleven settings.
+- **Volume, not choice.** You pick 500, 1,000, 5,000, 10,000 or "All" and get a flat list.
+  Finding the one good anagram in it is left to you.
+- **Clutter.** A second tool, a famous-anagrams list, shop links and donation prompts share
+  the page.
+- **Dead ends.** "No result" appears when a filter is too strict, and the way out is in the
+  help text.
+- **What people celebrate.** The Hall of Fame's favourites use every letter, are funny or
+  surprising, and above all *mean something about the original*. Software can't judge that;
+  people can.
+- **Jumble** is a puzzle with a payoff: unscramble, then get the punchline.
+
+**What our visitors need instead**
+
+| Who | The usual tool gives them | We give them |
+|---|---|---|
+| The skimmer | A form and a wall of text | A result before they type, and one clever moment within seconds |
+| The tinkerer | A black box | The working on show: how many guesses each filter threw out, and *why* |
+| The friend | Homework | Their own name turned into something funny, on a card worth sending |
+
+**Rules for these features**
+
+1. **Curate, don't dump.** Rank the results, serve a few at a time, let people keep favourites;
+   the long list is one tap away, not the default.
+2. **Show the working.** Numbers dropping through each filter are the spectacle.
+3. **Explain every rejection in plain words** ("hardly any English word starts with *vl*").
+4. **One or two controls at most.** Good defaults instead of settings.
+5. **End on something shareable.**
+6. **Never a bare "no result".** Always suggest the next thing to try.
