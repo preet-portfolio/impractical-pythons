@@ -23,8 +23,8 @@ Each project should feel like its own idea, with real-world flavour where possib
 - **Every project is its own stall, with its own look.** The gallery is a seaside pier;
   each project page gets a distinct palette, typefaces and centrepiece (Alias Slots is a
   fruit machine, Code-Talk a spy's case file, Letter Bars a seaside rock shop, Mirror
-  Spells a Hall of Mirrors). Never
-  reuse a previous project's design; the gallery card borrows the stall's look too.
+  Spells a Hall of Mirrors, Shuffle Café a café letterboard). Never reuse a previous
+  project's design; the gallery card borrows the stall's look too.
 - **Fun first, for portfolio visitors.** Page copy is playful and plain, with no code words
   above the fold; the Python detail lives in the README and a "Peek at the Python" link.
   Every page and the gallery credit *Impractical Python Projects* by Lee Vaughan with a
@@ -91,7 +91,10 @@ PROJECTS.md               # index of all projects with one-line summaries
 
 - Folder names: `NN_snake_case` (e.g. `01_palindrome_hunter`). Number in build order.
 - Each project is self-contained; shared helpers only go in `projects/common/`
-  once two projects genuinely need the same code.
+  once two projects genuinely need the same code. `common/` holds the dictionary
+  (`data/2of4brif.txt`), `wordlist.py` and `decency.py` (the web-only word filter). A
+  project's scripts add `common` to `sys.path`, its tests' conftest does the same, and its
+  web page passes `{ ...commonSources, ...projectSources }` to `python.init`.
 - When a project is added or renamed, update `PROJECTS.md`.
 
 ## Tooling
