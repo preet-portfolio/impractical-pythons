@@ -810,6 +810,13 @@ body.postcard .counter {
   border-radius: 0.4rem;
 }
 
+/* Placeholders are hints, not writing: plain grey type, so an empty box looks empty. */
+.writing-desk input[type="text"]::placeholder {
+  font: 400 1rem/1.2 var(--body, system-ui, sans-serif);
+  color: #8a8270;
+  opacity: 1;
+}
+
 .writing-desk input[type="text"]:disabled {
   opacity: 0.6;
 }

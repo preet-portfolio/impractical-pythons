@@ -401,7 +401,8 @@ function renderCount() {
   const each = story() ? "one sentence for each" : "one word of Nan's for each";
   $("note-count").textContent =
     n < SHORTEST ? `${n} letters: at least ${SHORTEST}, please` : n > most ? `${n} letters: ${most} at most` : `${n} letters: ${each}`;
-  $<HTMLButtonElement>("write").disabled = writing || n < SHORTEST || n > most;
+  // The button stays pressable: a press on a missing or long note explains itself (see writeCard).
+  $<HTMLButtonElement>("write").disabled = writing;
   $<HTMLButtonElement>("again").disabled = writing;
 }
 
@@ -413,9 +414,32 @@ function renderStyle() {
 
 const theme = () => document.querySelector<HTMLInputElement>('input[name="theme"]:checked')?.value ?? "beach";
 
-async function writeCard(fresh: boolean) {
-  if (fresh) seed = Math.floor(Math.random() * 1_000_000);
-  else seed += 1;
+/** Why this note can't be written yet, in a sentence, or "" if it can. */
+function noteTrouble(): string {
+  const n = letterCount();
+  const most = story() ? LONGEST_STORY : LONGEST_LIST;
+  if (n === 0) return "Type your secret note in the box first.";
+  if (n < SHORTEST) return `Your note needs at least ${SHORTEST} letters (it has ${n}).`;
+  if (n > most) {
+    const where = story() ? "A proper postcard" : "Nan's list";
+    return `${where} fits ${most} letters at most (yours has ${n}).${story() ? " Nan's list takes up to 40." : ""}`;
+  }
+  return "";
+}
+
+/**
+ * Write the card. "fresh" picks new words, "again" the next set, and "same" keeps the
+ * words' seed so a change of theme, style or letter rewrites the card the visitor has.
+ */
+async function writeCard(mode: "fresh" | "again" | "same") {
+  const trouble = noteTrouble();
+  if (trouble) {
+    deskStatus.textContent = trouble;
+    noteInput.focus();
+    return;
+  }
+  if (mode === "fresh") seed = Math.floor(Math.random() * 1_000_000);
+  else if (mode === "again") seed += 1;
   writing = true;
   renderCount();
   try {
@@ -560,9 +584,15 @@ async function start() {
   choices[Math.floor(Math.random() * choices.length)].checked = true;
   $("write-form").addEventListener("submit", (event) => {
     event.preventDefault();
-    void writeCard(true);
+    void writeCard("fresh");
   });
-  $("again").addEventListener("click", () => void writeCard(false));
+  $("again").addEventListener("click", () => void writeCard("again"));
+  // Once a card is written, changing the theme, style or letter rewrites it straight away.
+  for (const choice of document.querySelectorAll('input[name="theme"], input[name="style"], input[name="position"]')) {
+    choice.addEventListener("change", () => {
+      if (current?.id === WRITTEN && !noteTrouble()) void writeCard("same");
+    });
+  }
   $("send").addEventListener("click", () => void sendCard());
   for (const field of ["note", "to", "from"]) $<HTMLInputElement>(field).disabled = false;
   renderStyle();
