@@ -26,11 +26,14 @@
         <h2 id="send-title" class="counter-title">Send a telegram</h2>
 
         <div class="form-and-book">
-          <label class="telegram-form" for="message">
-            <span class="form-head"><span>Telegram</span><span class="form-no">No. 0611</span></span>
-            <span class="form-label">Your message</span>
-            <textarea id="message" rows="3" maxlength="240" spellcheck="false" disabled></textarea>
-          </label>
+          <div class="form-col">
+            <label class="telegram-form" for="message">
+              <span class="form-head"><span>Telegram</span><span class="form-no">No. 0611</span></span>
+              <span class="form-label">Your message</span>
+              <textarea id="message" rows="3" maxlength="240" spellcheck="false" disabled></textarea>
+            </label>
+            <button type="button" class="paper-button" id="send-another" disabled>Another message</button>
+          </div>
 
           <aside class="code-book" aria-labelledby="book-title">
             <h3 id="book-title">The office code book</h3>
@@ -68,17 +71,19 @@
           <p class="tape-label">Down the wire</p>
           <ol class="tape" id="send-tape" aria-label="The scrambled telegram"></ol>
         </div>
-        <p class="office-status" id="send-status" role="status" aria-live="polite">The clerk is putting on the kettle…</p>
+        <p class="office-status" id="send-status" role="status" aria-live="polite">Opening the shutters…</p>
         <div class="counter-tools">
-          <button type="button" class="brass-button" id="send-copy" disabled>Copy the telegram</button>
+          <button type="button" class="brass-button" id="send-link" disabled>Copy a challenge link</button>
+          <button type="button" class="paper-button" id="send-copy" disabled>Copy the telegram only</button>
         </div>
       </section>
 
       <section class="counter crack" id="crack" aria-labelledby="crack-title">
         <h2 id="crack-title" class="counter-title">Crack a telegram</h2>
-        <p class="counter-lede">
-          This one came in this morning, and nobody wrote down the route. Choose the size of the
-          rack and try routes until the words read as a sentence.
+        <p class="counter-lede" id="crack-lede">
+          Today's telegram came in this morning, and nobody wrote down the route. Choose the size
+          of the rack, rearrange the columns until the words read as a sentence, then check the
+          route.
         </p>
         <label class="practice">
           <input type="checkbox" id="practice" disabled />
@@ -86,7 +91,7 @@
         </label>
 
         <div class="tape-wrap">
-          <p class="tape-label" id="crack-tape-label">Received at 9:14</p>
+          <p class="tape-label" id="crack-tape-label">Today's telegram</p>
           <ol class="tape" id="crack-tape"></ol>
         </div>
 
@@ -109,8 +114,15 @@
             <p class="delivered" id="delivered" hidden>Delivered</p>
           </div>
         </div>
-        <p class="office-status" id="crack-status" role="status" aria-live="polite"></p>
+        <div class="counter-tools">
+          <button type="button" class="brass-button" id="crack-check" disabled>Check the route</button>
+        </div>
+        <p class="office-status" id="crack-status" role="status" aria-live="polite">Opening the shutters…</p>
         <p class="decoded" id="decoded" hidden></p>
+        <div class="counter-tools" id="after-crack" hidden>
+          <button type="button" class="brass-button" id="share-result">Copy my result</button>
+          <button type="button" class="paper-button" id="reply">Send your own telegram</button>
+        </div>
 
         <details class="hint">
           <summary>A clerk's hint</summary>
@@ -137,11 +149,17 @@
           words. Untangle the route and you still read "meet GULL by BANDSTAND".
         </p>
         <p>
+          A challenge link carries the scrambled words and a seal: a fingerprint of the right
+          order that can tell when you've got it, but can't be turned back into the message. The
+          route itself never leaves your screen. A new telegram reaches the counter every day,
+          the same one for everybody, picked by the date.
+        </p>
+        <p>
           Telegraph clerks liked it because every word is a real word. Strings of random letters
           get mangled on a busy wire; whole words come through. The page is built the same way:
           you can only pick rack sizes that fit and routes that exist, so there's no wrong button
           to press. All the shuffling is Python, running right here in your browser.
-          <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/06_pier_telegraph">Peek at the Python</a>.
+          <a href="https://github.com/preet-portfolio/impractical-pythons/blob/main/projects/06_pier_telegraph/route.py">Peek at the Python</a>.
         </p>
       </section>
     </main>

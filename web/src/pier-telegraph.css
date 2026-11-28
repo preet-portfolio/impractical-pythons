@@ -349,11 +349,29 @@ body.telegraph .skip {
   white-space: nowrap;
 }
 
-/* On a phone the chips just say "3 ↑", so a whole route fits on a line or two. */
+/* On a phone the chips just say "3 ↑", so a whole route fits on a line or two, and the rack
+   gives its pigeonholes every pixel it can spare. */
 @media (max-width: 30rem) {
   .col-word {
     display: none;
   }
+
+  .rack {
+    padding: 0.35rem;
+  }
+
+  .holes {
+    gap: 0.2rem;
+  }
+
+  .holes {
+    --slip-pad: 0.12rem;
+  }
+
+  .rack-wrap {
+    padding-inline: 0.3rem;
+  }
+
 }
 
 .nudge {
@@ -395,8 +413,10 @@ body.telegraph .skip {
 
 /* ---- the centrepiece: the pigeonhole rack ------------------------------------------- */
 
+/* Room round the rack for the tape to loop outside it when the route jumps edges. */
 .rack-wrap {
-  margin: 1.25rem 0;
+  margin: 1.25rem 0 1.6rem;
+  padding-inline: 0.5rem;
 }
 
 .route-head,
@@ -435,26 +455,34 @@ body.telegraph .skip {
   display: grid;
   place-items: center;
   min-height: 2.9rem;
-  padding: 0.3rem 0.25rem;
+  padding: 0.3rem 0.1rem;
   background:
     linear-gradient(180deg, rgb(0 0 0 / 0.45), transparent 0.5rem),
     #3a1a12;
   border-radius: 0.15rem;
   box-shadow: inset 0 0 0 1px #5a2e20;
+  container-type: inline-size; /* so a slip can size its type to this hole's width */
 }
 
 .slip {
   position: relative;
   z-index: 2;
   max-width: 100%;
-  padding: 0.2rem 0.35rem;
+  padding: 0.2rem var(--slip-pad, 0.25rem);
   background: var(--tape);
   color: var(--ink);
   border-radius: 0.1rem;
   box-shadow: 0 2px 3px rgb(0 0 0 / 0.5);
   overflow-wrap: anywhere;
   text-align: center;
-  font: 700 clamp(0.66rem, 2.1vw, 0.88rem)/1.2 var(--tape-font);
+  font: 700 0.88rem/1.2 var(--tape-font);
+  /* Shrink a long word to fit its hole on one line: Space Mono's letters are about 0.62em
+     wide, and --chars (set by the page) is the word's length. 100cqi is the hole's width. */
+  font-size: clamp(
+    0.4rem,
+    (100cqi - 2 * var(--slip-pad, 0.25rem) - 2px) / (var(--chars, 6) * 0.62),
+    0.88rem
+  );
 }
 
 .slip.is-code {
@@ -574,9 +602,36 @@ body.telegraph .skip {
   font-weight: 700;
 }
 
+/* The quieter choice next to a brass button: a cream paper tag. */
+.paper-button {
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+  padding: 0.55rem 0.95rem;
+  color: var(--ink);
+  background: var(--tape);
+  border: 2px dashed var(--brass-deep);
+  border-radius: 0.3rem;
+}
+
+.paper-button:disabled,
 .brass-button:disabled {
   cursor: default;
   opacity: 0.6;
+}
+
+.form-col {
+  display: grid;
+  gap: 0.7rem;
+  justify-items: start;
+}
+
+.form-col .telegram-form {
+  justify-self: stretch;
+}
+
+#after-crack[hidden] {
+  display: none;
 }
 
 .delivered {
