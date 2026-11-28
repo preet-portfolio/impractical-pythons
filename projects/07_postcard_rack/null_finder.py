@@ -14,8 +14,9 @@ Nth letter and write it down. Three rules decide the awkward cases:
 
 Spaces don't count at all. Nothing is counted before the first mark.
 
-The other rules here are simpler: the Nth letter of every word, or the
-Nth letter of every word that starts with a capital.
+The other rules here are simpler: the Nth letter of every word, the
+Nth letter of every word that starts with a capital, or the Nth letter
+of every Nth word.
 """
 
 import re
@@ -25,6 +26,7 @@ from collections.abc import Callable
 from word_gaps import split_words
 
 LETTER_WORD = re.compile(r"[A-Za-z]+")
+ANY_WORD = re.compile(r"\S+")  # "didn't" is one word here, not two
 SHORTEST = 6  # fewer picked letters than this could read as words by luck
 # A reading counts as a message when nearly all of it is real words and
 # those words average at least this many letters. Chance makes plenty of
@@ -80,17 +82,35 @@ def of_capital_words(text: str, offset: int) -> list[int]:
     return word_letters(text, offset, capitals_only=True)
 
 
+def every_nth_word(text: str, offset: int) -> list[int]:
+    """The ``offset``-th letter of every ``offset``-th word.
+
+    Words are whatever sits between spaces, so "didn't" is one word, and
+    only letters are counted inside it (marks are stepped over).
+    """
+    picked = []
+    for number, word in enumerate(ANY_WORD.finditer(text), start=1):
+        if number % offset:
+            continue
+        letters = [word.start() + i for i, char in enumerate(word.group()) if char.isalpha()]
+        if len(letters) >= offset:
+            picked.append(letters[offset - 1])
+    return picked
+
+
 # Each rule: a name the page shows, and the function that finds positions.
 RULES: dict[str, Callable[[str, int], list[int]]] = {
     "punctuation": after_punctuation,
     "words": of_each_word,
     "capitals": of_capital_words,
+    "nth": every_nth_word,
 }
 
 DESCRIBE = {
     "punctuation": "letter after each punctuation mark",
     "words": "letter of every word",
     "capitals": "letter of every capitalised word",
+    "nth": "letter of every {ordinal} word",
 }
 
 
@@ -116,7 +136,7 @@ def hidden_letters(text: str, rule: str, offset: int) -> str:
 def describe(rule: str, offset: int) -> str:
     """A setting in plain words: "3rd letter after each punctuation mark"."""
     ordinal = {1: "1st", 2: "2nd", 3: "3rd"}.get(offset, f"{offset}th")
-    return f"{ordinal} {DESCRIBE[rule]}"
+    return f"{ordinal} {DESCRIBE[rule].format(ordinal=ordinal)}"
 
 
 def read_reading(letters: str, words: set[str]) -> dict:
@@ -149,12 +169,15 @@ def scan(text: str, words: set[str], most: int = 6) -> list[dict]:
     Returns a list of ``{"rule", "offset", "setting", "letters",
     "words", "coverage", "word_length", "reads"}``.
     """
-    readings = []
+    readings, seen = [], set()
     for rule in RULES:
         for offset in range(1, most + 1):
             letters = hidden_letters(text, rule, offset)
-            if len(letters) < SHORTEST:
+            # Two settings can pick the same letters (the 1st letter of every
+            # 1st word is every word's 1st letter): show each reading once.
+            if len(letters) < SHORTEST or letters in seen:
                 continue
+            seen.add(letters)
             reading = {"rule": rule, "offset": offset, "setting": describe(rule, offset)}
             reading |= {"letters": letters} | read_reading(letters, words)
             readings.append(reading)

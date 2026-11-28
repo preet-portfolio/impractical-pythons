@@ -109,6 +109,20 @@ POSTCARDS = [
         "note": "pier at six",
     },
     {
+        "id": "caravan",
+        "place": "Seaview Caravan Park",
+        "scene": "caravan",
+        "to": "Jas",
+        "sender": "Mei",
+        "text": (
+            "We agreed to share a cosy caravan: Ash, Bo, Stella and Otto. We "
+            "tried the maze and liked the snacks most"
+        ),
+        "rule": "nth",
+        "offset": 2,
+        "note": "ghost train",
+    },
+    {
         "id": "promenade",
         "place": "The Promenade",
         "scene": "prom",

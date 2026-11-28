@@ -7,10 +7,13 @@ Usage (from the repo root):
     uv run python projects/07_postcard_rack/main.py --file letter.txt --lookahead 4
     uv run python projects/07_postcard_rack/main.py --text "..." --rule words --lookahead 3
     uv run python projects/07_postcard_rack/main.py --scan
+    uv run python projects/07_postcard_rack/main.py --write "meet me by the pier" --position 3
 
 ``--lookahead N`` is the book's loop: try 1, 2, ... N letters along and
 print every reading, so you can spot the one that makes sense.
 ``--scan`` tries every rule as well and lets the dictionary pick.
+``--write`` goes the other way: it hides a note in a list of Nan's
+Scrabble words, one letter per word.
 """
 
 import argparse
@@ -25,6 +28,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1] / "common"))
 # pylint: disable=wrong-import-position
 from decency import family_friendly  # noqa: E402
 from null_finder import RULES, check_setting, describe, hidden_letters, scan  # noqa: E402
+from null_writer import POSITIONS, write_postcard  # noqa: E402
 from postcards import postcard_number, todays_postcard  # noqa: E402
 from word_gaps import word_set  # noqa: E402
 from wordlist import clean_words, read_words  # noqa: E402
@@ -64,6 +68,15 @@ def show_scan(text: str) -> None:
             print(f"Closest: {best['setting']}: {' '.join(best['words'])}")
 
 
+def show_written(note: str, position: int, seed: int | None) -> None:
+    """Print a postcard that hides ``note``, and how to find it again."""
+    card = write_postcard(note, dictionary(), position, seed)
+    print(card)
+    print()
+    print(f"Hidden in the {describe('punctuation', position)}.")
+    print('Check it with --scan --text "..." (paste the card in).')
+
+
 def show_today(day: date) -> None:
     """Print the postcard at the front of the rack today."""
     card = todays_postcard(day)
@@ -84,9 +97,17 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--lookahead", type=int, help="try 1 up to this many letters along")
     parser.add_argument("--scan", action="store_true", help="try every rule and offset")
     parser.add_argument("--today", action="store_true", help="today's postcard")
+    parser.add_argument("--write", metavar="NOTE", help="hide a note in a postcard")
+    parser.add_argument(
+        "--position", type=int, default=3, choices=POSITIONS, help="which letter carries the note"
+    )
+    parser.add_argument("--seed", type=int, help="pick the same words every time")
     args = parser.parse_args(argv)
 
     try:
+        if args.write:
+            show_written(args.write, args.position, args.seed)
+            return
         if args.file:
             text = load_text(args.file)
         else:
