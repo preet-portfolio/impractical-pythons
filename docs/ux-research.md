@@ -101,3 +101,41 @@ dCode's anagram generator, and Jumble. (Wordplays refused our visit.)
 4. **One or two controls at most.** Good defaults instead of settings.
 5. **End on something shareable.**
 6. **Never a bare "no result".** Always suggest the next thing to try.
+
+## Telegrams people send: research for the Pier Telegraph
+
+Desk research done after the first version of the stall, looking at online cipher tools,
+escape-room and daily puzzle games, code-breaking museum exhibits and kids' spy kits, and
+walking each proto-persona through the page. Summarised here in our own words.
+
+**What the research found**
+
+- **Sending a telegram was a chore.** The receiver needed the scrambled words *and* the key,
+  sent separately. Almost nobody shares a joke in two messages.
+- **Cracking was too easy.** Reading the waiting telegram straight down every column already
+  got 11 of its 15 words right, and a live "N right" count after every tap turned the puzzle
+  into hot-and-cold clicking.
+- **Nothing brought people back.** Daily puzzles with a spoiler-free result to paste into a
+  group chat are what make the popular word games spread.
+- **The wait for Python needs a voice.** A few silent seconds on a phone look broken.
+- **Cipher sites feel like workbenches.** The stall's physical rack, tape and stamp are its
+  advantage over them; keep the maths below the fold.
+
+**What we changed**
+
+| Finding | Change |
+|---|---|
+| Two messages to share one telegram | **Challenge link**: one URL with the scrambled words and a one-way fingerprint of the answer, never the key or the message |
+| No way to answer back | **Send a reply** button under the DELIVERED stamp |
+| Cracking was over in seconds | A new route for every telegram, rolled until reading straight down gets at most a fifth of the words |
+| Live score made it guesswork | **Check the route** button; the score only shows when you check, and the count of checks is kept |
+| No reason to return | **A telegram a day**, the same for everyone, picked by the date with no server |
+| Nothing to show friends | **Copy my result**: "cracked in 3 checks", with no spoilers |
+| Typing on a phone is a chore | **Another message** fills the form with a ready-made seaside telegram |
+| Silent loading | The clerk's own words while Python loads ("Stringing the telegraph wire…") |
+| Code hidden behind a repo | "Peek at the Python" opens the route cipher file itself |
+| Cramped racks on phones | Phones get racks of up to 5 columns, and long words shrink to fit their pigeonhole |
+
+**Left for later:** letting senders add a couple of their own code words, a muted-by-default
+sound for the stamp, and showing the Python inside the page.
+

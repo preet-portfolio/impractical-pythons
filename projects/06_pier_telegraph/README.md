@@ -11,7 +11,8 @@ shuffled telegram harder to read, the clerks also swap the important words for c
 the office code book (*the money* goes out as DONKEY) and fill the empty pigeonholes with
 harmless filler like PEBBLE and KITE.
 
-There's also a telegram waiting on the counter that nobody wrote the route down for. Crack it.
+Every day a new telegram is waiting on the counter, and nobody wrote down its route. Crack it,
+then send your own to a friend as a challenge link: they have to crack your route to read it.
 
 ## Play
 
@@ -21,6 +22,7 @@ uv run python projects/06_pier_telegraph/main.py --key "-1 2 -3 4 -5"
 uv run python projects/06_pier_telegraph/main.py --cipher "tell under BUCKET on ..." --cols 5 --key "1 -2 3 -4 5"
 uv run python projects/06_pier_telegraph/main.py --encrypt "Meet the manager at midnight"
 uv run python projects/06_pier_telegraph/main.py --encrypt "Meet the manager by the pier" --cols 2 --key "2 -1"
+uv run python projects/06_pier_telegraph/main.py --today                 # today's puzzle
 ```
 
 The easiest way of all: open `main.py`, find the block marked `YOUR TELEGRAM`, paste in the
@@ -117,18 +119,56 @@ still shown underneath (`-1 2 -3 4`) for anyone who wants to send it.
 ## The web page
 
 Python does all the work: the page's small bridge calls `codebook.encode`, `grid_options`,
-`pad`, `route_order`, `encrypt` and `decrypt`, and the page only draws what comes back. To check
-whether you've cracked the waiting telegram, Python compares your rack with the original and
-says how many words are in the right pigeonhole. When all of them are, the DELIVERED stamp
-comes down and the code words are swapped back.
+`pad`, `route_order`, `encrypt` and `decrypt`, and the page only draws what comes back. When you
+press **Check the route**, Python compares your rack with the answer and says how many words are
+in the right pigeonhole. When all of them are, the DELIVERED stamp comes down and the code words
+are swapped back.
+
+## A telegram a day, with no server
+
+Everyone who opens the page on the same day should get the same puzzle, but the site has no
+server to hand one out. So the date does the choosing (`dispatches.py`):
+
+1. `telegram_number` counts the days since the office opened: No. 1, No. 2, and so on.
+2. That number picks a message from `DISPATCHES` (looping round when they run out).
+3. The same number seeds a `random.Random`, which rolls the route. A seeded generator gives the
+   same "random" numbers every time, on every computer, so everybody's telegram matches.
+
+A random route can be too easy: reading every column straight down might already get most
+words right. `scrambled_key` checks that "lazy guess" with `plain_route_hits` and rolls again
+until the guess gets at most a fifth of the words. It tries at most 100 times (a `for` loop with
+a limit, never `while True`) and keeps the best route it saw. A test checks all 14 telegrams.
+
+## Challenge links: sending the puzzle, not the answer
+
+A challenge link (`challenge.py`) has to let a friend's browser say "you've cracked it" without
+carrying the answer. It packs two things:
+
+- the **scrambled telegram**, which the friend can see anyway, and
+- a **fingerprint** of the right order: the first 12 characters of a SHA-256 hash of the words.
+
+`hashlib.sha256` turns any text into a fixed-size string of hex digits. The same words always
+give the same hash, a single word moved gives a completely different one, and there's no way to
+run it backwards. So when the friend presses Check, their browser fingerprints *their* rack and
+compares. The key never leaves the sender's screen.
+
+To fit in a link, the two go through `json.dumps` (data to text) and then
+`base64.urlsafe_b64encode` (text to just letters, digits, `-` and `_`). `read_challenge` undoes
+that and checks everything, because anything can arrive in a link: a cut-off or edited link
+raises `ChallengeProblem` with a plain message, and the page falls back to today's telegram.
+
+Could someone cheat? They could try every possible route and compare fingerprints. That's a
+brute-force attack, and it's coming to this stall later in the chapter.
 
 ## Files
 
 | File | What's in it |
 |---|---|
 | `route.py` | `factors`, `check_grid`, `check_key`, `parse_key`, `route_order`, `encrypt`, `build_matrix`, `decrypt_matrix`, `decrypt`, and the `TelegramProblem` exceptions |
-| `codebook.py` | `CODEBOOK`, `FILLER`, `SAMPLE`, `MYSTERY`, `TICKETS`, `plain_words`, `encode`, `decode`, `grid_options`, `pad` |
-| `main.py` | The settings block, `receive`, `send`, `argparse` options, friendly errors on `stderr` with exit code 1 |
+| `codebook.py` | `CODEBOOK`, `FILLER`, `SAMPLE`, `TICKETS`, `plain_words`, `encode`, `decode`, `grid_options`, `snuggest`, `pad` |
+| `dispatches.py` | `DISPATCHES`, `telegram_number`, `plain_route_hits`, `scrambled_key`, `is_fair`, `puzzle_rack`, `dispatch`, `todays_dispatch` |
+| `challenge.py` | `fingerprint`, `make_challenge`, `looks_like_telegram`, `read_challenge`, `is_solved`, `ChallengeProblem` |
+| `main.py` | The settings block, `receive`, `send`, `show_today`, `argparse` options, friendly errors on `stderr` with exit code 1 |
 
 ## What's new here
 
@@ -150,6 +190,14 @@ comes down and the code words are swapped back.
   problem.
 - **`sys.exit(1)` and `stderr`** for errors, so the shell (and other programs) can tell.
 - **A settings block** at the top of a script, for people who'd rather edit than type options.
+- **`datetime.date` arithmetic.** Subtracting two dates gives a `timedelta`; `.days` turns
+  it into a number.
+- **Seeded randomness as a shared secret.** `random.Random(number)` rolls the same route for
+  everyone, which is how a static site can have a daily puzzle.
+- **A retry loop with a limit.** `for _ in range(100)` plus `break`, keeping the best so far.
+- **`hashlib.sha256`** for a one-way fingerprint: check an answer without storing it.
+- **`json` plus `base64.urlsafe_b64encode`** to pack data into a link, and validating
+  everything that comes back out.
 - **Rounding up with `-(-a // b)`**: floor division of a negative number rounds the other
   way.
 
@@ -160,7 +208,10 @@ comes down and the code words are swapped back.
    decrypting by inverting it gets the message back.
 2. Make the code book **two-way safe**: warn when a message already contains a code word
    (someone writing about an actual gull), and pick a different one for that telegram.
-3. Write `crack(cipher, cols, rows)` that tries **every** key for a rack and scores each result
+3. Let a challenge link carry a **hint**: how many columns the rack had, or which column
+   comes first, chosen by the sender. What would you add to the payload, and does it give
+   anything else away?
+4. Write `crack(cipher, cols, rows)` that tries **every** key for a rack and scores each result
    by how many neighbouring word pairs appear in the sample messages. How many keys are there
    for 5 columns? (Hint: orderings times directions.)
 
