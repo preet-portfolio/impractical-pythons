@@ -1,5 +1,8 @@
 """Put the spaces back into a run of letters, using a dictionary.
 
+Shared by Pier Telegraph (rail fence letters) and the Postcard Rack
+(letters hidden in a postcard).
+
 A rail fence telegram arrives as one long string, LETUSCROSSTHEPIER,
 because the spaces were thrown away before sending. A person reads
 "let us cross the pier" without thinking; a program has to search.

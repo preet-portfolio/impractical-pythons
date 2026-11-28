@@ -242,7 +242,7 @@ five-column route.
 
 ## Putting the gaps back
 
-Rail fence letters arrive with no spaces. `word_gaps.split_words` puts them back using the
+Rail fence letters arrive with no spaces. `word_gaps.split_words` (in `projects/common`, shared with the Postcard Rack) puts them back using the
 shared 60,000-word dictionary, with **dynamic programming**: work left to right, and for every
 position remember only the best way to split the letters up to there. Each answer is built
 from a shorter one plus one more word, so nothing is worked out twice. "Best" is a tuple,
@@ -281,7 +281,7 @@ swap that happened to land on look-alike letters can pass for English, so `verdi
 | `challenge.py` | `fingerprint`, `make_challenge`, `looks_like_telegram`, `read_challenge`, `is_solved`, `ChallengeProblem` |
 | `night_clerk.py` | `key_count`, `all_keys`, `place`, `expand`, `readability`, `fits`, `racks`, `crack_route`, `crack_seal`, `crack_rails` |
 | `rail_fence.py` | `prepare`, `zigzag_rows`, `encrypt`, `in_fives`, `two_rail_decrypt`, `zigzag_decrypt`, `decrypt`, `intercepted`, `RailProblem`, the sample messages |
-| `word_gaps.py` | `word_set`, `split_words`, `join_strays`, `coverage` |
+| `../common/word_gaps.py` | `word_set`, `split_words`, `join_strays`, `coverage`. Shared, because the Postcard Rack uses it too |
 | `sniff.py` | `letter_shares`, `english_likeness`, `verdict`, `decide`, `explain`, `swap_letters` |
 | `main.py` | The settings block, `receive`, `send`, `show_today`, the night clerk, rail fence and sniff commands, `argparse` options, friendly errors on `stderr` with exit code 1 |
 
