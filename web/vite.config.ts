@@ -12,6 +12,12 @@ export default defineConfig({
       input: {
         home: resolve(import.meta.dirname, "index.html"),
         aliasSlots: resolve(import.meta.dirname, "alias-slots/index.html"),
+        codeTalk: resolve(import.meta.dirname, "code-talk/index.html"),
+        letterBars: resolve(import.meta.dirname, "letter-bars/index.html"),
+        mirrorSpells: resolve(import.meta.dirname, "mirror-spells/index.html"),
+        shuffleCafe: resolve(import.meta.dirname, "shuffle-cafe/index.html"),
+        pierTelegraph: resolve(import.meta.dirname, "pier-telegraph/index.html"),
+        postcardRack: resolve(import.meta.dirname, "postcard-rack/index.html"),
       },
     },
   },

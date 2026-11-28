@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Postcard Rack · Impractical Pythons</title>
+    <meta name="description" content="Every postcard says wish you were here. Some say something else too. Read between the lines, reveal the secret, or hide a note of your own." />
+    <meta name="theme-color" content="#2f7fb5" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💌</text></svg>" />
+  </head>
+  <body class="postcard">
+    <a class="skip" href="#card">Skip to today's postcard</a>
+    <nav class="crumbs"><a href="/">Back to the pier</a></nav>
+
+    <main id="main">
+      <header class="shop-sign">
+        <p class="sign-greetings">Greetings from the</p>
+        <h1 class="sign-name">Postcard Rack</h1>
+        <p class="sign-lede">
+          Every card on this rack says "wish you were here". Some of them say something else as
+          well, hidden in plain sight. Pick a card, read it closely, then reveal the secret.
+        </p>
+      </header>
+
+      <section class="counter" aria-labelledby="card-title">
+        <h2 id="card-title" class="counter-title">
+          <span id="card-label">Today's postcard</span>
+        </h2>
+
+        <div class="desk">
+          <article class="card" id="card" tabindex="-1" aria-describedby="status">
+            <div class="card-picture front" id="card-picture" aria-hidden="true">
+              <span class="front-greet">Greetings from</span>
+              <span class="front-place" id="picture-place"></span>
+            </div>
+            <div class="card-message">
+              <p class="card-to" id="card-to"></p>
+              <p class="card-text" id="card-text"></p>
+              <textarea class="card-own" id="card-own" rows="7" maxlength="1200" spellcheck="false" aria-label="Your own text to check" hidden></textarea>
+              <p class="card-from" id="card-from"></p>
+            </div>
+            <div class="card-address" aria-hidden="true">
+              <span class="stamp" id="stamp"><span class="stamp-sea"></span></span>
+              <span class="postmark" id="postmark"></span>
+              <span class="address-line"></span>
+              <span class="address-line"></span>
+              <span class="address-line"></span>
+            </div>
+            <p class="found-stamp" id="found-stamp" hidden>Read between the lines</p>
+          </article>
+        </div>
+
+        <p class="shop-status" id="status" role="status" aria-live="polite">Unlocking the shop…</p>
+        <div class="tools">
+          <button type="button" class="glass-button reveal-button" id="reveal" disabled>Reveal the secret</button>
+        </div>
+        <div class="tag" id="secret" aria-live="polite" hidden>
+          <p class="tag-label" id="secret-label">The secret note</p>
+          <p class="tag-words" id="secret-words"></p>
+          <p class="tag-how" id="secret-how"></p>
+        </div>
+      </section>
+
+      <section class="writing-desk" aria-labelledby="desk-title">
+        <div class="tiles" aria-hidden="true">
+          <span>W<sub>4</sub></span><span>R<sub>1</sub></span><span>I<sub>1</sub></span><span>T<sub>1</sub></span><span>E<sub>1</sub></span>
+        </div>
+        <h2 id="desk-title" class="desk-title">Write your own</h2>
+        <p class="desk-help">
+          Type a secret note. Nan hides it in her Scrabble words, one letter in each word, or
+          in a proper postcard home, one letter at the start of each sentence. Send it to a
+          friend: all they see is a gran showing off, or a nice day at the seaside.
+        </p>
+        <form class="desk-form" id="write-form" novalidate>
+          <label class="field field-note">
+            <span class="field-label">Your secret note</span>
+            <input id="note" type="text" maxlength="80" autocomplete="off" spellcheck="false" placeholder="for example: meet me by the pier" aria-describedby="note-count" disabled />
+          </label>
+          <p class="note-count" id="note-count" aria-live="polite"></p>
+          <fieldset class="positions">
+            <legend class="field-label">Write it as…</legend>
+            <label class="chip"><input type="radio" name="style" value="list" checked /><span>Nan's Scrabble words</span></label>
+            <label class="chip"><input type="radio" name="style" value="story" /><span>A proper postcard</span></label>
+          </fieldset>
+          <fieldset class="positions" id="themes" hidden>
+            <legend class="field-label">Which postcard?</legend>
+            <div class="theme-cards" id="theme-cards"></div>
+          </fieldset>
+          <fieldset class="positions">
+            <legend class="field-label" id="position-legend">Hide it in each word's…</legend>
+            <label class="chip"><input type="radio" name="position" value="2" /><span>2nd letter</span></label>
+            <label class="chip"><input type="radio" name="position" value="3" checked /><span>3rd letter</span></label>
+            <label class="chip"><input type="radio" name="position" value="4" /><span>4th letter</span></label>
+          </fieldset>
+          <div class="names">
+            <label class="field">
+              <span class="field-label">To</span>
+              <input id="to" type="text" maxlength="20" autocomplete="off" placeholder="Kit" disabled />
+            </label>
+            <label class="field">
+              <span class="field-label">From</span>
+              <input id="from" type="text" maxlength="20" autocomplete="off" placeholder="Sam" disabled />
+            </label>
+          </div>
+          <div class="tools">
+            <button type="submit" class="glass-button" id="write" disabled>Write the postcard</button>
+            <button type="button" class="paper-button" id="again" hidden>Write it again</button>
+            <button type="button" class="paper-button" id="send" hidden>Copy the link to send</button>
+          </div>
+          <p class="shop-status" id="desk-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="rack-wrap" aria-labelledby="rack-title">
+        <h2 id="rack-title" class="rack-title">More cards on the rack</h2>
+        <p class="rack-help">Not every card hides something. That's the fun of it.</p>
+        <ul class="rack" id="rack"></ul>
+      </section>
+
+      <section class="about" aria-labelledby="about-title">
+        <h2 id="about-title">How a note hides on a postcard</h2>
+        <p>
+          Hiding a secret so well that nobody suspects there is one is called
+          <strong>steganography</strong>, from the Greek for "covered writing". The postcards here
+          use a <strong>null cipher</strong>: the hidden note isn't scrambled at all. Its letters
+          sit inside an ordinary message at places agreed in advance, and every other letter is
+          padding.
+        </p>
+        <p>
+          The famous one is a letter smuggled to a Royalist prisoner in 1642, during the English
+          Civil War. His jailers read it and found nothing odd. Counting three letters on from
+          every punctuation mark spelled out where the secret way out of the chapel was, and by
+          the next morning he was gone.
+        </p>
+        <p>
+          The punctuation rule has small print, and it matters. Every mark starts the count again,
+          so a second mark before you get there restarts it. Marks never count as letters. Spaces
+          don't count at all. An extra comma in the wrong place, and the note falls apart.
+        </p>
+        <p>
+          Writing one is much harder than finding one: every sentence has to make sense
+          <em>and</em> put the right letter in the right place. A list gets round that, because
+          nobody expects a list to make sense. That's why the writing desk uses Nan's Scrabble
+          words: any word can be a good Scrabble word, so any word can carry a letter.
+        </p>
+        <p>
+          The rack's cards use a few rules from the same era: letters after punctuation, the
+          first letter of every word or of every capital word, and the 2nd letter of every 2nd
+          word (or the 3rd of every 3rd). Hold on to that last one: one card uses it.
+        </p>
+        <p>
+          On a card from a friend or your own words, "Reveal" does what a suspicious jailer could
+          have done: try every rule and every count, and keep the one that reads as real words. A dictionary splits the letters
+          back into words, and a reading only counts if it's real words all the way through,
+          and not just a lucky run of "a", "at" and "me". All of this is Python, running here in
+          your browser.
+          <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/07_postcard_rack">Peek at the Python</a>.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <p>
+        Inspired by the Trevanion cipher project in
+        <a href="https://nostarch.com/impracticalpython"><cite>Impractical Python Projects</cite></a>
+        by Lee Vaughan, a great book if you want to make your own silly, clever programs. The
+        postcards and code are new. One of the stalls on the
+        <a href="/">Impractical Pythons</a> pier.
+      </p>
+    </footer>
+    <script type="module" src="/src/postcard-rack-page.ts"></script>
+  </body>
+</html>

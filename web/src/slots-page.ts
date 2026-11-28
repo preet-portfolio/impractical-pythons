@@ -10,11 +10,46 @@ type Theme = {
   blurb: string;
   reel_names: string[];
   reels: string[][];
+  middles: string[];
+  middle_chance: number;
   combinations: number;
+  reel_combinations: number;
+  bonus_chance: number;
   odds: Record<"jackpot" | "rhyme" | "pair", number>;
 };
-type Spin = { theme: string; indices: number[]; words: string[]; name: string; prize: Prize; code: string };
+type Spin = {
+  theme: string;
+  indices: number[];
+  words: string[];
+  name: string;
+  prize: Prize;
+  code: string;
+  middle: number | null;
+  middle_word: string | null;
+  bonus: boolean;
+};
 type DecodeResult = Spin | { error: string };
+
+// Python side of the page: called by the worker as _bridge(fn, args_json) -> JSON.
+const BRIDGE = `
+import json
+from dataclasses import asdict
+import slots
+
+def _bridge(fn, args_json):
+    args = json.loads(args_json)
+    if fn == "catalogue":
+        return json.dumps(slots.catalogue())
+    if fn == "spin":
+        locked = {int(k): v for k, v in args["locked"].items()}
+        return json.dumps(asdict(slots.spin(args["theme"], None, locked)))
+    if fn == "decode":
+        try:
+            return json.dumps(asdict(slots.decode(args["code"])))
+        except ValueError as error:
+            return json.dumps({"error": str(error)})
+    raise ValueError(f"Unknown call {fn!r}")
+`;
 
 const COPIES = 7; // each strip repeats its words so a spin can travel several loops
 const HISTORY_KEY = "alias-slots-history";
@@ -101,7 +136,37 @@ function buildReels() {
     reel.append(label, win, hold);
     els.reels.append(reel);
     place(i, positions[i], false);
+    if (i === 0) els.reels.append(buildWildcard());
   });
+}
+
+/** The wildcard: a little window between First and Last that only lights up now and then. */
+function buildWildcard() {
+  const wild = document.createElement("div");
+  wild.className = "reel wildcard";
+  wild.id = "wildcard";
+  const label = document.createElement("p");
+  label.className = "reel-name";
+  label.textContent = "Wildcard";
+  const win = document.createElement("div");
+  win.className = "window wild-window";
+  win.setAttribute("aria-hidden", "true");
+  const word = document.createElement("span");
+  word.className = "wild-word";
+  word.textContent = "?";
+  win.append(word);
+  const chance = document.createElement("p");
+  chance.className = "wild-chance";
+  chance.textContent = `Shows 1 in ${Math.round(1 / theme.middle_chance)}`;
+  wild.append(label, win, chance);
+  return wild;
+}
+
+function setWildcard(state: "idle" | "flicker" | "lit" | "off", text = "?") {
+  const wild = document.getElementById("wildcard");
+  if (!wild) return;
+  wild.dataset.state = state;
+  wild.querySelector(".wild-word")!.textContent = text;
 }
 
 function toggleHold(reel: number) {
@@ -161,6 +226,7 @@ async function pull() {
   try {
     const locked = Object.fromEntries([...held].map((i) => [i, positions[i]]));
     const result = await python.call<Spin>("spin", { theme: theme.key, locked });
+    setWildcard(reduceMotion.matches ? "idle" : "flicker");
     await animateTo(result.indices);
     showTicket(result, true);
   } catch (error) {
@@ -195,8 +261,11 @@ function showTicket(spin: Spin, fresh: boolean) {
   els.ticket.hidden = false;
   els.ticketEmpty.hidden = true;
   els.ticketName.textContent = spin.name;
-  els.ticketPrize.textContent = spin.prize ? PRIZE_TEXT[spin.prize](spin) : "No prize, but what a name.";
-  els.ticket.dataset.prize = spin.prize ?? "none";
+  setWildcard(spin.middle_word ? "lit" : "off", spin.middle_word ?? "No show");
+  const lines = [spin.prize ? PRIZE_TEXT[spin.prize](spin) : ""];
+  if (spin.bonus) lines.push(`Wildcard bonus! ${spin.middle_word} matches ${spin.words[0]}.`);
+  els.ticketPrize.textContent = lines.filter(Boolean).join(" ") || "No prize, but what a name.";
+  els.ticket.dataset.prize = spin.prize ?? (spin.bonus ? "bonus" : "none");
   history_replace(spin.code);
 
   if (fresh) {
@@ -205,7 +274,7 @@ function showTicket(spin: Spin, fresh: boolean) {
     void els.ticket.offsetWidth;
     els.ticket.classList.add("printing");
     if (spin.prize === "jackpot") els.marquee.classList.add("win");
-    else if (spin.prize) els.marquee.classList.add("glow");
+    else if (spin.prize || spin.bonus) els.marquee.classList.add("glow");
     els.announce.textContent = `Your alias is ${spin.name}. ${els.ticketPrize.textContent}`;
     remember(spin);
   }
@@ -269,10 +338,12 @@ function selectTheme(key: string, rest?: number[]) {
   const radio = els.themes.querySelector<HTMLInputElement>(`input[value="${theme.key}"]`);
   if (radio) radio.checked = true;
   const each = (count: number) =>
-    count ? `1 in ${Math.round(theme.combinations / count).toLocaleString()}` : "never";
+    count ? `1 in ${Math.round(theme.reel_combinations / count).toLocaleString()}` : "never";
+  const bonus = theme.bonus_chance ? `1 in ${Math.round(1 / theme.bonus_chance)}` : "never";
   els.odds.textContent =
     `${theme.combinations.toLocaleString()} possible aliases. ` +
-    `Jackpot ${each(theme.odds.jackpot)}, rhyme ${each(theme.odds.rhyme)}, pair ${each(theme.odds.pair)}.`;
+    `Jackpot ${each(theme.odds.jackpot)}, rhyme ${each(theme.odds.rhyme)}, ` +
+    `pair ${each(theme.odds.pair)}, wildcard bonus ${bonus}.`;
   buildReels();
   syncHolds();
 }
@@ -344,7 +415,7 @@ async function start() {
   wireUp();
   python.onProgress = (stage) => (els.spin.textContent = `${stage}…`);
   try {
-    await python.init(aliasSlotsSources);
+    await python.init("alias_slots", aliasSlotsSources, BRIDGE);
     themes = await python.call<Theme[]>("catalogue");
     buildThemePicker();
     await loadHistory();

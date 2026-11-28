@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Code-Talk · Impractical Pythons</title>
+    <meta name="description" content="Pig Latin with a secret handshake. Type a message, get it in Code-Talk, and turn it back any time." />
+    <meta name="theme-color" content="#24473F" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕵️</text></svg>" />
+  </head>
+  <body class="talk">
+    <a class="skip" href="#translator">Skip to the translator</a>
+    <nav class="crumbs"><a href="/">Back to the pier</a></nav>
+
+    <main id="main">
+      <section class="dossier" id="translator" aria-labelledby="title">
+        <header class="dossier-head">
+          <h1 id="title" class="stamp-title">Code-Talk</h1>
+          <p class="dossier-lede">
+            Pig Latin with a secret handshake. Every word remembers where it was snipped, so a
+            message can always be turned back.
+          </p>
+        </header>
+
+        <div class="folder">
+          <div class="sheet sheet-plain">
+            <label for="plain" class="sheet-label">Plain English</label>
+            <textarea id="plain" rows="5" spellcheck="true" disabled></textarea>
+            <button type="button" class="sheet-copy" data-copy="plain">Copy</button>
+          </div>
+          <button type="button" class="flip" id="swap" disabled>
+            <span aria-hidden="true">⇄</span>
+            <span class="flip-word">Flip</span>
+          </button>
+          <div class="sheet sheet-coded">
+            <span class="clip" aria-hidden="true"></span>
+            <label for="coded" class="sheet-label">Code-Talk</label>
+            <textarea id="coded" rows="5" spellcheck="false" disabled></textarea>
+            <button type="button" class="sheet-copy" data-copy="coded">Copy</button>
+          </div>
+        </div>
+        <p class="status" id="status" role="status">Waking up the code room…</p>
+
+        <div class="messages">
+          <p class="messages-label" id="messages-label">Need a message? Grab one:</p>
+          <div class="samples" id="samples" role="group" aria-labelledby="messages-label"></div>
+        </div>
+      </section>
+
+      <section class="decoder" aria-labelledby="decoder-title">
+        <h2 id="decoder-title">The decoder strip</h2>
+        <p class="decoder-hint">The violet letters hop to the end of the word, then pick up an <em>-ay</em>.</p>
+        <ol class="tape" id="breakdown"></ol>
+      </section>
+
+      <section class="about" aria-labelledby="about-title">
+        <h2 id="about-title">The rules of the room</h2>
+        <p>
+          Grab the consonants at the front of a word, move them to the back, and add <em>ay</em>:
+          <em>nix</em> becomes <em>ix-nay</em>. Words that start with a vowel just get the
+          <em>ay</em>: <em>apple-ay</em>. A <em>qu</em> sticks together like a good partner
+          (<em>queen</em> is <em>een-quay</em>).
+        </p>
+        <p>
+          Plain old Pig Latin has a weakness: does <em>away</em> mean <em>way</em> or <em>a</em>?
+          Code-Talk's little hyphen marks the snip, so the trip back is never a guess. Capitals,
+          numbers and punctuation keep their places. Curious how a few lines of Python pull this
+          off? <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/02_code_talk">Peek at the Python</a>.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <p>
+        Inspired by the Pig Latin project in
+        <a href="https://nostarch.com/impracticalpython"><cite>Impractical Python Projects</cite></a>
+        by Lee Vaughan, a great book if you want to make your own silly, clever programs. This
+        version, its words and its code are new. One of the stalls on the
+        <a href="/">Impractical Pythons</a> pier.
+      </p>
+    </footer>
+    <script type="module" src="/src/code-talk-page.ts"></script>
+  </body>
+</html>

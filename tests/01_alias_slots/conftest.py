@@ -9,3 +9,4 @@ from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parents[2] / "projects" / "01_alias_slots"
 sys.path.insert(0, str(PROJECT))
+sys.path.insert(0, str(PROJECT / "style_clinic"))

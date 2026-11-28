@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pier Telegraph Office · Impractical Pythons</title>
+    <meta name="description" content="Send a secret telegram: the clerk files your words into pigeonholes and sends them down the wire in a scrambled order. Crack today's, ask the night clerk to try every route, or zigzag letters along the rail fence." />
+    <meta name="theme-color" content="#1f4d40" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📨</text></svg>" />
+  </head>
+  <body class="telegraph">
+    <a class="skip" href="#send">Skip to the telegram form</a>
+    <nav class="crumbs"><a href="/">Back to the pier</a></nav>
+
+    <main id="main">
+      <header class="office-sign">
+        <h1 class="sign-plate">Pier Telegraph Office</h1>
+        <p class="sign-lede">
+          Hand your message over the counter. The clerk files each word in a pigeonhole, then
+          sends the words down the wire in a scrambled order that only the office at the other
+          end knows how to undo.
+        </p>
+      </header>
+
+      <nav class="office-tabs" aria-label="Counters in the office">
+        <a href="#send">Send</a>
+        <a href="#crack">Crack</a>
+        <a href="#night-clerk">Night clerk</a>
+        <a href="#rail-fence">Rail fence</a>
+      </nav>
+
+      <section class="counter" id="send" aria-labelledby="send-title">
+        <h2 id="send-title" class="counter-title">Send a telegram</h2>
+
+        <div class="form-and-book">
+          <div class="form-col">
+            <label class="telegram-form" for="message">
+              <span class="form-head"><span>Telegram</span><span class="form-no">No. 0611</span></span>
+              <span class="form-label">Your message</span>
+              <textarea id="message" rows="3" maxlength="240" spellcheck="false" disabled></textarea>
+            </label>
+            <button type="button" class="paper-button" id="send-another" disabled>Another message</button>
+          </div>
+
+          <aside class="code-book" aria-labelledby="book-title">
+            <h3 id="book-title">The office code book</h3>
+            <dl id="code-list"></dl>
+            <label class="use-book">
+              <input type="checkbox" id="use-book" checked disabled />
+              Swap in code words
+            </label>
+          </aside>
+        </div>
+
+        <div class="picker" role="group" aria-labelledby="size-title">
+          <h3 id="size-title" class="picker-title">How big is the rack?</h3>
+          <div class="size-chips" id="send-sizes"></div>
+        </div>
+
+        <div class="rack-wrap">
+          <div class="route-head" id="send-heads" aria-hidden="true"></div>
+          <div class="rack" id="send-rack">
+            <ol class="holes" id="send-holes"></ol>
+            <svg class="route-line" id="send-line" aria-hidden="true"></svg>
+          </div>
+        </div>
+
+        <div class="picker" role="group" aria-labelledby="send-route-title">
+          <h3 id="send-route-title" class="picker-title">The route through the rack</h3>
+          <p class="picker-help">
+            Tap a column to flip its arrow. Use the little arrows to change the order.
+          </p>
+          <ol class="route-chips" id="send-route"></ol>
+          <p class="key-line">Key: <code id="send-key"></code></p>
+        </div>
+
+        <div class="tape-wrap">
+          <p class="tape-label">Down the wire</p>
+          <ol class="tape" id="send-tape" aria-label="The scrambled telegram"></ol>
+        </div>
+        <p class="office-status" id="send-status" role="status" aria-live="polite">Opening the shutters…</p>
+        <div class="counter-tools">
+          <button type="button" class="brass-button" id="send-link" disabled>Copy a challenge link</button>
+          <button type="button" class="paper-button" id="send-copy" disabled>Copy the telegram only</button>
+        </div>
+      </section>
+
+      <section class="counter crack" id="crack" aria-labelledby="crack-title">
+        <h2 id="crack-title" class="counter-title">Crack a telegram</h2>
+        <p class="counter-lede" id="crack-lede">
+          Today's telegram came in this morning, and nobody wrote down the route. Choose the size
+          of the rack, rearrange the columns until the words read as a sentence, then check the
+          route.
+        </p>
+        <label class="practice">
+          <input type="checkbox" id="practice" disabled />
+          Practise on numbered deckchair tickets first (they read 1 to 15 when you get it right)
+        </label>
+
+        <div class="tape-wrap">
+          <p class="tape-label" id="crack-tape-label">Today's telegram</p>
+          <ol class="tape" id="crack-tape"></ol>
+        </div>
+
+        <div class="picker" role="group" aria-labelledby="crack-size-title">
+          <h3 id="crack-size-title" class="picker-title">How big was the rack?</h3>
+          <div class="size-chips" id="crack-sizes"></div>
+        </div>
+
+        <div class="picker" role="group" aria-labelledby="crack-route-title">
+          <h3 id="crack-route-title" class="picker-title">Your guess at the route</h3>
+          <ol class="route-chips" id="crack-route"></ol>
+          <p class="key-line">Key: <code id="crack-key"></code></p>
+        </div>
+
+        <div class="rack-wrap">
+          <div class="route-head" id="crack-heads" aria-hidden="true"></div>
+          <div class="rack" id="crack-rack">
+            <ol class="holes" id="crack-holes"></ol>
+            <svg class="route-line" id="crack-line" aria-hidden="true"></svg>
+            <p class="delivered" id="delivered" hidden>Delivered</p>
+          </div>
+        </div>
+        <div class="counter-tools">
+          <button type="button" class="brass-button" id="crack-check" disabled>Check the route</button>
+        </div>
+        <p class="office-status" id="crack-status" role="status" aria-live="polite">Opening the shutters…</p>
+        <p class="decoded" id="decoded" hidden></p>
+        <div class="counter-tools" id="after-crack" hidden>
+          <button type="button" class="brass-button" id="share-result">Copy my result</button>
+          <button type="button" class="paper-button" id="reply">Send your own telegram</button>
+        </div>
+
+        <details class="hint">
+          <summary>A clerk's hint</summary>
+          <p>
+            People write left to right, and the route turns round at the top and bottom of the
+            rack. So where it turns, two words that belong side by side sit next to each other
+            on the tape. Find a pair that makes sense together, then count the words between
+            pairs: that's how many rows the rack had.
+          </p>
+        </details>
+      </section>
+
+      <section class="counter night" id="night-clerk" aria-labelledby="night-title">
+        <h2 id="night-title" class="counter-title">Ask the night clerk</h2>
+        <p class="counter-lede">
+          Stuck? After hours, the night clerk tries every route through the rack, thousands of
+          them, in about a second. The clerk can't read, though. Tell it a few pairs of words
+          you're sure sit side by side, and it throws out every route that pulls them apart.
+        </p>
+
+        <div class="picker" role="group" aria-labelledby="hunch-title">
+          <h3 id="hunch-title" class="picker-title">Your hunches</h3>
+          <p class="picker-help" id="hunch-help">
+            Tap a word on the telegram, then the word you think comes straight after it.
+          </p>
+          <div class="hunch-words" id="hunch-words"></div>
+          <ul class="hunch-list" id="hunch-list" aria-label="Pairs you're sure of"></ul>
+        </div>
+
+        <div class="counter-tools">
+          <button type="button" class="brass-button" id="wake" disabled>Wake the night clerk</button>
+          <button type="button" class="paper-button" id="seal" hidden disabled>Break the seal instead</button>
+        </div>
+        <p class="office-status" id="night-status" role="status" aria-live="polite">The night clerk is asleep at the desk.</p>
+        <ol class="readings" id="readings" aria-label="The clerk's best readings"></ol>
+
+        <figure class="key-chart">
+          <figcaption>
+            <span class="chart-title">How many routes a rack has</span>
+            Every column can go anywhere in the order, and up or down. Each extra column
+            multiplies the routes.
+          </figcaption>
+          <table class="chart-table" id="key-chart">
+            <thead><tr><th scope="col">Rack</th><th scope="col">Routes to try</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <p class="chart-note">
+            A rail fence telegram, for comparison: 2 to 8 rails is just <strong>7</strong> tries.
+          </p>
+        </figure>
+      </section>
+
+      <section class="counter promenade" id="rail-fence" aria-labelledby="rail-title">
+        <h2 id="rail-title" class="counter-title">The rail fence</h2>
+        <p class="counter-lede">
+          Out on the promenade, the field clerks have no rack. They write a message's letters in
+          a zigzag between two railings, then send the top railing's letters followed by the
+          bottom's. No spaces, no capitals, nothing but letters in groups of five.
+        </p>
+
+        <div class="rail-part">
+          <h3 class="picker-title"><label for="rail-text">Send a message down the rails</label></h3>
+          <input class="rail-input" id="rail-text" type="text" maxlength="160" spellcheck="false" autocomplete="off" disabled />
+          <div class="railings" id="railings" aria-hidden="true"></div>
+          <div class="tape-wrap">
+            <p class="tape-label">Down the wire</p>
+            <p class="tape letters" id="rail-tape" aria-label="The rail fence telegram"></p>
+          </div>
+          <div class="counter-tools">
+            <button type="button" class="paper-button" id="rail-copy" disabled>Copy the telegram</button>
+            <button type="button" class="paper-button" id="rail-another" disabled>Another message</button>
+          </div>
+          <p class="office-status" id="rail-status" role="status" aria-live="polite"></p>
+        </div>
+
+        <div class="rail-part">
+          <h3 class="picker-title"><label for="unrail-text">Read a rail fence telegram</label></h3>
+          <input class="rail-input" id="unrail-text" type="text" maxlength="200" spellcheck="false" autocomplete="off" placeholder="Paste letters, like LTSRS TEIRE UCOSH PE" disabled />
+          <div class="counter-tools">
+            <button type="button" class="brass-button" id="unrail" disabled>Read it</button>
+          </div>
+          <p class="office-status" id="unrail-status" role="status" aria-live="polite"></p>
+        </div>
+
+        <div class="rail-part">
+          <h3 class="picker-title">Crack the intercepted telegram</h3>
+          <p class="picker-help">
+            This one was caught on the wire. Nobody knows how many railings the sender used.
+          </p>
+          <p class="tape letters" id="intercept"></p>
+          <div class="counter-tools">
+            <button type="button" class="brass-button" id="try-rails" disabled>Try every number of rails</button>
+          </div>
+          <p class="office-status" id="rails-status" role="status" aria-live="polite"></p>
+          <ol class="rail-tries" id="rail-tries" aria-label="Each number of rails, and how much reads as words"></ol>
+        </div>
+
+        <div class="rail-part">
+          <h3 class="picker-title"><label for="sniff-text">Shuffled or swapped?</label></h3>
+          <p class="picker-help">
+            A rail fence shuffles letters. Other ciphers swap every letter for a different one.
+            The clerk can tell which by counting letters, before even trying to crack it.
+          </p>
+          <textarea class="rail-input" id="sniff-text" rows="2" maxlength="400" spellcheck="false" disabled></textarea>
+          <div class="counter-tools">
+            <button type="button" class="paper-button" id="sniff-rail" disabled>A rail fence telegram</button>
+            <button type="button" class="paper-button" id="sniff-swap" disabled>A swapped-letter telegram</button>
+          </div>
+          <p class="sniff-verdict" id="sniff-verdict" role="status" aria-live="polite"></p>
+          <div class="sniff-bars" id="sniff-bars" aria-hidden="true"></div>
+          <p class="chart-note">Bars are the telegram's letters; notches are ordinary English.</p>
+        </div>
+      </section>
+
+      <section class="about" aria-labelledby="about-title">
+        <h2 id="about-title">How the office works</h2>
+        <p>
+          This is a <strong>route cipher</strong>. It doesn't change any words, it only shuffles
+          them. The message goes into the rack left to right, a row at a time. Then it comes out
+          up and down the columns, in an order called the key: <code>-1 2 -3 4</code> means up the
+          first column, down the second, up the third, down the fourth.
+        </p>
+        <p>
+          Shuffling alone is easy to undo, so the clerks swap the important words for code words
+          (<em>the money</em> goes out as DONKEY) and fill any empty pigeonholes with harmless
+          words. Untangle the route and you still read "meet GULL by BANDSTAND".
+        </p>
+        <p>
+          A challenge link carries the scrambled words and a seal: a fingerprint of the right
+          order that can tell when you've got it, but can't be turned back into the message. The
+          route itself never leaves your screen. A new telegram reaches the counter every day,
+          the same one for everybody, picked by the date.
+        </p>
+        <p>
+          The night clerk is a <strong>brute-force attack</strong>: try every possible key. A
+          computer is happy to try thousands, but it can't tell a sentence from a jumble, so
+          your hunches do the reading. With no hunches at all, the clerk can still break a
+          challenge link's seal, by trying routes until one matches its fingerprint. That's why
+          real secrets use keys with far more possibilities than a pigeonhole rack.
+        </p>
+        <p>
+          The rail fence is a <strong>transposition</strong> too, letter by letter. It's quick to
+          do with a pencil, and quick to crack: there are only a handful of rail counts to try,
+          and a dictionary spots the one that reads. Its letters are still English letters, just
+          in a different order, which is how the clerk tells it from a cipher that swaps them.
+        </p>
+        <p>
+          Telegraph clerks liked it because every word is a real word. Strings of random letters
+          get mangled on a busy wire; whole words come through. The page is built the same way:
+          you can only pick rack sizes that fit and routes that exist, so there's no wrong button
+          to press. All the shuffling is Python, running right here in your browser.
+          <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/06_pier_telegraph">Peek at the Python</a>.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <p>
+        Inspired by the route cipher and rail fence cipher projects in
+        <a href="https://nostarch.com/impracticalpython"><cite>Impractical Python Projects</cite></a>
+        by Lee Vaughan, a great book if you want to make your own silly, clever programs. The
+        code book, telegrams, hunches and code are new. One of the stalls on the
+        <a href="/">Impractical Pythons</a> pier.
+      </p>
+    </footer>
+    <script type="module" src="/src/pier-telegraph-page.ts"></script>
+  </body>
+</html>

@@ -10,7 +10,7 @@
   </head>
   <body class="slots">
     <a class="skip" href="#machine">Skip to the machine</a>
-    <nav class="crumbs"><a href="/">Impractical Pythons</a></nav>
+    <nav class="crumbs"><a href="/">Back to the pier</a></nav>
 
     <main id="main">
       <section class="cabinet" id="machine" aria-labelledby="title">
@@ -57,25 +57,29 @@
       </section>
 
       <section class="about" aria-labelledby="about-title">
-        <h2 id="about-title">How it works</h2>
+        <h2 id="about-title">How the machine pays out</h2>
         <p>
-          Every spin runs real Python in your browser, using <a href="https://pyodide.org">Pyodide</a>.
-          Each reel is a tuple of words. A seeded <code>random.Random</code> picks where every reel stops,
-          and a held reel keeps its place. Three reels starting with the same letter pays the jackpot.
-          Two reels ending in the same three letters is a rhyme, and two matching first letters is a pair.
-          The odds come from trying every possible spin with <code>itertools.product</code>.
+          Each reel is a long strip of words, and every pull stops them somewhere new. Love one?
+          Hold it and spin the others. Now and then a wildcard middle name sneaks in between the
+          first and last names, just for fun.
         </p>
         <p>
-          The link for each alias is a short base-36 number that packs in the machine and where each reel
-          stopped. <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/01_alias_slots">Read the Python</a>.
+          Three names starting with the same letter is the jackpot. Two that rhyme, or two that
+          share a first letter, win smaller prizes. The machine works out your exact odds by
+          trying every possible spin, all several thousand of them, in a blink. Each alias also
+          gets a short code, so you can send a friend the exact one you landed.
+          <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/01_alias_slots">Peek at the Python</a>.
         </p>
       </section>
     </main>
 
     <footer class="site-foot">
       <p>
-        Part of <a href="/">Impractical Pythons</a>. Sparked by the name generator in
-        <cite>Impractical Python Projects</cite> by Lee Vaughan. All the words here are new.
+        Inspired by the name generator project in
+        <a href="https://nostarch.com/impracticalpython"><cite>Impractical Python Projects</cite></a>
+        by Lee Vaughan, a great book if you want to make your own silly, clever programs. This
+        version, its words and its code are new. One of the stalls on the
+        <a href="/">Impractical Pythons</a> pier.
       </p>
     </footer>
     <script type="module" src="/src/slots-page.ts"></script>

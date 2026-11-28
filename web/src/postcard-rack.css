@@ -1,0 +1,927 @@
+@import "@fontsource/titan-one/400.css";
+@import "@fontsource/caveat/500.css";
+@import "@fontsource/caveat/700.css";
+
+/* The Postcard Rack: a wire rack outside the pier's gift shop. Summer-sky blue, chunky
+   "Greetings from" lettering in sunshine yellow with a pillar-box red shadow, cream card
+   stock written in blue-black fountain pen, a brass reading glass and a manila luggage tag. */
+body.postcard {
+  --sky: #8fd3f4;
+  --sky-deep: #2f7fb5;
+  --card: #fbf6ea;
+  --card-edge: #e6dcc4;
+  --pen: #23336b;
+  --pillar: #c8102e;
+  --sun: #ffd23f;
+  --brass: #b8872b;
+  --brass-light: #e8c773;
+  --manila: #ead39f;
+  --wire: rgb(255 255 255 / 0.55);
+  --sign: "Titan One", "Cooper Black", serif;
+  --hand: "Caveat", "Bradley Hand", cursive;
+
+  --page-text: #12304a;
+  --page-soft: #2d4f6b;
+  --link: #0d4c86;
+  color: var(--page-text);
+}
+
+/* Sky over the shop, crossed by the white wires of the rack. */
+html:has(body.postcard) {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 63px, rgb(255 255 255 / 0.35) 63px 65px),
+    repeating-linear-gradient(0deg, transparent 0 63px, rgb(255 255 255 / 0.35) 63px 65px),
+    linear-gradient(180deg, #6cc0ec, #bfe8f8 40rem, #dff3fb);
+}
+
+@media (prefers-color-scheme: dark) {
+  /* After the shop shuts: a late-summer dusk, the rack lit by the shop window. */
+  html:has(body.postcard) {
+    background:
+      repeating-linear-gradient(90deg, transparent 0 63px, rgb(255 255 255 / 0.07) 63px 65px),
+      repeating-linear-gradient(0deg, transparent 0 63px, rgb(255 255 255 / 0.07) 63px 65px),
+      linear-gradient(180deg, #101c36, #1d2c52 30rem, #3a2f4e);
+  }
+
+  body.postcard {
+    --page-text: #eef3fb;
+    --page-soft: #c3cde3;
+    --link: #ffd23f;
+  }
+}
+
+body.postcard :focus-visible {
+  outline: 3px solid var(--sun);
+  box-shadow: 0 0 0 6px var(--pen);
+}
+
+body.postcard .skip {
+  background: var(--pen);
+  color: var(--card);
+}
+
+/* ---- the shop sign: big postcard lettering ------------------------------------------- */
+
+.shop-sign {
+  text-align: center;
+  margin: 0.5rem 0 1.75rem;
+}
+
+.sign-greetings {
+  margin: 0;
+  font: 700 clamp(1.5rem, 5vw, 2.2rem) / 1 var(--hand);
+  color: var(--pen);
+  rotate: -3deg;
+}
+
+.sign-name {
+  margin: 0.1rem 0 0.9rem;
+  font: 400 clamp(2.6rem, 11vw, 5.2rem) / 0.95 var(--sign);
+  color: var(--sun);
+  -webkit-text-stroke: 2px var(--pen);
+  paint-order: stroke fill;
+  text-shadow:
+    3px 3px 0 var(--pillar),
+    6px 6px 0 var(--pen);
+}
+
+.sign-lede {
+  max-width: 36rem;
+  margin: 0 auto;
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sign-greetings {
+    color: var(--sun);
+  }
+}
+
+/* ---- the counter where the card is read ---------------------------------------------- */
+
+body.postcard .counter {
+  margin: 0 0 2.5rem;
+  padding: 1.2rem clamp(0.75rem, 3vw, 1.6rem) 1.4rem;
+  background: rgb(255 255 255 / 0.72);
+  border: 3px solid #fff;
+  border-radius: 1rem;
+  box-shadow: 0 16px 30px -22px rgb(18 48 74 / 0.8);
+  color: #12304a;
+  --page-soft: #2d4f6b;
+}
+
+@media (prefers-color-scheme: dark) {
+  body.postcard .counter {
+    background: rgb(16 28 54 / 0.82);
+    border-color: rgb(255 255 255 / 0.18);
+    color: #eef3fb;
+    --page-soft: #c3cde3;
+  }
+}
+
+.counter-title {
+  margin: 0 0 1rem;
+  font: 700 clamp(1.6rem, 5vw, 2.1rem) / 1.1 var(--hand);
+  color: var(--pillar);
+}
+
+@media (prefers-color-scheme: dark) {
+  .counter-title {
+    color: var(--sun);
+  }
+}
+
+.desk {
+  max-width: 46rem;
+}
+
+/* The message side of a postcard: writing on the left, stamp and address on the right. */
+.card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  min-height: 17rem;
+  padding: 1.1rem 1.2rem 4rem; /* room at the foot for the found stamp */
+  color: var(--ink, var(--pen));
+  background:
+    radial-gradient(circle at 20% 30%, rgb(160 130 70 / 0.06), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgb(160 130 70 / 0.08), transparent 45%),
+    var(--paper, var(--card));
+  transition: background-color 0.3s, color 0.3s;
+  border: 1px solid var(--card-edge);
+  border-radius: 0.3rem;
+  box-shadow:
+    0 1px 0 #fff inset,
+    0 18px 26px -18px rgb(18 48 74 / 0.75);
+  rotate: -0.8deg;
+}
+
+.card:focus-visible {
+  outline-offset: 6px;
+}
+
+/* The front of the chosen card, peeking over the top: its picture and its town. */
+.card .card-picture {
+  grid-column: 1 / -1;
+  aspect-ratio: auto;
+  height: 7rem;
+  width: auto;
+  margin: -1.1rem -1.2rem 1rem;
+  border: 0;
+  border-bottom: 4px solid #fff;
+  border-radius: 0.3rem 0.3rem 0 0;
+  box-shadow: none;
+}
+
+.card .card-picture:hover {
+  rotate: 0deg;
+  translate: 0 0;
+}
+
+.card .card-picture[hidden] {
+  display: none;
+}
+
+.card-picture .front-greet {
+  font-size: 1.25rem;
+}
+
+.card-picture .front-place {
+  font-size: clamp(1.2rem, 4vw, 1.6rem);
+}
+
+/* Each town writes on its own paper, in its own ink. */
+.card[data-scene="pier"] { --paper: #fbf1e4; --ink: #4a2a1c; }
+.card[data-scene="huts"] { --paper: #fff8e6; --ink: #a3162b; }
+.card[data-scene="lighthouse"] { --paper: #f8ebe6; --ink: #4a2d6b; }
+.card[data-scene="donkeys"] { --paper: #fdf5dc; --ink: #7a4a12; }
+.card[data-scene="rocks"] { --paper: #eaf5f3; --ink: #145e62; }
+.card[data-scene="arcade"] { --paper: #f3edfc; --ink: #3a1f6b; }
+.card[data-scene="prom"] { --paper: #fdeff3; --ink: #8a2f5a; }
+.card[data-scene="caravan"] { --paper: #eff7e8; --ink: #2f5a24; }
+.card[data-scene="club"] { --paper: #f1f6ef; --ink: #1f5a43; }
+
+/* Nan's Scrabble Club: a row of letter tiles on green baize. */
+.front[data-scene="club"] {
+  background:
+    repeating-linear-gradient(90deg, #f1dcae 0 24px, transparent 24px 30px) 1rem 30% / min(70%, 16rem) 34% no-repeat,
+    #1f5a43;
+}
+
+.card-message {
+  padding-right: 1rem;
+  border-right: 1.5px solid color-mix(in srgb, currentColor 25%, transparent);
+}
+
+.card-to,
+.card-from {
+  margin: 0;
+  font: 700 1.35rem/1.2 var(--hand);
+}
+
+.card-from {
+  margin-top: 0.4rem;
+  text-align: right;
+}
+
+.card-text {
+  margin: 0.35rem 0 0;
+  font: 500 1.32rem/1.32 var(--hand);
+  overflow-wrap: break-word;
+}
+
+/* A word never wraps in the middle, even with a magnified letter inside it. */
+.card-text .word {
+  white-space: nowrap;
+}
+
+/* A letter under the glass: magnified, ringed in lamplight, inked in red. */
+.card-text mark {
+  display: inline-block;
+  color: var(--pillar);
+  font-weight: 700;
+  background: radial-gradient(circle, rgb(255 210 63 / 0.75) 45%, transparent 70%);
+  border-radius: 50%;
+  scale: 1.18;
+  animation: lens 0.35s ease-out backwards;
+}
+
+@keyframes lens {
+  from {
+    scale: 0.6;
+    opacity: 0;
+  }
+}
+
+.card-own {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.4rem 0.5rem;
+  font: 500 1.3rem/1.3 var(--hand);
+  color: var(--pen);
+  background: repeating-linear-gradient(180deg, transparent 0 1.66rem, rgb(35 51 107 / 0.18) 1.66rem calc(1.66rem + 1px));
+  border: 1.5px dashed rgb(35 51 107 / 0.4);
+  border-radius: 0.2rem;
+  resize: vertical;
+}
+
+.card-address {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  padding: 0 0 1.2rem 1rem;
+}
+
+.address-line {
+  display: block;
+  height: 1.5px;
+  background: rgb(35 51 107 / 0.35);
+}
+
+/* A stamp with perforated edges (a dotted mask), showing a tiny sea and sun. */
+.stamp {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4.2rem;
+  height: 5rem;
+  padding: 6px;
+  background: #fff;
+  /* Solid in the middle, holes punched only in the white border. */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    radial-gradient(circle 2.5px, transparent 95%, #000) -4px -4px / 8px 8px;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    radial-gradient(circle 2.5px, transparent 95%, #000) -4px -4px / 8px 8px;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.25));
+}
+
+.stamp-sea {
+  display: block;
+  height: 100%;
+  background:
+    radial-gradient(circle at 70% 30%, var(--sun) 0 18%, transparent 19%),
+    linear-gradient(180deg, #e9734a 0 55%, var(--sky-deep) 55%);
+}
+
+/* The town's postmark: a ring of small capitals with wavy cancellation lines. */
+.postmark {
+  position: absolute;
+  top: 3.2rem;
+  right: 3.2rem;
+  display: grid;
+  place-items: center;
+  width: 4.6rem;
+  height: 4.6rem;
+  padding: 0.4rem;
+  font: 400 0.55rem/1.1 var(--sign);
+  text-align: center;
+  color: rgb(35 51 107 / 0.55);
+  border: 2px solid rgb(35 51 107 / 0.45);
+  border-radius: 50%;
+  rotate: -14deg;
+}
+
+.postmark::after {
+  content: "";
+  position: absolute;
+  left: 85%;
+  width: 4rem;
+  height: 2.2rem;
+  background: repeating-linear-gradient(180deg, transparent 0 6px, rgb(35 51 107 / 0.4) 6px 8px);
+  border-radius: 40%;
+}
+
+/* The red stamp the shop puts on a card once its note is found. */
+.found-stamp {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.6rem;
+  margin: 0;
+  padding: 0.5rem 0.9rem;
+  font: 400 1rem/1.1 var(--sign);
+  color: var(--pillar);
+  border: 3px double var(--pillar);
+  border-radius: 50% / 40%;
+  background: rgb(251 246 234 / 0.85);
+  rotate: -9deg;
+  pointer-events: none;
+}
+
+.found-stamp[hidden] {
+  display: none;
+}
+
+.found-stamp.is-landing {
+  animation: postmark 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
+}
+
+@keyframes postmark {
+  from {
+    scale: 1.8;
+    opacity: 0;
+  }
+}
+
+@media (max-width: 34rem) {
+  .card {
+    grid-template-columns: 1fr;
+    rotate: 0deg;
+    padding-top: 5.6rem;
+  }
+
+  /* With a picture on top, the stamp and postmark sit just under it. */
+  .card:has(.card-picture:not([hidden])) {
+    padding-top: 0;
+  }
+
+  .card .card-picture {
+    margin: 0 -1.2rem 6rem;
+  }
+
+  .card:has(.card-picture:not([hidden])) .card-address {
+    top: 8rem;
+  }
+
+  .card-message {
+    padding-right: 0;
+    border-right: 0;
+  }
+
+  .card-address {
+    position: absolute;
+    inset: 1rem 1rem auto auto;
+    width: 8rem;
+    height: 5rem;
+    padding: 0;
+  }
+
+  .address-line {
+    display: none;
+  }
+
+  .postmark {
+    top: 0.4rem;
+    right: 3.4rem;
+  }
+}
+
+/* ---- the reveal button and the luggage tag that holds the secret ------------------- */
+
+.glass-button,
+.paper-button,
+.front {
+  font: inherit;
+  cursor: pointer;
+}
+
+.glass-button.reveal-button {
+  padding: 0.85rem 1.6rem;
+  font-size: 1.1rem;
+  color: #3a2a12;
+  background: var(--sun);
+  box-shadow: 0 4px 0 #b08a14;
+}
+
+.glass-button.reveal-button:active {
+  box-shadow: 0 1px 0 #b08a14;
+}
+
+.tag {
+  position: relative;
+  margin: 1.5rem 0 0.25rem 1.2rem;
+  padding: 0.75rem 1rem 0.8rem 2.6rem;
+  color: #3b2c0d;
+  background: var(--manila);
+  clip-path: polygon(1.4rem 0, 100% 0, 100% 100%, 1.4rem 100%, 0 50%);
+}
+
+/* The reinforced hole the string goes through. */
+.tag::before {
+  content: "";
+  position: absolute;
+  left: 1.05rem;
+  top: 50%;
+  width: 0.8rem;
+  height: 0.8rem;
+  translate: 0 -50%;
+  background: #fff;
+  border: 3px solid #c9a95c;
+  border-radius: 50%;
+}
+
+.tag-label {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.tag-words {
+  margin: 0;
+  min-height: 1.4em;
+  font-weight: 600;
+}
+
+.tag-how {
+  margin: 0.2rem 0 0;
+  font-size: 0.92rem;
+}
+
+.tag[hidden] {
+  display: none;
+}
+
+.tag-words.is-found {
+  font: 700 1.6rem/1.2 var(--hand);
+  color: var(--pillar);
+}
+
+.shop-status {
+  min-height: 1.5em;
+  margin: 0.75rem 0;
+  line-height: 1.5;
+}
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.glass-button {
+  padding: 0.6rem 1.1rem;
+  font-weight: 700;
+  color: var(--card);
+  background: var(--pen);
+  border: 0;
+  border-radius: 2rem;
+  box-shadow: 0 3px 0 #111b3d;
+}
+
+.glass-button:active {
+  translate: 0 2px;
+  box-shadow: 0 1px 0 #111b3d;
+}
+
+.glass-button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.paper-button {
+  padding: 0.35rem 0.8rem;
+  font-weight: 650;
+  color: var(--pen);
+  background: var(--card);
+  border: 2px solid var(--pen);
+  border-radius: 2rem;
+}
+
+/* ---- the rack: postcard fronts on the wire ------------------------------------------- */
+
+.rack-wrap {
+  margin: 0 0 2.5rem;
+}
+
+.rack-title {
+  margin: 0;
+  font: 400 clamp(1.3rem, 4vw, 1.7rem) var(--sign);
+  color: var(--pen);
+}
+
+@media (prefers-color-scheme: dark) {
+  .rack-title {
+    color: var(--sun);
+  }
+}
+
+.rack-help {
+  margin: 0.2rem 0 0.9rem;
+}
+
+.rack {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(9.5rem, 40vw), 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.front {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  padding: 0.6rem 0.7rem;
+  text-align: left;
+  color: #fff;
+  border: 5px solid #fff;
+  border-radius: 0.25rem;
+  box-shadow: 0 10px 16px -10px rgb(18 48 74 / 0.8);
+  transition: rotate 0.15s, translate 0.15s;
+}
+
+.front:hover {
+  rotate: -1.5deg;
+  translate: 0 -3px;
+}
+
+.front[aria-pressed="true"] {
+  outline: 4px solid var(--pillar);
+  outline-offset: 2px;
+}
+
+.front-greet {
+  font: 700 1.05rem/1 var(--hand);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.5);
+}
+
+.front-place {
+  font: 400 1.05rem/1.05 var(--sign);
+  color: var(--sun);
+  -webkit-text-stroke: 1px var(--pen);
+  paint-order: stroke fill;
+  text-shadow: 2px 2px 0 var(--pillar);
+}
+
+.front-today {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  padding: 0.1rem 0.5rem;
+  font: 700 1rem var(--hand);
+  color: #fff;
+  background: var(--pillar);
+  border-radius: 1rem;
+  rotate: 6deg;
+}
+
+.front-own {
+  justify-content: center;
+  align-items: center;
+  color: var(--pen);
+  background:
+    repeating-linear-gradient(180deg, transparent 0 1.3rem, rgb(35 51 107 / 0.15) 1.3rem calc(1.3rem + 1px)),
+    var(--card);
+  border-style: dashed;
+  border-color: var(--pen);
+}
+
+.front-own .front-place {
+  color: var(--pen);
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+
+/* Painted scenes, one per card: simple bands of sky, sea and sand, plus one landmark. */
+.front[data-scene="pier"] {
+  background:
+    repeating-linear-gradient(90deg, #4a2a1c 0 4px, transparent 4px 22px) 0 58% / 100% 22% no-repeat,
+    linear-gradient(180deg, #7ec8e3 0 52%, #4a2a1c 52% 56%, #2b7bb9 56% 82%, #f3d9a0 82%);
+}
+
+.front[data-scene="huts"] {
+  background:
+    repeating-linear-gradient(90deg, #e63946 0 18px, #fff 18px 22px, #ffd23f 22px 40px, #fff 40px 44px, #3a86ff 44px 62px, #fff 62px 66px) 0 46% / 100% 26% no-repeat,
+    linear-gradient(180deg, #8fd3f4 0 46%, #f6e2b3 46%);
+}
+
+.front[data-scene="lighthouse"] {
+  background:
+    repeating-linear-gradient(180deg, #e63946 0 10px, #fff 10px 20px) 70% 18% / 14% 50% no-repeat,
+    linear-gradient(180deg, #5b3a7a, #e9734a 55%, #1f4e79 62%, #13375a);
+}
+
+.front[data-scene="donkeys"] {
+  background:
+    radial-gradient(circle at 78% 24%, #ffd23f 0 9%, transparent 10%),
+    linear-gradient(180deg, #a7dbf2 0 40%, #3d8fc4 40% 58%, #eccb87 58%);
+}
+
+.front[data-scene="rocks"] {
+  background:
+    radial-gradient(ellipse 22% 16% at 25% 70%, #6b6f76 95%, transparent),
+    radial-gradient(ellipse 18% 13% at 62% 76%, #85898f 95%, transparent),
+    linear-gradient(180deg, #9ad1e0 0 38%, #1b8a8f 38%);
+}
+
+.front[data-scene="arcade"] {
+  background:
+    radial-gradient(circle, #ff4fa3 0 2px, transparent 3px) 0 0 / 16px 16px,
+    radial-gradient(circle, #ffd23f 0 2px, transparent 3px) 8px 8px / 16px 16px,
+    linear-gradient(180deg, #1a1446, #3a1f6b);
+}
+
+.front[data-scene="prom"] {
+  background:
+    repeating-linear-gradient(90deg, #f4a7b9 0 30px, #bde0c4 30px 60px, #fff1b8 60px 90px, #b8d8f0 90px 120px) 0 22% / 100% 34% no-repeat,
+    linear-gradient(180deg, #8fd3f4 0 22%, #d9d1c3 56%, #6aa9cf 70%);
+}
+
+/* ---- the writing desk: Nan's card table ---------------------------------------------- */
+
+/* Green baize, wooden letter tiles: where Nan plays her words and your note hides in them. */
+.writing-desk {
+  --baize: #1f5a43;
+  --tile: #f1dcae;
+  --tile-edge: #c9a868;
+  margin: 0 0 2.5rem;
+  padding: 1.2rem clamp(0.75rem, 3vw, 1.6rem) 1.4rem;
+  color: #f4efe2;
+  background:
+    radial-gradient(circle at 30% 20%, rgb(255 255 255 / 0.07), transparent 55%),
+    repeating-linear-gradient(45deg, rgb(0 0 0 / 0.04) 0 2px, transparent 2px 4px),
+    var(--baize);
+  border: 6px solid #7a4a26;
+  border-radius: 1rem;
+  box-shadow: inset 0 0 0 2px #5a3419, 0 16px 30px -22px rgb(18 48 74 / 0.8);
+}
+
+.tiles {
+  display: flex;
+  gap: 0.3rem;
+  margin-bottom: 0.6rem;
+}
+
+.tiles span {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  font: 400 1.25rem var(--sign);
+  color: #3a2a12;
+  background: linear-gradient(160deg, #f8e8c4, var(--tile));
+  border-radius: 0.3rem;
+  box-shadow: inset 0 -3px 0 var(--tile-edge), 0 2px 3px rgb(0 0 0 / 0.35);
+}
+
+.tiles span:nth-child(even) {
+  rotate: 4deg;
+}
+
+.tiles span:nth-child(odd) {
+  rotate: -3deg;
+}
+
+.tiles sub {
+  position: absolute;
+  right: 0.18rem;
+  bottom: 0.15rem;
+  font: 700 0.5rem system-ui, sans-serif;
+}
+
+.desk-title {
+  margin: 0;
+  font: 700 clamp(1.6rem, 5vw, 2.1rem) / 1.1 var(--hand);
+  color: var(--sun);
+}
+
+.desk-help {
+  max-width: 38rem;
+  margin: 0.3rem 0 1rem;
+  line-height: 1.5;
+}
+
+.desk-form {
+  display: grid;
+  gap: 0.8rem;
+  max-width: 38rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.field-label {
+  font-weight: 700;
+}
+
+.writing-desk input[type="text"] {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  font: 600 1.35rem/1.2 var(--hand);
+  color: var(--pen);
+  background: var(--card);
+  border: 2px solid var(--tile-edge);
+  border-radius: 0.4rem;
+}
+
+/* Placeholders are hints, not writing: plain grey type, so an empty box looks empty. */
+.writing-desk input[type="text"]::placeholder {
+  font: 400 1rem/1.2 var(--body, system-ui, sans-serif);
+  color: #8a8270;
+  opacity: 1;
+}
+
+.writing-desk input[type="text"]:disabled {
+  opacity: 0.6;
+}
+
+.note-count {
+  margin: -0.4rem 0 0;
+  font-size: 0.92rem;
+  color: #d7e6dc;
+}
+
+.positions[hidden] {
+  display: none;
+}
+
+.positions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.positions legend {
+  margin-bottom: 0.35rem;
+  padding: 0;
+}
+
+/* Each choice is a letter tile; the chosen one is lifted and inked. */
+.chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chip span {
+  display: inline-block;
+  padding: 0.5rem 0.9rem;
+  font-weight: 700;
+  color: #3a2a12;
+  background: var(--tile);
+  border-radius: 0.35rem;
+  box-shadow: inset 0 -3px 0 var(--tile-edge);
+  cursor: pointer;
+}
+
+.chip input:checked + span {
+  color: var(--card);
+  background: var(--pen);
+  box-shadow: inset 0 -3px 0 #111b3d;
+  translate: 0 -2px;
+}
+
+.chip input:focus-visible + span {
+  outline: 3px solid var(--sun);
+  outline-offset: 2px;
+}
+
+/* Which postcard? Little fronts like the rack's: the chosen one is lifted and ringed in sun. */
+.theme-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(8.5rem, 40vw), 1fr));
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.theme-card {
+  position: relative;
+  cursor: pointer;
+}
+
+.theme-card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.theme-card .front {
+  border-width: 4px;
+  padding: 0.45rem 0.55rem;
+}
+
+.theme-card .front-greet {
+  font-size: 0.95rem;
+}
+
+.theme-card .front-place {
+  font-size: 0.9rem;
+}
+
+.theme-card input:checked + .front {
+  outline: 4px solid var(--sun);
+  outline-offset: 3px;
+  translate: 0 -3px;
+  rotate: -1.5deg;
+}
+
+.theme-card input:not(:checked) + .front {
+  opacity: 0.8;
+}
+
+.theme-card input:focus-visible + .front {
+  outline: 4px dashed var(--sun);
+  outline-offset: 3px;
+}
+
+.names {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.writing-desk .glass-button {
+  color: #3a2a12;
+  background: var(--sun);
+  box-shadow: 0 3px 0 #b08a14;
+}
+
+.writing-desk .shop-status {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Seaview Caravan Park: two caravans on the grass behind the dunes. */
+.front[data-scene="caravan"] {
+  background:
+    radial-gradient(ellipse 16% 12% at 30% 62%, #fff 95%, transparent),
+    radial-gradient(ellipse 16% 12% at 68% 64%, #f6d6a8 95%, transparent),
+    linear-gradient(180deg, #a7dbf2 0 45%, #7bbf6a 45% 78%, #e9d39f 78%);
+}
+
+/* ---- the about panel ------------------------------------------------------------------ */
+
+body.postcard .about {
+  max-width: 42rem;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+body.postcard .about h2 {
+  font: 400 1.5rem var(--sign);
+  color: var(--pen);
+}
+
+@media (prefers-color-scheme: dark) {
+  body.postcard .about h2 {
+    color: var(--sun);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-text mark,
+  .found-stamp.is-landing {
+    animation: none;
+  }
+
+  .front,
+  .front:hover {
+    transition: none;
+    rotate: 0deg;
+    translate: 0 0;
+  }
+}

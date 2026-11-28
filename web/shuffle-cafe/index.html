@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shuffle Café · Impractical Pythons</title>
+    <meta name="description" content="Put your name on the café letterboard and watch it re-peg into new words, build a phrase from a name, let the chef invent some, and strain letters into brand-new words." />
+    <meta name="theme-color" content="#1d1b1e" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>" />
+  </head>
+  <body class="cafe">
+    <a class="skip" href="#board">Skip to the letterboard</a>
+    <nav class="crumbs"><a href="/">Back to the pier</a></nav>
+
+    <main id="main">
+      <header class="cafe-sign">
+        <h1 class="sign-board" aria-label="Shuffle Café">
+          <span aria-hidden="true" class="sign-pegs" id="sign-pegs">SHUFFLE CAFÉ</span>
+        </h1>
+        <p class="sign-lede">
+          Pop your name up on the café board. The waiter pulls the letters out and pegs them back
+          as other words, made from exactly the same letters.
+        </p>
+      </header>
+
+      <section class="counter" id="board" aria-labelledby="board-title">
+        <h2 id="board-title" class="sr-only">The letterboard</h2>
+        <label class="order" for="word">
+          <span>Your name or a word</span>
+          <input id="word" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="20" disabled />
+        </label>
+
+        <div class="frame">
+          <div class="felt">
+            <p class="felt-head" aria-hidden="true">On the board</p>
+            <ol class="pegs" id="pegs" aria-hidden="true"></ol>
+            <p class="felt-foot" id="felt-foot" aria-hidden="true"></p>
+          </div>
+        </div>
+        <p class="status" id="status" role="status" aria-live="polite">Opening up the café…</p>
+
+        <div class="specials-wrap">
+          <h3 class="specials-title">Today's specials</h3>
+          <ul class="specials" id="specials"></ul>
+        </div>
+
+        <div class="regulars" role="group" aria-labelledby="regulars-title">
+          <span id="regulars-title" class="regulars-title">Or try a regular:</span>
+          <button type="button" data-word="listen">listen</button>
+          <button type="button" data-word="Daniel">Daniel</button>
+          <button type="button" data-word="petal">petal</button>
+          <button type="button" data-word="ocean">ocean</button>
+          <button type="button" data-word="shore">shore</button>
+          <button type="button" data-word="pastel">pastel</button>
+        </div>
+      </section>
+
+      <section class="phrase" id="phrase" aria-labelledby="phrase-title">
+        <h2 id="phrase-title" class="phrase-title">Make a phrase from a name</h2>
+        <p class="phrase-lede">
+          Most names won't shuffle into one word, but they hide a few. Pick a word that fits, and
+          the waiter pegs it up. Keep going until the tray is empty: <em>Ice Cream Van</em> can be
+          a <em>caveman rice</em>, and <em>Donkey Rides</em> turn into <em>kidneys rode</em>.
+        </p>
+        <p class="phrase-lede">
+          Stuck with letters no English word wants? Shuffle them. They might spell a word from
+          another language, or a name nobody has made up yet. Take <em>paddles</em> and
+          <em>ate</em> from <em>Paddle Steamer</em>, shuffle the E, M and R, and you'll find
+          <em>mer</em>: French for the sea.
+        </p>
+
+        <label class="order" for="phrase-name">
+          <span>A name or a few words</span>
+          <input id="phrase-name" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="30" disabled />
+        </label>
+        <div class="regulars phrase-regulars" role="group" aria-labelledby="phrase-regulars-title">
+          <span id="phrase-regulars-title" class="regulars-title">Or borrow one from the pier:</span>
+          <button type="button" data-name="Ice Cream Van">Ice Cream Van</button>
+          <button type="button" data-name="Donkey Rides">Donkey Rides</button>
+          <button type="button" data-name="Seaside Town">Seaside Town</button>
+          <button type="button" data-name="Penny Arcade">Penny Arcade</button>
+          <button type="button" data-name="Brighton Pier">Brighton Pier</button>
+          <button type="button" data-name="Paddle Steamer">Paddle Steamer</button>
+        </div>
+
+        <div class="frame">
+          <div class="felt">
+            <p class="felt-head" id="phrase-head" aria-hidden="true">Pick a word below</p>
+            <ol class="pegs pegs-phrase" id="phrase-pegs" aria-hidden="true"></ol>
+          </div>
+        </div>
+        <div class="tray-box">
+          <div class="tray-top">
+            <span class="tray-label">Letters in the tray</span>
+            <span class="tray-buttons">
+              <button type="button" class="shake" id="shake" disabled>Shuffle the leftovers</button>
+              <button type="button" class="shake strain" id="strain" disabled>Strain them</button>
+            </span>
+          </div>
+          <ol class="tray" id="tray" aria-hidden="true"></ol>
+        </div>
+        <div class="shuffles" id="shuffles" hidden>
+          <p class="shuffles-lede" id="shuffles-lede"></p>
+          <ul class="shuffle-list" id="shuffle-list"></ul>
+        </div>
+        <p class="status" id="phrase-status" role="status" aria-live="polite"></p>
+        <div class="phrase-tools">
+          <button type="button" class="tool" id="phrase-undo" disabled>Undo last word</button>
+          <button type="button" class="tool" id="phrase-restart" disabled>Start over</button>
+          <button type="button" class="tool tool-copy" id="phrase-copy" hidden>Copy the phrase</button>
+        </div>
+
+        <div class="specials-wrap" id="phrase-slips">
+          <div class="slips-head">
+            <h3 class="specials-title">Words that fit</h3>
+            <label class="slip-find">
+              <span>Find words with</span>
+              <input id="phrase-find" type="search" placeholder="ice" autocomplete="off" autocapitalize="none" disabled />
+            </label>
+          </div>
+          <ul class="specials" id="phrase-options" aria-live="polite"></ul>
+          <p class="slip-note" id="phrase-note"></p>
+        </div>
+      </section>
+
+      <section class="chef" id="chef" aria-labelledby="chef-title">
+        <h2 id="chef-title" class="phrase-title">Chef's choice</h2>
+        <p class="phrase-lede">
+          Too busy to pick words? The chef will try thousands of combinations of
+          <strong id="chef-name">your name</strong> and bring the tastiest out five at a time. Keep
+          the ones that make you laugh, send the rest back.
+        </p>
+        <div class="ticket" id="ticket-box">
+          <p class="ticket-head"><span>Order no. 5</span><span id="chef-table">Table for one</span></p>
+          <ol class="ticket-lines" id="ticket"></ol>
+          <p class="ticket-status" id="chef-status" role="status" aria-live="polite">The chef is warming up…</p>
+          <div class="ticket-tools">
+            <button type="button" class="tool" id="chef-ask" disabled>Ask the chef</button>
+            <button type="button" class="tool" id="chef-next" hidden>Five more</button>
+          </div>
+          <details class="full-menu" id="chef-menu" hidden>
+            <summary id="chef-menu-title">See the full menu</summary>
+            <ul class="full-menu-list" id="chef-menu-list"></ul>
+          </details>
+        </div>
+        <div class="order-card" id="order-card" hidden>
+          <h3>Your order</h3>
+          <ul class="order-list" id="order-list"></ul>
+          <button type="button" class="tool tool-copy" id="order-copy">Copy my order</button>
+        </div>
+      </section>
+
+      <section class="sieve" id="sieve" aria-labelledby="sieve-title">
+        <h2 id="sieve-title" class="phrase-title">The kitchen sieve</h2>
+        <p class="phrase-lede">
+          Need a brand-new word? Give the kitchen up to nine letters. It lays out every order
+          they can go in, then pours the lot through three sieves that catch anything no English
+          speaker could say. Whatever drips through is yours to name a cake, a cat or a boat.
+        </p>
+
+        <label class="order" for="sieve-letters">
+          <span>Letters to strain</span>
+          <input id="sieve-letters" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="20" disabled />
+        </label>
+        <div class="regulars" role="group" aria-labelledby="sieve-regulars-title">
+          <span id="sieve-regulars-title" class="regulars-title">Or strain something from the counter:</span>
+          <button type="button" data-letters="teacakes">teacakes</button>
+          <button type="button" data-letters="crumpets">crumpets</button>
+          <button type="button" data-letters="mermaids">mermaids</button>
+          <button type="button" data-letters="lemontart">lemon tart</button>
+        </div>
+
+        <div class="colanders">
+          <p class="pour" id="sieve-start" role="status" aria-live="polite">Fetching the sieves…</p>
+          <ol class="colander-stack" id="colanders">
+            <li>
+              <button type="button" class="colander" data-sieve="shape" aria-pressed="true">
+                <span class="colander-name">The shape sieve</span>
+                <span class="colander-what">Catches words built like no real word, such as five consonants in a row.</span>
+                <span class="colander-left"><span class="colander-count">…</span> left</span>
+                <span class="colander-pile" aria-hidden="true"></span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="colander" data-sieve="triples" aria-pressed="true">
+                <span class="colander-name">The three-letter sieve</span>
+                <span class="colander-what">Catches runs of three letters that hardly any word has.</span>
+                <span class="colander-left"><span class="colander-count">…</span> left</span>
+                <span class="colander-pile" aria-hidden="true"></span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="colander" data-sieve="pairs" aria-pressed="true">
+                <span class="colander-name">The two-letter sieve</span>
+                <span class="colander-what">Catches English's rarest letter pairs, and starts no word begins with.</span>
+                <span class="colander-left"><span class="colander-count">…</span> left</span>
+                <span class="colander-pile" aria-hidden="true"></span>
+              </button>
+            </li>
+          </ol>
+          <p class="colander-hint">Tap a sieve to take it out and see how much it was catching.</p>
+        </div>
+
+        <div class="invention" id="invention" hidden>
+          <p class="invention-label">Fresh out of the sieve</p>
+          <p class="invention-name" id="invention-name"></p>
+          <p class="invention-from" id="invention-from"></p>
+          <div class="invention-tools">
+            <button type="button" class="tool tool-copy" id="invention-copy">Copy this word</button>
+            <button type="button" class="tool" id="invention-peg" hidden>Peg it onto my phrase</button>
+          </div>
+        </div>
+
+        <div class="drips" id="drips">
+          <h3 class="drips-title">Everything that got through</h3>
+          <div class="first-letters" id="first-letters" role="group" aria-label="Show words starting with"></div>
+          <ul class="drip-list" id="drip-list"></ul>
+          <p class="slip-note" id="drip-note"></p>
+        </div>
+
+        <div class="check">
+          <label class="order" for="check-name">
+            <span>Would your word get through?</span>
+            <input id="check-name" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="20" disabled />
+          </label>
+          <p class="check-result" id="check-result" role="status" aria-live="polite"></p>
+        </div>
+
+        <details class="pair-chart">
+          <summary>Which letter pairs does English like?</summary>
+          <p class="pair-fact" id="pair-fact"></p>
+          <div class="pair-scroll"><table id="pair-table"></table></div>
+          <p class="pair-key">
+            The more mustard in a square, the more English uses that pair, out of all the pairs these letters can
+            make. Crossed-out pairs are so rare the two-letter sieve catches them.
+          </p>
+        </details>
+      </section>
+
+      <section class="menu" aria-labelledby="menu-title">
+        <div class="menu-card">
+          <h2 id="menu-title">The big families</h2>
+          <p class="menu-lede" id="menu-lede">The kitchen is sorting every word in the dictionary…</p>
+          <ol class="families" id="families"></ol>
+          <p class="hidden-note" id="hidden-note"></p>
+        </div>
+      </section>
+
+      <section class="about" aria-labelledby="about-title">
+        <h2 id="about-title">How the board works</h2>
+        <p>
+          Two words are anagrams when they use the same letters, the same number of times. The
+          trick is to put each word's letters in alphabetical order: <em>listen</em> and
+          <em>silent</em> both become <em>eilnst</em>. Same sorted letters, same family.
+        </p>
+        <p>
+          The café does that sorting for all 60,388 words of a free dictionary once, when it
+          opens, and files each word under its sorted letters. After that, finding your name's
+          anagrams is a single look in the right drawer, all in Python, right here in your
+          browser.
+        </p>
+        <p>
+          For phrases the café counts letters instead. Your name might have three <em>e</em>s and
+          one <em>v</em>; a word fits if it never needs more of any letter than the tray holds.
+          Python picks out every word that fits, you pick the one that makes sense, and the
+          count goes down. The computer is quick and the human has taste.
+        </p>
+        <p>
+          Shuffling is where computers stop being quick. Three letters can be ordered 6 ways,
+          six letters 720 ways, ten letters over three million. The waiter lays out every
+          arrangement when there are a few hundred, and a random handful when there are more.
+        </p>
+        <p>
+          The sieve uses a code-breaker's trick: every language leaves fingerprints. The café
+          counts every pair and every run of three letters in its 60,388 words, and notes the
+          pattern of consonants and vowels each word has. Orderings with a fingerprint English
+          almost never leaves get caught. It isn't perfect: <em>doughnut</em> is caught, because
+          hardly any word has <em>hnu</em> in it.
+        </p>
+        <p>
+          The chef searches like someone packing a suitcase: try the biggest word that fits,
+          then the next, and back up when nothing fits the gap. It gives up after a few hundred
+          thousand tries, so a long name never keeps you waiting, and ranks what it found so
+          long words come first.
+          <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/05_shuffle_cafe">Peek at the Python</a>.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <p>
+        Inspired by the anagram project in
+        <a href="https://nostarch.com/impracticalpython"><cite>Impractical Python Projects</cite></a>
+        by Lee Vaughan, a great book if you want to make your own silly, clever programs. Words
+        from Alan Beale's public-domain <a href="http://wordlist.aspell.net/12dicts/">12dicts</a>
+        lists. This version, its words and its code are new. One of the stalls on the
+        <a href="/">Impractical Pythons</a> pier.
+      </p>
+    </footer>
+    <script type="module" src="/src/shuffle-cafe-page.ts"></script>
+  </body>
+</html>

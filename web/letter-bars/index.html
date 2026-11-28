@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Letter Bars · Impractical Pythons</title>
+    <meta name="description" content="Fresh seaside rock, pulled from your words: a stick of candy for every letter, as long as how often you use it." />
+    <meta name="theme-color" content="#E2457A" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍭</text></svg>" />
+  </head>
+  <body class="rock">
+    <a class="skip" href="#counter">Skip to the sweet counter</a>
+    <nav class="crumbs"><a href="/">Back to the pier</a></nav>
+
+    <main id="main">
+      <section class="shop" id="counter" aria-labelledby="title">
+        <div class="awning" aria-hidden="true"></div>
+        <header class="shop-sign">
+          <h1 id="title" class="sign-title">Letter Bars</h1>
+          <p class="sign-lede">
+            Fresh seaside rock, pulled from your words. Every letter gets a stick as long as how
+            often you use it.
+          </p>
+        </header>
+
+        <div class="counter">
+          <div class="scoops">
+            <div class="scoop">
+              <label for="text-a" class="scoop-label">Your words</label>
+              <textarea id="text-a" rows="4" disabled></textarea>
+              <div class="flavours" data-for="a" role="group" aria-label="Fill with a pier postcard"></div>
+            </div>
+            <div class="scoop scoop-b" id="pane-b" hidden>
+              <label for="text-b" class="scoop-label">Second text</label>
+              <textarea id="text-b" rows="4" disabled></textarea>
+              <div class="flavours" data-for="b" role="group" aria-label="Fill with a pier postcard"></div>
+            </div>
+          </div>
+
+          <div class="switches">
+            <label class="switch"><input type="checkbox" id="compare" disabled /> Weigh against a second text</label>
+            <label class="switch"><input type="checkbox" id="used-only" disabled /> Only letters I used</label>
+          </div>
+          <p class="status" id="status" role="status">Warming up the sugar boiler…</p>
+        </div>
+
+        <figure class="jar" aria-labelledby="jar-title">
+          <figcaption id="jar-title" class="jar-key">
+            <span class="key key-a">Your words</span>
+            <span class="key key-b" id="key-b" hidden>Second text</span>
+            <span class="key key-usual">Usual English</span>
+          </figcaption>
+          <ol class="sticks" id="chart"></ol>
+          <div class="receipt" id="summary"></div>
+        </figure>
+      </section>
+
+      <section class="about" aria-labelledby="about-title">
+        <h2 id="about-title">How the rock is made</h2>
+        <p>
+          The Python reads your words one character at a time and drops each letter into its own
+          jar, counting as it goes. Accents get a gentle wash first, so <em>é</em> joins the
+          <em>e</em> jar and <em>ñ</em> the <em>n</em> jar, and the receipt lists every accent
+          that was folded in.
+        </p>
+        <p>
+          Each stick shows a letter's share of all your letters, so a postcard and a novel can
+          stand side by side. The chocolate notches mark ordinary English. Try the Spanish
+          postcard: A and O shoot up, while H, W and Y almost vanish. Every language has its own
+          flavour. <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/03_letter_bars">Peek at the Python</a>.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <p>
+        Inspired by the letter bar chart project in
+        <a href="https://nostarch.com/impracticalpython"><cite>Impractical Python Projects</cite></a>
+        by Lee Vaughan, a great book if you want to make your own silly, clever programs. This
+        version, its words and its code are new. One of the stalls on the
+        <a href="/">Impractical Pythons</a> pier.
+      </p>
+    </footer>
+    <script type="module" src="/src/letter-bars-page.ts"></script>
+  </body>
+</html>

@@ -32,8 +32,9 @@ export class Python {
     });
   }
 
-  init(files: Record<string, string>): Promise<void> {
-    return this.send({ type: "init", files });
+  /** Load Pyodide, write a project's .py files and run its bridge (see worker.ts). */
+  init(project: string, files: Record<string, string>, bridge: string): Promise<void> {
+    return this.send({ type: "init", project, files, bridge });
   }
 
   call<T>(fn: string, args: object = {}): Promise<T> {

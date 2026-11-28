@@ -8,6 +8,8 @@ dependencies = []
 
 [dependency-groups]
 dev = [
+    "pydocstyle>=6.3.0",
+    "pylint>=4.1.4",
     "pytest>=9.2.0",
     "ruff>=0.17.6",
 ]
@@ -19,6 +21,8 @@ addopts = "--import-mode=importlib"
 [tool.ruff]
 line-length = 100
 target-version = "py313"
+# Deliberately badly styled: it's the "before" half of the style clinic lesson.
+extend-exclude = ["projects/01_alias_slots/style_clinic/messy_slots.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM", "D"]
@@ -31,4 +35,8 @@ convention = "google"
 "tests/**" = ["D"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["slots", "themes", "main"]
+known-first-party = ["slots", "themes", "main", "code_talk", "letter_bars", "english", "mirror", "wordlist", "palingrams", "decency", "speed_test", "anagrams", "phrases", "phrase_session", "leftovers", "ngrams", "sieve", "chef", "route", "codebook", "challenge", "dispatches", "rail_fence", "night_clerk", "word_gaps", "sniff", "null_finder", "postcards", "null_writer", "postcard_themes"]
+
+# Pylint reads this instead of a .pylintrc. Keep it in step with ruff's line length.
+[tool.pylint.format]
+max-line-length = 100
