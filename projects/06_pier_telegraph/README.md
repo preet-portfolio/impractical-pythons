@@ -182,7 +182,7 @@ How many routes is that? `cols!` orders times `2 ** cols` arrows:
 | Routes | 8 | 48 | 384 | 3,840 | 46,080 | 645,120 |
 
 A 12-word telegram fits racks of 2, 3, 4 and 6 columns, so the clerk tries all four: 46,520
-routes. In the browser that takes under a second. Seven columns would take about 15 times
+routes. In the browser that takes under a second. Seven columns would take about 14 times
 longer, so the clerk stops at six (`WIDEST`) and says which racks it skipped.
 
 **The catch: the clerk can't read.** `readability` scores each reading with rules a tired
@@ -267,7 +267,7 @@ wrong letters.
 `english_likeness` is a **chi-squared** score: for each letter, the difference between its
 count and what English would give (from `common/english.py`, shared with Letter Bars),
 squared, divided by what English would give, all added up and divided by the number of
-letters. Shuffled pier telegrams score under 0.7; swapped ones mostly 2 to 30. In between, a
+letters. Shuffled pier telegrams score under 0.7; swapped ones mostly 2 to 40. In between, a
 swap that happened to land on look-alike letters can pass for English, so `verdict` says
 "hard to say" there, and "too short" under 30 letters.
 
