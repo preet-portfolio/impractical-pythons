@@ -44,6 +44,23 @@ def test_family_friendly_drops_listed_words():
     assert all(word == word.lower() for word in NOT_ON_THE_PIER)
 
 
+def test_swear_words_and_slurs_stay_off_the_pier():
+    # The rude-word lists live in decency.py; spot-check a few from each group here.
+    assert family_friendly(["shit", "fuck", "wanker", "incest", "raping"]) == []
+
+
+@pytest.mark.parametrize(
+    "word", ["ginger", "this", "insect", "constitution", "cocktail", "scrape", "titanic"]
+)
+def test_innocent_neighbours_of_rude_words_stay(word):
+    assert family_friendly([word]) == [word]
+
+
+@pytest.mark.parametrize("word", ["gay", "lesbian", "queer"])
+def test_words_about_who_people_are_are_not_rude(word):
+    assert family_friendly([word]) == [word]
+
+
 def test_nothing_rude_inside_checks_substrings():
     assert nothing_rude_inside(["latorment", "brashite", "pennarse"]) == ["latorment"]
     assert nothing_rude_inside(["titanic"]) == ["titanic"]  # short words aren't checked inside

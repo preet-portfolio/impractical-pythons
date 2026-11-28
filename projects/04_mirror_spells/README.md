@@ -115,7 +115,7 @@ version barely notices.
 
 ## Not on the pier
 
-`common/decency.py` holds a short list of crude words. The web page uses it to keep a handful of
+`common/decency.py` holds an explicit list of crude words, swear words and slurs. The web page uses it to keep a handful of
 spells (4 single words and 87 pairs) out of sight. The Python, the command line and the
 tests still find everything, so nothing about the algorithm is hidden.
 

@@ -232,7 +232,7 @@ everything.
 | `phrase_session.py` | `run_session`: the interactive phrase builder, with `ask`/`say` you can swap |
 | `main.py` | The command line: `argparse`, an `input()` fallback, `--families`, `--phrase`, `--shuffle`, `--strain`, `--check`, `--chef`, `try`/`except OSError` |
 | `../common/wordlist.py` | Shared: `read_words`, `clean_words` and the bundled dictionary |
-| `../common/decency.py` | Shared: the short list of words kept off the web page, also checked inside made-up words |
+| `../common/decency.py` | Shared: the list of words kept off the web page (rude words, swear words, slurs), also checked inside made-up words |
 
 ## What's new here
 

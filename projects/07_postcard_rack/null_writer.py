@@ -43,11 +43,11 @@ LONGEST_NAME = 20
 NOT_ON_A_POSTCARD = frozenset(
     """
     abort bastard bitch bomb bosom breast butt corpse crap cripple damn
-    drug erotic fatso fetish gay genocid gun gypsy idiot incest insan
-    kill lesbian lunatic massacr midget molest moron murder naked negro
-    nigg nude obese orgasm pervert porn psycho pussy queer rape raping
-    retard rifle sex shoot slave stab strangl suicid terror testic
-    toerag tortur vagin whore
+    drug erotic fatso fetish genocid gun gypsy idiot incest insan kill
+    lunatic massacr midget molest moron murder naked negro nigg nude
+    obese orgasm pervert porn psycho pussy rape raping retard rifle sex
+    shoot slave stab strangl suicid terror testic toerag tortur vagin
+    whore
     """.split()  # noqa: SIM905
 )
 
