@@ -1,7 +1,7 @@
 import "./styles.css";
 import "./letter-bars.css";
 import { Python } from "./py/python";
-import { letterBarsSources } from "./py/sources";
+import { commonSources, letterBarsSources } from "./py/sources";
 
 // Python side of the page: called by the worker as _bridge(fn, args_json) -> JSON.
 const BRIDGE = `
@@ -169,7 +169,7 @@ async function start() {
   python.onProgress = (stage) => (status.textContent = `${stage}…`);
   let samples: Record<string, string>;
   try {
-    await python.init("letter_bars", letterBarsSources, BRIDGE);
+    await python.init("letter_bars", { ...commonSources, ...letterBarsSources }, BRIDGE);
     samples = await python.call<Record<string, string>>("samples");
   } catch (error) {
     console.error(error);

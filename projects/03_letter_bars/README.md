@@ -37,8 +37,9 @@ top letters: sort by (biggest count first, then alphabetical) and take six
 
 | File | What's in it |
 |---|---|
-| `letter_bars.py` | `fold`, `count_letters`, `accents`, `shares`, `top_letters`, `bar_chart`, `compare`, `chart_data`, the English frequency table and three sample postcards |
+| `letter_bars.py` | `fold`, `count_letters`, `accents`, `shares`, `top_letters`, `bar_chart`, `compare`, `chart_data` and three sample postcards |
 | `main.py` | The terminal chart (`argparse`, `pprint`) |
+| `../common/english.py` | `ENGLISH`, the usual English letter shares. It's shared, because Pier Telegraph uses it too to tell a shuffled telegram from a swapped one |
 
 The sample postcard (a summer evening on a pier) and its Spanish and French versions were
 written for this project. The "usual English" figures are Robert Lewand's widely quoted

@@ -1,7 +1,8 @@
-"""Make the project's modules importable as plain ``letter_bars``."""
+"""Make the project's modules, and the shared ones, importable by plain name."""
 
 import sys
 from pathlib import Path
 
-PROJECT = Path(__file__).resolve().parents[2] / "projects" / "03_letter_bars"
-sys.path.insert(0, str(PROJECT))
+PROJECTS = Path(__file__).resolve().parents[2] / "projects"
+sys.path.insert(0, str(PROJECTS / "common"))
+sys.path.insert(0, str(PROJECTS / "03_letter_bars"))

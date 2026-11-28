@@ -7,9 +7,16 @@ Usage (from the repo root):
 """
 
 import argparse
+import sys
+from pathlib import Path
 from pprint import pprint
 
-from letter_bars import (
+# The English letter table is shared with Pier Telegraph, so it lives in
+# projects/common. Python only looks next to this file by default.
+sys.path.append(str(Path(__file__).resolve().parents[1] / "common"))
+
+# pylint: disable-next=wrong-import-position
+from letter_bars import (  # noqa: E402
     SAMPLES,
     accents,
     bar_chart,

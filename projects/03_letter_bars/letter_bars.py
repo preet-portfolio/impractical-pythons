@@ -12,18 +12,12 @@ import string
 import unicodedata
 from collections import defaultdict
 
+from english import ENGLISH
+
 ALPHABET = string.ascii_lowercase
 
-# Typical share of each letter in English text, in percent. These are the
-# widely quoted figures from Robert Lewand's "Cryptological Mathematics"
-# (2000), the same table Wikipedia's "Letter frequency" article uses.
-ENGLISH = {
-    "a": 8.2, "b": 1.5, "c": 2.8, "d": 4.3, "e": 12.7, "f": 2.2,
-    "g": 2.0, "h": 6.1, "i": 7.0, "j": 0.15, "k": 0.77, "l": 4.0,
-    "m": 2.4, "n": 6.7, "o": 7.5, "p": 1.9, "q": 0.095, "r": 6.0,
-    "s": 6.3, "t": 9.1, "u": 2.8, "v": 0.98, "w": 2.4, "x": 0.15,
-    "y": 2.0, "z": 0.074,
-}  # fmt: skip
+# ENGLISH (typical letter shares, in percent) lives in projects/common,
+# because Pier Telegraph needs it too.
 
 # Letters that don't split into "base letter + accent" in Unicode.
 LIGATURES = {"æ": "ae", "œ": "oe", "ß": "ss", "ø": "o", "đ": "d", "ł": "l"}
