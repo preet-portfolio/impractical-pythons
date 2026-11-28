@@ -15,6 +15,14 @@ in ``null_finder`` can read the note back with its punctuation rule: the
 The cover line has no punctuation of its own before the colon on
 purpose: a mark there would start the count early and add stray letters.
 
+A list is easy to write but looks like a list. A "proper" postcard is
+harder: each sentence must *start* with a word that carries the next
+letter. ``write_story`` builds one from the five ready-made themes in
+``postcard_themes``: every sentence is a name (chosen for its letter)
+plus a ready-written ending, so it always makes sense:
+
+    Wish you were here! Ezra found a crab under a rock. ...
+
 A postcard can travel as a link. The link holds the card's text and
 names, packed with JSON and URL-safe Base64, and never the note itself:
 the friend has to find it.
@@ -26,14 +34,19 @@ import random
 import string
 
 from decency import NOT_ON_THE_PIER, nothing_rude_inside
-from null_finder import SHORTEST
+from null_finder import SHORTEST, hidden_letters
+from postcard_themes import SUBJECTS, THEMES, THEMES_BY_ID
 
 COVER = "Nan won at Scrabble again with these words"
 POSITIONS = (2, 3, 4)  # which letter of each word carries the note
+# The glass settings a card from the writing desk can be read with.
+WRITERS_SETTINGS = frozenset(("punctuation", position) for position in POSITIONS)
 SHORTEST_WORD, LONGEST_WORD = 5, 8  # long enough to look like a good Scrabble word
 LONGEST_NOTE = 40  # letters: a postcard, not a novel
-LONGEST_CARD = 600  # characters a link may carry
+LONGEST_CARD = 1200  # characters a link may carry
 LONGEST_NAME = 20
+
+LONGEST_STORY_NOTE = 16  # one sentence per letter: a postcard, not a letter
 
 
 # Nan's list goes on a public postcard, so it is stricter than the pier's
@@ -42,12 +55,12 @@ LONGEST_NAME = 20
 # the list only needs enough words, not every word.
 NOT_ON_A_POSTCARD = frozenset(
     """
-    abort bastard bitch bomb bosom breast butt corpse crap cripple damn
-    drug erotic fatso fetish genocid gun gypsy idiot incest insan kill
-    lunatic massacr midget molest moron murder naked negro nigg nude
-    obese orgasm pervert porn psycho pussy rape raping retard rifle sex
-    shoot slave stab strangl suicid terror testic toerag tortur vagin
-    whore
+    abort bastard behead bitch bomb bosom breast bumm butt corpse crap
+    cripple cumm damn drug embalm erect erotic fatso fetish genocid gun gypsy
+    idiot impal incest insan kill lunatic massacr midget molest moron murder
+    naked negro nigg nude nymph obese orgasm pervert porn psycho pussy rape
+    raping retard rifle sex shoot slave stab steroid strangl suicid terror
+    testic toerag tortur vagin whore
     """.split()  # noqa: SIM905
 )
 
@@ -189,3 +202,71 @@ def unpack_card(token: str) -> dict:
         "to": clean_name(payload.get("to"), "you"),
         "sender": clean_name(payload.get("from"), "a friend"),
     }
+
+
+# --------------------------------------------- a proper postcard, from a theme
+
+
+def subjects_by_letter(position: int) -> dict[str, list[str]]:
+    """Group the themes' subjects (names and family) by the letter at ``position``."""
+    if position not in POSITIONS:
+        raise NoteProblem(f"Hide the note in letter {', '.join(map(str, POSITIONS))} of each word.")
+    groups: dict[str, list[str]] = {}
+    for subject in SUBJECTS:
+        if len(subject) >= position:
+            groups.setdefault(subject[position - 1].lower(), []).append(subject)
+    return groups
+
+
+def check_story_note(note: str) -> str:
+    """Like ``check_note``, but short enough for one sentence per letter."""
+    letters = check_note(note)
+    if len(letters) > LONGEST_STORY_NOTE:
+        reason = (
+            f"A proper postcard fits {LONGEST_STORY_NOTE} letters at most "
+            f"(yours has {len(letters)}). Nan's list takes up to {LONGEST_NOTE}."
+        )
+        raise NoteProblem(reason)
+    return letters
+
+
+def pick_subjects(letters: str, position: int, rng: random.Random) -> list[str]:
+    """One person per letter, each with that letter at ``position``.
+
+    Nobody turns up twice unless a rare letter has run out of people.
+    """
+    groups = subjects_by_letter(position)
+    used: list[str] = []
+    for letter in letters:
+        people = groups.get(letter, [])
+        if not people:
+            raise NoteProblem(f"Nobody's name has {letter!r} as letter {position}.")
+        fresh = [person for person in people if person not in used] or people
+        used.append(rng.choice(fresh))
+    return used
+
+
+def write_story(note: str, theme_id: str, position: int = 3, seed: int | None = None) -> str:
+    """Hide ``note`` in a proper postcard from one of the five themes.
+
+    For each letter: a subject with that letter at ``position``, then an
+    ending from the theme. ``random.Random(seed)`` shuffles the endings
+    and picks the subjects, so a new seed writes a new card.
+    """
+    letters = check_story_note(note)
+    theme = THEMES_BY_ID.get(theme_id)
+    if theme is None:
+        raise NoteProblem("Pick one of the five postcards.")
+    rng = random.Random(seed)
+    endings = rng.sample(theme["endings"], len(letters))
+    subjects = pick_subjects(letters, position, rng)
+    sentences = [f"{subject} {ending}." for subject, ending in zip(subjects, endings, strict=True)]
+    card = " ".join([theme["opening"], *sentences])
+    if hidden_letters(card, "punctuation", position) != letters:  # never expected: belt and braces
+        raise NoteProblem("The note didn't survive the writing.")
+    return card
+
+
+def theme_of(text: str) -> dict | None:
+    """The theme a card was written from, found by its opening line (for links)."""
+    return next((theme for theme in THEMES if text.startswith(theme["opening"] + " ")), None)

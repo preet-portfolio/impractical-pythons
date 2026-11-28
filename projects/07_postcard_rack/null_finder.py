@@ -139,25 +139,34 @@ def describe(rule: str, offset: int) -> str:
     return f"{ordinal} {DESCRIBE[rule].format(ordinal=ordinal)}"
 
 
-def read_reading(letters: str, words: set[str]) -> dict:
+def read_reading(letters: str, words: set[str], short_words_ok: bool = False) -> dict:
     """Split picked letters into words and say how well they read.
 
     Returns ``{"words", "coverage", "word_length", "reads"}``:
     ``coverage`` is the share of letters inside real words, and
     ``word_length`` the average length of those words.
+
+    ``short_words_ok`` drops the word-length test. The rack's own cards
+    need it, because chance makes plenty of "at men a"; but a note a
+    visitor wrote can honestly be short words ("go to the pub"), so on
+    the setting their card was written with, the test would call it luck.
     """
     parts = split_words(letters, words)
     real = [part for part in parts if not part.isupper()]
     covered = sum(len(part) for part in real)
     coverage = covered / len(letters) if letters else 0.0
     word_length = covered / len(real) if real else 0.0
-    reads = (
-        len(letters) >= SHORTEST and coverage >= READS_COVERAGE and word_length >= READS_WORD_LENGTH
-    )
+    long_enough = short_words_ok or word_length >= READS_WORD_LENGTH
+    reads = len(letters) >= SHORTEST and coverage >= READS_COVERAGE and long_enough
     return {"words": parts, "coverage": coverage, "word_length": word_length, "reads": reads}
 
 
-def scan(text: str, words: set[str], most: int = 6) -> list[dict]:
+def scan(
+    text: str,
+    words: set[str],
+    most: int = 6,
+    trusted: frozenset[tuple[str, int]] = frozenset(),
+) -> list[dict]:
     """Try every rule and offset up to ``most``, best reading first.
 
     This is the book's "lookahead" loop, widened to every rule. Each
@@ -165,6 +174,8 @@ def scan(text: str, words: set[str], most: int = 6) -> list[dict]:
     how long those words are: the right setting reads "key under gnome",
     a wrong one reads alphabet soup or a string of little words ("at men
     a"). Readings shorter than ``SHORTEST`` letters are left out.
+    ``trusted`` settings (``(rule, offset)`` pairs a writer may have
+    used) are allowed short words: see ``read_reading``.
 
     Returns a list of ``{"rule", "offset", "setting", "letters",
     "words", "coverage", "word_length", "reads"}``.
@@ -179,6 +190,17 @@ def scan(text: str, words: set[str], most: int = 6) -> list[dict]:
                 continue
             seen.add(letters)
             reading = {"rule": rule, "offset": offset, "setting": describe(rule, offset)}
-            reading |= {"letters": letters} | read_reading(letters, words)
+            short_ok = (rule, offset) in trusted
+            reading |= {"letters": letters} | read_reading(letters, words, short_ok)
             readings.append(reading)
-    return sorted(readings, key=lambda r: (-r["reads"], -r["coverage"], -r["word_length"]))
+
+    # On a written card, the writer's own settings go first among readings that read.
+    def rank(r: dict) -> tuple:
+        return (
+            -r["reads"],
+            -((r["rule"], r["offset"]) in trusted),
+            -r["coverage"],
+            -r["word_length"],
+        )
+
+    return sorted(readings, key=rank)

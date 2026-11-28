@@ -23,8 +23,10 @@ stamps the card "Read between the lines". **Try every setting** does what a susp
 jailer could have done, and there's a blank card for any text you want to test.
 
 At the **writing desk** you go the other way: type a secret note and Nan hides it in a list
-of her Scrabble words, one letter per word. Send the postcard to a friend as a link, and
-all they see is a gran showing off, until they pick up the glass.
+of her Scrabble words, one letter per word. Or ask for **a proper postcard** from one of five
+seaside themes, with one letter hidden at the start of each sentence. Send the
+postcard to a friend as a link, and all they see is a gran showing off (or a nice day
+out), until they pick up the glass.
 
 ## Play
 
@@ -162,6 +164,44 @@ is never in the link; your friend has to find it. `unpack_card` checks every fie
 whatever arrives and raises `NoteProblem` with a plain reason, so a smudged link gets a
 friendly message instead of a crash.
 
+## A proper postcard, from five themes
+
+A list is easy to hide in but looks like a list. A postcard that reads naturally is the
+hard version: every sentence has to make sense *and* carry the right letter. The trick is
+to make every sentence the same shape, "Somebody did something.":
+
+```
+check the note: 6 to 16 letters (one sentence each), nothing rude
+shuffle the theme's 20 ready-written endings ("found a crab under a rock")
+for each letter:
+    pick a person whose name has that letter at the chosen position (Ezra, Max, Nan...)
+    sentence = person + ending + "."
+card = the theme's opening line ("Wish you were here!") + the sentences
+```
+
+`postcard_themes.py` holds the five themes (Beach day, On the pier, Rainy day, Caravan
+holiday, Fish and chips), each with its own opening line, postmark, picture and 20 endings,
+plus about 210 first names and family words. `write_story` in `null_writer.py` does the rest.
+
+- **The opening line's "!" starts the count** and every full stop restarts it, so the note
+  sits in the Nth letter of each sentence's first word: the glass's punctuation rule.
+- **Every ending names nobody and is past tense**, so it fits any subject: "Ezra lost a
+  flip flop", "Grandad lost a flip flop", "Cousins lost a flip flop".
+- **Plenty of names** means every letter has someone at every position, even q, x, z and
+  j (Iqbal, Axel, Liza, Benji). A test checks all 26 letters × 3 positions, and another
+  checks that no ending or opening has a stray punctuation mark.
+- **A seeded `random.Random`** shuffles the endings and picks the people, so "Write it
+  again" gives a new card, and nobody turns up twice unless a rare letter runs out.
+- **The postmark travels with the card.** A link only carries the text, so `theme_of`
+  recognises the theme from the opening line and the friend sees the right picture.
+
+Short notes are honest. "go to the pub" is all real words, but tiny ones, and the glass's
+strict test (words averaging 3 letters or more) was written to stop chance passing off "at
+men a" as a message. On a card from the writing desk, the writer's own settings (2nd, 3rd
+or 4th letter after punctuation) skip that test and go first in "Try every setting". The
+sender's own note always counts, even with words the dictionary lacks ("ok"), and a friend
+who gets "mostly real words" is told to look for themselves.
+
 ## Today's postcard
 
 `todays_postcard(day)` counts days since the rack went up and cycles through the cards that
@@ -173,7 +213,8 @@ deciding. The web page passes the visitor's own date.
 | File | What's in it |
 |---|---|
 | `null_finder.py` | The four rules, `picked_positions`, `describe`, `read_reading` and `scan` |
-| `null_writer.py` | Hides a note in Nan's Scrabble words, and packs and unpacks postcard links |
+| `null_writer.py` | Hides a note in Nan's Scrabble words or a themed postcard, and packs and unpacks postcard links |
+| `postcard_themes.py` | The five postcard themes and the names that carry the letters |
 | `postcards.py` | The eight postcards (seven notes and one decoy) and the daily pick |
 | `main.py` | The command line: `--lookahead`, `--rule`, `--scan`, `--today`, `--write`, `--file`, `--text` |
 | `../common/word_gaps.py` | Puts the gaps back between words (shared with the Pier Telegraph) |
@@ -197,6 +238,10 @@ these exact modules in the browser with Pyodide.
 - **Hiding in a list**: why a list beats a letter for a null cipher.
 - **JSON + URL-safe Base64** to carry data in a link, checked on the way back in.
 - **A round-trip test**: write a card, then check the finder reads it back.
+- **Templates that always fit**: one sentence shape ("Somebody did something.") makes
+  any subject work with any ending.
+- **Data-driven tests**: every letter at every position, and every ending checked for
+  stray marks, so new themes can't quietly break the cipher.
 
 ## Try this next
 
@@ -212,4 +257,5 @@ these exact modules in the browser with Pyodide.
 
 Inspired by the Trevanion cipher and list cipher projects (and the Colchester Catch practice
 project) in [*Impractical Python Projects*](https://nostarch.com/impracticalpython) by Lee
-Vaughan. The postcards, Nan's Scrabble cover, scoring, links and web page are new.
+Vaughan. The postcards, Nan's Scrabble cover, the five themes, scoring, links and web
+page are new.

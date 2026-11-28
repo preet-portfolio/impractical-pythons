@@ -79,8 +79,9 @@
         </div>
         <h2 id="desk-title" class="desk-title">Write your own</h2>
         <p class="desk-help">
-          Type a secret note. Nan hides it in her Scrabble words, one letter in each word, and
-          you send the postcard to a friend. All they see is a gran showing off.
+          Type a secret note. Nan hides it in her Scrabble words, one letter in each word, or
+          in a proper postcard home, one letter at the start of each sentence. Send it to a
+          friend: all they see is a gran showing off, or a nice day at the seaside.
         </p>
         <form class="desk-form" id="write-form" novalidate>
           <label class="field field-note">
@@ -89,7 +90,20 @@
           </label>
           <p class="note-count" id="note-count" aria-live="polite"></p>
           <fieldset class="positions">
-            <legend class="field-label">Hide it in each word's…</legend>
+            <legend class="field-label">Write it as…</legend>
+            <label class="chip"><input type="radio" name="style" value="list" checked /><span>Nan's Scrabble words</span></label>
+            <label class="chip"><input type="radio" name="style" value="story" /><span>A proper postcard</span></label>
+          </fieldset>
+          <fieldset class="positions" id="themes" hidden>
+            <legend class="field-label">Which postcard?</legend>
+            <label class="chip"><input type="radio" name="theme" value="beach" checked /><span>Beach day</span></label>
+            <label class="chip"><input type="radio" name="theme" value="pier" /><span>On the pier</span></label>
+            <label class="chip"><input type="radio" name="theme" value="rain" /><span>Rainy day</span></label>
+            <label class="chip"><input type="radio" name="theme" value="caravan" /><span>Caravan holiday</span></label>
+            <label class="chip"><input type="radio" name="theme" value="chips" /><span>Fish and chips</span></label>
+          </fieldset>
+          <fieldset class="positions">
+            <legend class="field-label" id="position-legend">Hide it in each word's…</legend>
             <label class="chip"><input type="radio" name="position" value="2" /><span>2nd letter</span></label>
             <label class="chip"><input type="radio" name="position" value="3" checked /><span>3rd letter</span></label>
             <label class="chip"><input type="radio" name="position" value="4" /><span>4th letter</span></label>

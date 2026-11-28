@@ -36,17 +36,22 @@ def rack(args):
             "number": postcards.postcard_number(date.fromisoformat(args["today"])),
             "rules": {rule: null_finder.describe(rule, 1) for rule in null_finder.RULES}}
 
+def trusted(args):
+    """Desk cards were written on one of the writer's settings: short words count there."""
+    return null_writer.WRITERS_SETTINGS if args.get("desk") else frozenset()
+
 def look(args):
     text, rule, offset = args["text"], args["rule"], args["offset"]
     positions = null_finder.picked_positions(text, rule, offset)
     letters = "".join(text[i] for i in positions).lower()
-    reading = null_finder.read_reading(letters, words()) if letters else {
+    short_ok = (rule, offset) in trusted(args)
+    reading = null_finder.read_reading(letters, words(), short_ok) if letters else {
         "words": [], "coverage": 0, "word_length": 0, "reads": False}
     return {"positions": positions, "letters": letters,
             "setting": null_finder.describe(rule, offset)} | reading
 
 def scan(args):
-    return null_finder.scan(args["text"], words())
+    return null_finder.scan(args["text"], words(), trusted=trusted(args))
 
 def nans_words(position):
     """Nan's word bag, grouped by the letter at each position: built once each."""
@@ -55,6 +60,20 @@ def nans_words(position):
         _cache[key] = null_writer.words_by_letter(words(), position)
     return _cache[key]
 
+def where(text):
+    """The place and scene for a desk card: its theme's, or Nan's club for a list."""
+    theme = null_writer.theme_of(text)
+    if theme:
+        return {"place": theme["place"], "scene": theme["scene"]}
+    return {"place": "Nan's Scrabble Club", "scene": "own"}
+
+def posted(text, letters, args):
+    """A finished card, ready for the desk and packed for its link."""
+    to = null_writer.clean_name(args["to"], "you")
+    sender = null_writer.clean_name(args["sender"], "a friend")
+    return {"text": text, "to": to, "sender": sender, "letters": letters,
+            "token": null_writer.pack_card(text, to, sender)} | where(text)
+
 def write(args):
     position = args["position"]
     try:
@@ -62,19 +81,25 @@ def write(args):
         chosen = null_writer.choose_words(letters, nans_words(position), position, args["seed"])
     except null_writer.NoteProblem as problem:
         return {"problem": str(problem)}
-    text = null_writer.write_card(chosen)
-    to = null_writer.clean_name(args["to"], "you")
-    sender = null_writer.clean_name(args["sender"], "a friend")
-    return {"text": text, "to": to, "sender": sender, "letters": letters,
-            "token": null_writer.pack_card(text, to, sender)}
+    return posted(null_writer.write_card(chosen), letters, args)
+
+def story(args):
+    """A proper postcard from one of the five themes."""
+    try:
+        text = null_writer.write_story(args["note"], args["theme"], args["position"], args["seed"])
+    except null_writer.NoteProblem as problem:
+        return {"problem": str(problem)}
+    return posted(text, null_writer.note_letters(args["note"]), args)
 
 def unpack(args):
     try:
-        return null_writer.unpack_card(args["token"])
+        card = null_writer.unpack_card(args["token"])
     except null_writer.NoteProblem as problem:
         return {"problem": str(problem)}
+    return card | where(card["text"])
 
-CALLS = {"rack": rack, "look": look, "scan": scan, "write": write, "unpack": unpack}
+CALLS = {"rack": rack, "look": look, "scan": scan, "write": write, "story": story,
+         "unpack": unpack}
 
 def _bridge(fn, args_json):
     if fn in CALLS:
@@ -104,8 +129,9 @@ type Look = {
   reads: boolean;
 };
 type Reading = Look & { rule: string; offset: number };
-type Written = { text: string; to: string; sender: string; letters: string; token: string } & { problem?: string };
-type Received = { text: string; to: string; sender: string } & { problem?: string };
+type Place = { place: string; scene: string };
+type Written = { text: string; to: string; sender: string; letters: string; token: string } & Place & { problem?: string };
+type Received = { text: string; to: string; sender: string } & Place & { problem?: string };
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const python = new Python();
@@ -123,6 +149,8 @@ const OWN = "own"; // the blank card for the visitor's own text
 const WRITTEN = "written"; // the card the visitor just wrote
 const RECEIVED = "received"; // a card that arrived in a link
 const ORDINAL: Record<number, string> = { 2: "2nd", 3: "3rd", 4: "4th" };
+const LONGEST_LIST = 40; // null_writer.LONGEST_NOTE
+const LONGEST_STORY = 16; // null_writer.LONGEST_STORY_NOTE
 
 const cardText = $("card-text");
 const cardOwn = $<HTMLTextAreaElement>("card-own");
@@ -142,6 +170,10 @@ let request = 0;
 let timer = 0;
 
 const text = () => (current ? current.text : cardOwn.value);
+/** Whether the card came from the writing desk (written here, or arrived in a link). */
+const onDesk = () => current?.id === WRITTEN || current?.id === RECEIVED;
+/** The sender, ready to start a sentence ("a friend" becomes "Your friend"). */
+const who = (card: Card) => (card.sender === "a friend" ? "Your friend" : card.sender);
 const today = () => new Date().toLocaleDateString("en-CA"); // the visitor's own date
 
 function button(label: string, className: string, onClick: () => void) {
@@ -223,9 +255,14 @@ function stamp(show: boolean) {
 }
 
 /** What the luggage tag says about the letters: a note, a fluke, or soup. */
+const MOSTLY_WORDS = 0.6; // on a card from a friend, this much real words is worth a second look
+
 function verdict(result: Look) {
   if (result.reads) return `“${result.words.join(" ")}”`;
   const share = Math.round(result.coverage * 100);
+  if (current?.id === RECEIVED && result.coverage >= MOSTLY_WORDS && result.letters.length >= SHORTEST) {
+    return `“${result.words.join(" ")}”: mostly real words. Names and words like OK aren't in the glass's dictionary, so read it yourself.`;
+  }
   if (share < 95) return `Alphabet soup: only ${share}% of it makes words.`;
   if (result.letters.length < SHORTEST) return `“${result.words.join(" ")}”, but that's too few letters to call it a message.`;
   return `“${result.words.join(" ")}”: real words, but tiny ones. That's what luck looks like.`;
@@ -235,22 +272,24 @@ async function look() {
   const mine = ++request;
   renderOffset();
   try {
-    const result = await python.call<Look>("look", { text: text(), rule, offset });
+    const result = await python.call<Look>("look", { text: text(), rule, offset, desk: onDesk() });
     if (mine !== request) return;
     $("setting").textContent = `Reading the ${result.setting}.`;
     if (current) renderText(current.text, result.positions);
     $("tag-letters").textContent = result.letters || "Nothing here: this setting picks no letters.";
-    const reads = result.reads;
-    $("tag-words").textContent = result.letters ? verdict(result) : "";
+    // The sender knows their own note, so it counts even if a word isn't in the dictionary ("ok").
+    const ownNote = current?.id === WRITTEN && result.letters === current.note;
+    const reads = result.reads || ownNote;
+    $("tag-words").textContent = !result.letters ? "" : ownNote ? `“${result.words.join(" ").toLowerCase()}”` : verdict(result);
     $("tag-words").classList.toggle("is-found", reads);
     stamp(reads);
     if (reads) {
       status.textContent = current
-        ? `There it is! ${current.sender} hid a note in the ${result.setting}.`
+        ? `There it is! ${who(current)} hid a note in the ${result.setting}.`
         : `Something reads in the ${result.setting}. Was it hidden on purpose, or just luck?`;
     } else {
       status.textContent = current?.id === RECEIVED
-        ? `${current.sender} hid a note on this card. Turn the glass to find it.`
+        ? `${who(current)} hid a note on this card. Turn the glass to find it.`
         : current?.note
         ? "Nothing yet. Turn the dial, or try counting from somewhere else."
         : current
@@ -265,7 +304,7 @@ async function look() {
 
 async function scanAll() {
   try {
-    const readings = await python.call<Reading[]>("scan", { text: text() });
+    const readings = await python.call<Reading[]>("scan", { text: text(), desk: onDesk() });
     const found = readings.filter((r) => r.reads);
     scanList.replaceChildren(
       ...readings.slice(0, 6).map((reading) => {
@@ -288,9 +327,12 @@ async function scanAll() {
         return li;
       }),
     );
+    const best = readings[0];
     status.textContent = found.length
       ? `Tried ${readings.length} settings. ${found.length === 1 ? "One reads" : `${found.length} read`} as real words.`
-      : readings.length
+      : current?.id === RECEIVED && best && best.coverage >= MOSTLY_WORDS
+        ? `Tried ${readings.length} settings. The best is the ${best.setting}: not every word is in the glass's dictionary, so have a look yourself.`
+        : readings.length
         ? `Tried ${readings.length} settings and none reads as a message. It might just be a postcard.`
         : "Not enough letters on the card to try anything yet.";
   } catch (error) {
@@ -334,8 +376,9 @@ function show(id: string) {
 }
 
 /** A card for the desk that isn't on the rack (one you wrote, or one that came in a link). */
-function deskCard(id: string, text: string, to: string, sender: string, note: string): Card {
-  return { id, place: "Nan's Scrabble Club", scene: "own", to, sender, text, rule: "punctuation", offset: 0, note };
+function deskCard(id: string, card: Received, note: string): Card {
+  const { text, to, sender, place, scene } = card;
+  return { id, place, scene, to, sender, text, rule: "punctuation", offset: 0, note };
 }
 
 function putOnDesk(card: Card) {
@@ -348,34 +391,62 @@ function putOnDesk(card: Card) {
 const noteInput = $<HTMLInputElement>("note");
 const deskStatus = $("desk-status");
 const position = () => Number(document.querySelector<HTMLInputElement>('input[name="position"]:checked')?.value ?? 3);
+const story = () => document.querySelector<HTMLInputElement>('input[name="style"]:checked')?.value === "story";
 const letterCount = () => noteInput.value.replace(/[^A-Za-z]/g, "").length;
+let writing = false;
 
 function renderCount() {
   const n = letterCount();
+  const most = story() ? LONGEST_STORY : LONGEST_LIST;
+  const each = story() ? "one sentence for each" : "one word of Nan's for each";
   $("note-count").textContent =
-    n < SHORTEST ? `${n} letters: at least ${SHORTEST}, please` : n > 40 ? `${n} letters: 40 at most` : `${n} letters: one word of Nan's for each`;
-  $<HTMLButtonElement>("write").disabled = n < SHORTEST || n > 40;
+    n < SHORTEST ? `${n} letters: at least ${SHORTEST}, please` : n > most ? `${n} letters: ${most} at most` : `${n} letters: ${each}`;
+  $<HTMLButtonElement>("write").disabled = writing || n < SHORTEST || n > most;
+  $<HTMLButtonElement>("again").disabled = writing;
 }
+
+function renderStyle() {
+  $("themes").hidden = !story();
+  $("position-legend").textContent = story() ? "Hide it in each sentence's first word, at its…" : "Hide it in each word's…";
+  renderCount();
+}
+
+const theme = () => document.querySelector<HTMLInputElement>('input[name="theme"]:checked')?.value ?? "beach";
 
 async function writeCard(fresh: boolean) {
   if (fresh) seed = Math.floor(Math.random() * 1_000_000);
   else seed += 1;
-  const result = await python.call<Written>("write", {
-    note: noteInput.value,
-    position: position(),
-    seed,
-    to: $<HTMLInputElement>("to").value,
-    sender: $<HTMLInputElement>("from").value,
-  });
-  if (result.problem) {
-    deskStatus.textContent = result.problem;
-    return;
+  writing = true;
+  renderCount();
+  try {
+    const args = {
+      note: noteInput.value,
+      position: position(),
+      seed,
+      theme: theme(),
+      to: $<HTMLInputElement>("to").value,
+      sender: $<HTMLInputElement>("from").value,
+    };
+    const result = await python.call<Written>(story() ? "story" : "write", args);
+    if (result.problem) {
+      deskStatus.textContent = result.problem;
+      return;
+    }
+    token = result.token;
+    $("again").hidden = false;
+    $("send").hidden = false;
+    const where = story()
+      ? `the ${ORDINAL[position()]} letter of each sentence's first word`
+      : `the ${ORDINAL[position()]} letter of each of Nan's words`;
+    deskStatus.textContent = `Done! Your note is in ${where}. Try the glass on it, then send it.`;
+    putOnDesk(deskCard(WRITTEN, result, result.letters));
+  } catch (error) {
+    console.error(error);
+    deskStatus.textContent = "The pen slipped. Try that again.";
+  } finally {
+    writing = false;
+    renderCount();
   }
-  token = result.token;
-  $("again").hidden = false;
-  $("send").hidden = false;
-  deskStatus.textContent = `Done! Your note is in the ${ORDINAL[position()]} letter of each of Nan's words. Try the glass on it, then send it.`;
-  putOnDesk(deskCard(WRITTEN, result.text, result.to, result.sender, result.letters));
 }
 
 async function sendCard() {
@@ -398,7 +469,7 @@ async function openFromLink() {
     status.textContent = card.problem;
     return true;
   }
-  putOnDesk(deskCard(RECEIVED, card.text, card.to, card.sender, "?"));
+  putOnDesk(deskCard(RECEIVED, card, "?"));
   return true;
 }
 
@@ -483,6 +554,10 @@ async function start() {
   });
   $("scan").addEventListener("click", () => void scanAll());
   noteInput.addEventListener("input", renderCount);
+  for (const choice of document.querySelectorAll('input[name="style"]')) choice.addEventListener("change", renderStyle);
+  // A fresh pick of postcard starts with a surprise theme.
+  const choices = document.querySelectorAll<HTMLInputElement>('input[name="theme"]');
+  choices[Math.floor(Math.random() * choices.length)].checked = true;
   $("write-form").addEventListener("submit", (event) => {
     event.preventDefault();
     void writeCard(true);
@@ -490,7 +565,7 @@ async function start() {
   $("again").addEventListener("click", () => void writeCard(false));
   $("send").addEventListener("click", () => void sendCard());
   for (const field of ["note", "to", "from"]) $<HTMLInputElement>(field).disabled = false;
-  renderCount();
+  renderStyle();
   window.addEventListener("hashchange", () => void openFromLink());
   cardOwn.addEventListener("input", () => {
     window.clearTimeout(timer);

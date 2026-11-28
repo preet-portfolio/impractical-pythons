@@ -36,7 +36,9 @@ Each project should feel like its own idea, with real-world flavour where possib
 
 - **Pyodide (CPython in WebAssembly) in the visitor's browser.** No backend, no API
   routes; the site is static. The exact same Python modules in `projects/` are loaded
-  by the web page, so tests cover what visitors run.
+  by the web page, so tests cover what visitors run. No AI APIs or keys either: the
+  user decided against them (cost), so anything "written" on a page comes from Python
+  and hand-written data.
 - **Web stack:** Vite + TypeScript, no framework, one HTML page per project
   (`web/<slug>/index.html`, registered in `web/vite.config.ts` inputs and listed in
   `web/src/projects.ts` for the gallery home).

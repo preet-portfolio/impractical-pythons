@@ -10,18 +10,25 @@ from null_finder import describe, every_nth_word, hidden_letters, scan
 from null_writer import (
     COVER,
     LONGEST_NAME,
+    LONGEST_STORY_NOTE,
     NOT_ON_A_POSTCARD,
+    WRITERS_SETTINGS,
     NoteProblem,
     check_note,
+    check_story_note,
     hide_note,
     note_letters,
     pack_card,
     postcard_words,
+    subjects_by_letter,
+    theme_of,
     unpack_card,
     words_by_letter,
     write_card,
     write_postcard,
+    write_story,
 )
+from postcard_themes import SUBJECTS, THEMES
 from word_gaps import word_set
 from wordlist import clean_words, read_words
 
@@ -107,6 +114,78 @@ def test_running_out_of_words_is_explained():
         hide_note("pppppp", tiny, 3)
 
 
+# --------------------------------------------- a proper postcard, from a theme
+
+MARKS = set("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~")
+
+
+@pytest.mark.parametrize("theme", [theme["id"] for theme in THEMES])
+@pytest.mark.parametrize("note", ["meet me at noon", "chips at noon", "quiz at six", "jazz fox"])
+@pytest.mark.parametrize("position", [2, 3, 4])
+def test_every_theme_hides_the_note_where_the_glass_looks(theme, note, position):
+    card = write_story(note, theme, position, seed=4)
+    assert hidden_letters(card, "punctuation", position) == note_letters(note)
+    best = scan(card, WORDS, trusted=WRITERS_SETTINGS)[0]
+    assert (best["rule"], best["offset"], best["reads"]) == ("punctuation", position, True)
+
+
+@pytest.mark.parametrize("position", [2, 3, 4])
+def test_every_letter_has_someone_to_carry_it(position):
+    assert set(subjects_by_letter(position)) == set("abcdefghijklmnopqrstuvwxyz")
+
+
+def test_the_themes_follow_the_rules():
+    """One mark per opening (at its end), none in the endings, and enough endings."""
+    assert len(THEMES) == 5
+    for theme in THEMES:
+        opening = theme["opening"]
+        assert opening[-1] in MARKS and not MARKS & set(opening[:-1])
+        assert len(theme["endings"]) >= LONGEST_STORY_NOTE
+        assert len(set(theme["endings"])) == len(theme["endings"])
+        for ending in theme["endings"]:
+            assert ending == ending.lower() and not MARKS & set(ending), ending
+            assert family_friendly(ending.split()) == ending.split()
+    assert all(name.isalpha() and name[0].isupper() for name in SUBJECTS)
+
+
+def test_a_new_seed_writes_a_new_story_and_the_same_seed_the_same():
+    first = write_story("chips at noon", "pier", 3, seed=1)
+    assert write_story("chips at noon", "pier", 3, seed=1) == first
+    assert write_story("chips at noon", "pier", 3, seed=2) != first
+
+
+def test_nobody_turns_up_twice_when_there_are_enough_people():
+    card = write_story("seaside fun", "beach", 3, seed=5)
+    subjects = [sentence.split()[0] for sentence in card.split(". ")[1:]]
+    subjects[0] = card.split("! ")[1].split()[0]
+    assert len(subjects) == len(set(subjects))
+
+
+def test_a_link_knows_which_postcard_it_came_from():
+    card = write_story("meet me at noon", "caravan", 2, seed=0)
+    assert theme_of(card)["place"] == "Clifftop Caravan Park"
+    assert theme_of(write_postcard("meet me at noon", WORDS, 3, seed=0)) is None
+    assert unpack_card(pack_card(card, "Kit", "Sam"))["text"] == card
+
+
+def test_story_notes_and_themes_are_checked():
+    with pytest.raises(NoteProblem, match=str(LONGEST_STORY_NOTE)):
+        check_story_note("a" * (LONGEST_STORY_NOTE + 1))
+    with pytest.raises(NoteProblem, match="five postcards"):
+        write_story("meet me at noon", "moon", 3)
+    with pytest.raises(NoteProblem, match="letter 2, 3, 4"):
+        write_story("meet me at noon", "beach", 5)
+
+
+@pytest.mark.parametrize("note", ["go to the pub", "go to hell", "is it so hot"])
+def test_a_note_of_short_words_reads_on_the_desk(note):
+    """Short words are honest in a written note, so the glass mustn't call them luck."""
+    card = write_postcard(note, WORDS, 3, seed=0)
+    assert not scan(card, WORDS)[0]["reads"]  # the rack's strict test: "tiny words, luck"
+    best = scan(card, WORDS, trusted=WRITERS_SETTINGS)[0]
+    assert (best["rule"], best["offset"], best["reads"]) == ("punctuation", 3, True)
+
+
 # ------------------------------------------------------------------ links
 
 
@@ -135,7 +214,7 @@ def _token(payload: object) -> str:
         _token({"to": "Kit"}),
         _token({"t": 42}),
         _token({"t": ""}),
-        _token({"t": "x" * 601}),
+        _token({"t": "x" * 1201}),
         _token({"t": "what a load of crap"}),
     ],
 )

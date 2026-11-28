@@ -820,6 +820,10 @@ body.postcard .counter {
   color: #d7e6dc;
 }
 
+.positions[hidden] {
+  display: none;
+}
+
 .positions {
   display: flex;
   flex-wrap: wrap;
