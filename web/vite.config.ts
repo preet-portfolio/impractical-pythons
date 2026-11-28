@@ -18,6 +18,7 @@ export default defineConfig({
         shuffleCafe: resolve(import.meta.dirname, "shuffle-cafe/index.html"),
         pierTelegraph: resolve(import.meta.dirname, "pier-telegraph/index.html"),
         postcardRack: resolve(import.meta.dirname, "postcard-rack/index.html"),
+        invisibleInk: resolve(import.meta.dirname, "invisible-ink/index.html"),
       },
     },
   },

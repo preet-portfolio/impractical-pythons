@@ -118,6 +118,8 @@ def test_the_room_check_says_how_many_lines_to_add():
 def test_the_secret_drops_its_own_blank_lines():
     assert secret_lines("one\n\n  two  \n\n") == ["one", "two"]
     assert letter_lines("\nDear Kit,   \n\nLove\n") == ["Dear Kit,", "", "Love"]
+    # Blank lines under the signature are extra hiding places, as in the book.
+    assert letter_lines("Love\n\n\n") == ["Love", "", ""]
 
 
 def test_the_demo_letter_hides_the_whole_plot():

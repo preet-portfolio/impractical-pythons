@@ -41,8 +41,12 @@ class NotEnoughRoom(InkProblem):
 
 
 def letter_lines(text: str) -> list[str]:
-    """Split a letter into lines, with blank space at the line ends tidied away."""
-    return [line.rstrip() for line in text.strip("\n").splitlines()]
+    """Split a letter into lines, with blank space at the line ends tidied away.
+
+    Blank lines at the very end are kept: like the book's tip of pressing
+    Enter a few times under the signature, they're extra hiding places.
+    """
+    return [line.rstrip() for line in text.lstrip("\n").splitlines()]
 
 
 def secret_lines(text: str) -> list[str]:

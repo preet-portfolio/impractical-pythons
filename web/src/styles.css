@@ -377,6 +377,40 @@ code {
   color: #fff;
 }
 
+/* Vanishing Ink: a joke shop at dusk, a neon sign, a dull letter under the lamp. */
+.stall-ink .stall-link {
+  background:
+    radial-gradient(circle at 82% 30%, rgb(177 140 255 / 0.45), transparent 38%),
+    linear-gradient(160deg, #3a1f4f, #24122f);
+  color: #f3eaff;
+  border: 2px solid #6b4a8c;
+}
+
+.stall-ink .stall-title {
+  font-family: "Monoton", "Limelight", cursive;
+  font-weight: 400;
+  color: #ffd6ec;
+  text-shadow:
+    0 0 6px #ff6fae,
+    0 0 16px #ff6fae;
+}
+
+.stall-ink .stall-line {
+  padding: 0.5rem 0.7rem;
+  font-family: "Libre Baskerville", Georgia, serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #2c2433;
+  background: #f7f1e3;
+  border-radius: 0.15rem;
+  box-shadow: 0 0 0 1px #e4d9c0, 0 8px 18px -10px rgb(0 0 0 / 0.6);
+}
+
+.stall-ink .stall-cue {
+  color: #24122f;
+  background: #c9b2ff;
+}
+
 /* ---- the cabinet ------------------------------------------------------------------ */
 
 .crumbs {

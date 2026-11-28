@@ -6,6 +6,8 @@ import "@fontsource/big-shoulders-display/800";
 import "@fontsource/ultra/400.css";
 import "@fontsource/titan-one/400.css";
 import "@fontsource/caveat/700.css";
+import "@fontsource/monoton/400.css";
+import "@fontsource/libre-baskerville/400.css";
 import { projects } from "./projects";
 
 const list = document.getElementById("projects")!;

@@ -6,7 +6,7 @@ export type Project = {
   slug: string;
   title: string;
   line: string;
-  stall: "slots" | "talk" | "rock" | "mirror" | "cafe" | "telegraph" | "postcard";
+  stall: "slots" | "talk" | "rock" | "mirror" | "cafe" | "telegraph" | "postcard" | "ink";
   cue: string;
 };
 
@@ -66,5 +66,13 @@ export const projects: Project[] = [
     line: "Every card says wish you were here, and some say something else too. Reveal a postcard's secret, or hide a note of your own and send it to a friend.",
     stall: "postcard",
     cue: "Spin the rack",
+  },
+  {
+    number: 8,
+    slug: "invisible-ink",
+    title: "Vanishing Ink",
+    line: "A dull letter from a seaside guesthouse, with a plot hiding in its blank lines. Shine the lamp, crack the key, then write your own.",
+    stall: "ink",
+    cue: "Switch on the lamp",
   },
 ];
