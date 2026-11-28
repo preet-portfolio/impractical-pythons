@@ -223,3 +223,24 @@ rain, caravan, fish and chips, lighthouse, donkeys, arcade), turn a note into a 
 - **Checked at 375px in dark mode and by keyboard** (arrow keys move between themes, with a
   visible focus ring). No new motion.
 
+## Vanishing Ink (chapter 6, invisible ink)
+
+Built as its own stall (a joke shop at dusk, not a copy of the book's office) and checked
+against the proto-personas and the checklist.
+
+- **The trick works in one gesture.** The skimmer moves the mouse (or taps) and a UV torch
+  makes the ink glow; no reading needed. "Switch on the lamp" does the same for keyboard and
+  reduced-motion visitors.
+- **A puzzle with a way out.** The key box says plainly when a word is wrong, a clue is one
+  tap away, and the key-over-ink strip shows the tinkerer what the key actually does.
+- **Plain words above the fold.** No "steganography", "Vigenère" or ".docx" in the lede; they
+  live in the about panel and the README.
+- **Something to take away.** Write your own letter, download a real Word file, or copy a link
+  that never includes the key. The friend opens "A letter for you" and needs the word.
+- **No dead ends.** The room check runs as you type and offers to add the blank lines; long
+  secret lines are flagged; unkind text, smudged links and odd files get one plain sentence.
+- **Honest about its weaknesses.** Three buttons show how a detective would catch it. On a
+  375px phone, ink lines wrap and some gaps grow taller: that's the book's own warning, left
+  visible on purpose rather than hidden.
+- **Checked:** keyboard order, visible focus, reduced motion (no flicker, no torch easing),
+  375px with no sideways scroll, and a download dropped back into the detector.

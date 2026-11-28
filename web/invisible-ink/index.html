@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vanishing Ink · Impractical Pythons</title>
+    <meta name="description" content="A dull letter from a seaside guesthouse, with a plot hiding in its blank lines. Shine the lamp, crack the key, then write a letter of your own." />
+    <meta name="theme-color" content="#24122f" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔦</text></svg>" />
+  </head>
+  <body class="ink">
+    <a class="skip" href="#letter">Skip to the letter</a>
+    <nav class="crumbs"><a href="/">Back to the pier</a></nav>
+
+    <main id="main">
+      <header class="shop">
+        <p class="shop-owner">Professor Pockett's Joke Shop</p>
+        <h1 class="shop-sign">Vanishing Ink</h1>
+        <p class="shop-lede">
+          Somebody left this letter on the counter. It's a booking from a guesthouse, and it's very
+          dull. But the gaps between its paragraphs aren't empty: they're written in ink the same
+          colour as the paper. Shine the lamp to see it, then find the word that unscrambles it.
+        </p>
+      </header>
+
+      <section class="counter" aria-labelledby="letter-title">
+        <h2 class="counter-title" id="letter-title"><span id="letter-label">On the counter</span></h2>
+
+        <div class="bench">
+          <div class="lamp-zone" id="lamp-zone">
+            <article class="letter" id="letter" tabindex="-1" aria-describedby="status">
+              <div class="letter-sheet" id="sheet"></div>
+              <!-- The same letter again, as it looks under the lamp: only the torch's circle shows it. -->
+              <div class="letter-sheet letter-uv" id="sheet-uv" aria-hidden="true"></div>
+            </article>
+          </div>
+
+          <div class="controls">
+            <div class="panel">
+              <button type="button" class="lamp-button" id="lamp" aria-pressed="false" disabled>Switch on the lamp</button>
+              <p class="panel-help">Or move your finger or mouse over the letter: it's a torch.</p>
+            </div>
+
+            <form class="panel key-panel" id="key-form" novalidate>
+              <label class="field">
+                <span class="field-label">The key word</span>
+                <input id="key" type="text" maxlength="24" autocomplete="off" spellcheck="false" placeholder="a word, like GULL" disabled />
+              </label>
+              <button type="submit" class="shop-button" id="unscramble" disabled>Unscramble the ink</button>
+              <button type="button" class="link-button" id="hint" hidden>Stuck? A clue</button>
+              <p class="panel-help" id="key-help"></p>
+            </form>
+
+            <div class="panel">
+              <p class="field-label" id="caught-title">How a detective could catch it</p>
+              <div class="caught" role="group" aria-labelledby="caught-title">
+                <button type="button" class="toggle" data-caught="select" aria-pressed="false">Select all</button>
+                <button type="button" class="toggle" data-caught="spell" aria-pressed="false">Spellcheck</button>
+                <button type="button" class="toggle" data-caught="plain" aria-pressed="false">Save as plain text</button>
+              </div>
+              <p class="panel-help" id="caught-help">Each one is a slip that gives the ink away.</p>
+            </div>
+          </div>
+        </div>
+
+        <p class="shop-status" id="status" role="status" aria-live="polite">Opening the shop…</p>
+
+        <div class="strip" id="strip" hidden>
+          <p class="strip-label">How the key unscrambles the first line</p>
+          <div class="strip-rows" id="strip-rows"></div>
+        </div>
+
+        <div class="tools">
+          <button type="button" class="paper-button" id="download" disabled>Download it as a Word file</button>
+          <button type="button" class="paper-button" id="back-to-demo" hidden>Back to the shop's letter</button>
+        </div>
+      </section>
+
+      <section class="desk" aria-labelledby="desk-title">
+        <h2 class="desk-title" id="desk-title">Write your own</h2>
+        <p class="desk-help">
+          Write a letter anybody could read, with a blank line between each paragraph. Then write
+          the secret, one short line per blank. Pick a key word, and the shop scrambles the secret
+          and pours it into the gaps.
+        </p>
+        <form class="desk-form" id="hide-form" novalidate>
+          <label class="field">
+            <span class="field-label">Letterhead</span>
+            <input id="letterhead" type="text" maxlength="30" autocomplete="off" placeholder="Seaview Cottage" disabled />
+          </label>
+          <label class="field">
+            <span class="field-label">The letter everyone sees</span>
+            <textarea id="cover" rows="11" maxlength="3000" spellcheck="true" disabled></textarea>
+          </label>
+          <label class="field">
+            <span class="field-label">The secret, one line each</span>
+            <textarea id="secret" rows="4" maxlength="1200" spellcheck="false" disabled></textarea>
+          </label>
+          <p class="room" id="room" aria-live="polite"></p>
+          <button type="button" class="link-button" id="add-room" hidden>Add the blank lines for me</button>
+          <div class="desk-row">
+            <label class="field">
+              <span class="field-label">Key word</span>
+              <input id="new-key" type="text" maxlength="24" autocomplete="off" spellcheck="false" placeholder="GULL" disabled />
+            </label>
+            <label class="check">
+              <input id="spell" type="checkbox" checked disabled />
+              <span>Write numbers as words, so they're scrambled too</span>
+            </label>
+          </div>
+          <div class="tools">
+            <button type="submit" class="shop-button" id="hide" disabled>Pour in the ink</button>
+            <button type="button" class="paper-button" id="share" hidden>Copy a link (without the key)</button>
+          </div>
+          <p class="shop-status" id="desk-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="typewriter" aria-labelledby="typewriter-title">
+        <h2 class="desk-title" id="typewriter-title">The typewriter trick</h2>
+        <p class="desk-help">
+          On a typewriter every letter is the same width, so a white letter where a space should be
+          looks exactly like a space. One letter per gap.
+        </p>
+        <div class="type-card" id="type-card">
+          <p class="type-line" id="type-line"></p>
+        </div>
+        <div class="tools">
+          <button type="button" class="lamp-button small" id="type-lamp" aria-pressed="false" disabled>Shine the lamp on it</button>
+        </div>
+        <form class="desk-form" id="type-form" novalidate>
+          <label class="field">
+            <span class="field-label">A line to type</span>
+            <input id="type-cover" type="text" maxlength="120" autocomplete="off" disabled />
+          </label>
+          <label class="field">
+            <span class="field-label">What hides in the spaces</span>
+            <input id="type-secret" type="text" maxlength="40" autocomplete="off" spellcheck="false" disabled />
+          </label>
+          <p class="shop-status" id="type-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="detector" aria-labelledby="detector-title">
+        <h2 class="desk-title" id="detector-title">Check a letter for ink</h2>
+        <p class="desk-help">
+          Got a Word letter that seems a bit too dull? Drop it here. The shop looks for white or
+          hidden text inside it. The file stays in your browser.
+        </p>
+        <label class="drop" id="drop">
+          <input id="file" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" disabled />
+          <span>Choose a .docx file, or drop one here</span>
+        </label>
+        <p class="shop-status" id="find-status" role="status" aria-live="polite"></p>
+        <ol class="found" id="found"></ol>
+        <form class="find-key" id="find-key-form" novalidate hidden>
+          <label class="field">
+            <span class="field-label">Know the key word?</span>
+            <input id="find-key" type="text" maxlength="24" autocomplete="off" spellcheck="false" placeholder="the word they told you" />
+          </label>
+          <button type="submit" class="shop-button">Unscramble it</button>
+        </form>
+      </section>
+
+      <section class="about" aria-labelledby="about-title">
+        <h2 id="about-title">How vanishing ink works</h2>
+        <p>
+          Hiding the fact that there's a message at all is <strong>steganography</strong>. Here it's
+          as simple as it gets: set the text colour to the paper colour. A printout drops it. A
+          quick look sees blank lines between paragraphs, which every letter has. The secret only
+          goes in those gaps, never between words, because letters in most fonts are different
+          widths and a hidden word would push the visible ones apart.
+        </p>
+        <p>
+          The ink is scrambled too, in case someone does look. The <strong>Vigenère cipher</strong>
+          writes a key word over the message again and again: K I T E K I T E over c r a b s… Each
+          key letter says how far to shift the letter under it (A is 0, B is 1, … K is 10), so
+          "crab" with KITE becomes "mztf". The same letter scrambles differently each time, which
+          kept the cipher unbroken for three hundred years. Numbers and symbols don't shift, so the
+          shop can write them as words first.
+        </p>
+        <p>
+          It isn't perfect. Selecting everything shows some blank lines are longer than others; a
+          spellchecker underlines words nobody can see; saving as plain text drops the colour. The
+          buttons on the counter show all three. The Word file is built by Python in your browser,
+          straight from the zip and XML inside every .docx, and a second bit of Python reads any
+          letter back to look for ink.
+          <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/08_invisible_ink">Peek at the Python</a>.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <p>
+        Inspired by the invisible ink project in
+        <a href="https://nostarch.com/impracticalpython"><cite>Impractical Python Projects</cite></a>
+        by Lee Vaughan, a great book if you want to make your own silly, clever programs. The
+        letters, the shop and the code are new. One of the stalls on the
+        <a href="/">Impractical Pythons</a> pier.
+      </p>
+    </footer>
+    <script type="module" src="/src/invisible-ink-page.ts"></script>
+  </body>
+</html>

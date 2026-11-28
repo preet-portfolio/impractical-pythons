@@ -143,11 +143,11 @@ body.postcard .counter {
   grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
   min-height: 17rem;
   padding: 1.1rem 1.2rem 4rem; /* room at the foot for the found stamp */
-  color: var(--ink, var(--pen));
+  color: var(--card-ink, var(--pen));
   background:
     radial-gradient(circle at 20% 30%, rgb(160 130 70 / 0.06), transparent 40%),
     radial-gradient(circle at 80% 80%, rgb(160 130 70 / 0.08), transparent 45%),
-    var(--paper, var(--card));
+    var(--card-paper, var(--card));
   transition: background-color 0.3s, color 0.3s;
   border: 1px solid var(--card-edge);
   border-radius: 0.3rem;
@@ -192,15 +192,15 @@ body.postcard .counter {
 }
 
 /* Each town writes on its own paper, in its own ink. */
-.card[data-scene="pier"] { --paper: #fbf1e4; --ink: #4a2a1c; }
-.card[data-scene="huts"] { --paper: #fff8e6; --ink: #a3162b; }
-.card[data-scene="lighthouse"] { --paper: #f8ebe6; --ink: #4a2d6b; }
-.card[data-scene="donkeys"] { --paper: #fdf5dc; --ink: #7a4a12; }
-.card[data-scene="rocks"] { --paper: #eaf5f3; --ink: #145e62; }
-.card[data-scene="arcade"] { --paper: #f3edfc; --ink: #3a1f6b; }
-.card[data-scene="prom"] { --paper: #fdeff3; --ink: #8a2f5a; }
-.card[data-scene="caravan"] { --paper: #eff7e8; --ink: #2f5a24; }
-.card[data-scene="club"] { --paper: #f1f6ef; --ink: #1f5a43; }
+.card[data-scene="pier"] { --card-paper: #fbf1e4; --card-ink: #4a2a1c; }
+.card[data-scene="huts"] { --card-paper: #fff8e6; --card-ink: #a3162b; }
+.card[data-scene="lighthouse"] { --card-paper: #f8ebe6; --card-ink: #4a2d6b; }
+.card[data-scene="donkeys"] { --card-paper: #fdf5dc; --card-ink: #7a4a12; }
+.card[data-scene="rocks"] { --card-paper: #eaf5f3; --card-ink: #145e62; }
+.card[data-scene="arcade"] { --card-paper: #f3edfc; --card-ink: #3a1f6b; }
+.card[data-scene="prom"] { --card-paper: #fdeff3; --card-ink: #8a2f5a; }
+.card[data-scene="caravan"] { --card-paper: #eff7e8; --card-ink: #2f5a24; }
+.card[data-scene="club"] { --card-paper: #f1f6ef; --card-ink: #1f5a43; }
 
 /* Nan's Scrabble Club: a row of letter tiles on green baize. */
 .front[data-scene="club"] {

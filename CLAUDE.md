@@ -24,7 +24,7 @@ Each project should feel like its own idea, with real-world flavour where possib
   each project page gets a distinct palette, typefaces and centrepiece (Alias Slots is a
   fruit machine, Code-Talk a spy's case file, Letter Bars a seaside rock shop, Mirror
   Spells a Hall of Mirrors, Shuffle Café a café letterboard, Pier Telegraph a telegraph
-  office, the Postcard Rack a gift-shop postcard rack). Never reuse a previous project's design; the gallery card borrows the stall's
+  office, the Postcard Rack a gift-shop postcard rack, Vanishing Ink a joke shop under a UV lamp). Never reuse a previous project's design; the gallery card borrows the stall's
   look too.
 - **Fun first, for portfolio visitors.** Page copy is playful and plain, with no code words
   above the fold; the Python detail lives in the README and a "Peek at the Python" link.

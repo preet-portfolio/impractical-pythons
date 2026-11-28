@@ -1,0 +1,675 @@
+@import "@fontsource/monoton/400.css";
+@import "@fontsource/libre-baskerville/400.css";
+@import "@fontsource/libre-baskerville/700.css";
+@import "@fontsource/courier-prime/400.css";
+@import "@fontsource/courier-prime/700.css";
+
+/* Vanishing Ink: Professor Pockett's Joke Shop after dark. A plum counter, a pink neon
+   sign in the window, a dull guesthouse letter on cream notepaper, and a UV lamp that
+   turns the paper violet and makes the white ink glow. */
+body.ink {
+  --shop-night: #24122f;
+  --shop-plum: #3a1f4f;
+  --shop-plum-deep: #2d1740;
+  --shop-line: #6b4a8c;
+  --shop-uv: #b18cff;
+  --shop-glow: #f4ecff;
+  --shop-pink: #ff6fae;
+  --shop-paper: #f7f1e3;
+  --shop-paper-edge: #e4d9c0;
+  --shop-pen: #2c2433;
+  --shop-uv-paper: #1d1030;
+  --shop-sign: "Monoton", "Limelight", cursive;
+  --shop-letter: "Libre Baskerville", Georgia, serif;
+  --shop-type: "Courier Prime", "Courier New", monospace;
+
+  --page-text: #f3eaff;
+  --page-soft: #cdbde3;
+  --link: #d9c6ff;
+  color: var(--page-text);
+  color-scheme: dark;
+}
+
+/* A dark shop with a faint glow from the lamp at the back. */
+html:has(body.ink) {
+  background:
+    radial-gradient(ellipse 60rem 30rem at 70% 0%, rgb(177 140 255 / 0.18), transparent 70%),
+    linear-gradient(180deg, #2b1638, var(--shop-night, #24122f) 30rem);
+}
+
+body.ink a {
+  color: var(--link);
+}
+
+body.ink :focus-visible {
+  outline: 3px solid var(--shop-pink);
+  outline-offset: 3px;
+}
+
+body.ink main {
+  width: 100%;
+  max-width: 62rem;
+  padding: 0 1rem 2rem;
+}
+
+/* ---- the shop window: a neon sign ------------------------------------------------- */
+
+.shop {
+  margin: 1rem 0 2rem;
+  text-align: center;
+}
+
+.shop-owner {
+  margin: 0;
+  font: 400 1.05rem var(--shop-letter);
+  font-style: italic;
+  color: var(--page-soft);
+}
+
+.shop-sign {
+  margin: 0.3rem 0 0.8rem;
+  font: 400 clamp(2.3rem, 9vw, 4.6rem) / 1.1 var(--shop-sign);
+  color: #ffe3f1;
+  text-shadow:
+    0 0 4px #fff,
+    0 0 12px var(--shop-pink),
+    0 0 28px var(--shop-pink),
+    0 0 52px rgb(255 111 174 / 0.6);
+  animation: flicker 6s linear infinite;
+}
+
+/* Now and then the neon tube stutters, like every old shop sign. */
+@keyframes flicker {
+  0%,
+  91%,
+  95%,
+  100% {
+    opacity: 1;
+  }
+  92%,
+  94% {
+    opacity: 0.55;
+  }
+}
+
+.shop-lede {
+  max-width: 38rem;
+  margin: 0 auto;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+/* ---- the counter -------------------------------------------------------------------- */
+
+.counter {
+  padding: 1.25rem clamp(0.9rem, 3vw, 1.6rem) 1.4rem;
+  background: linear-gradient(180deg, var(--shop-plum), var(--shop-plum-deep));
+  border: 2px solid var(--shop-line);
+  border-radius: 1rem;
+  box-shadow: 0 24px 40px -24px rgb(0 0 0 / 0.8);
+}
+
+.counter-title,
+.desk-title {
+  margin: 0 0 1rem;
+  font: 700 1.35rem/1.2 var(--shop-letter);
+  color: var(--shop-glow);
+}
+
+.bench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 16.5rem;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 52rem) {
+  .bench {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- the letter, and the same letter under the lamp ---------------------------------- */
+
+.lamp-zone {
+  touch-action: manipulation;
+}
+
+.letter {
+  position: relative;
+  --x: 50%;
+  --y: 40%;
+  border-radius: 0.2rem;
+  box-shadow:
+    0 0 0 1px var(--shop-paper-edge),
+    0 18px 30px -16px rgb(0 0 0 / 0.85);
+  rotate: 0.4deg;
+  cursor: crosshair;
+}
+
+.letter-sheet {
+  padding: 1.6rem clamp(1.1rem, 4vw, 2.4rem) 2rem;
+  font: 400 clamp(0.86rem, 2.4vw, 0.97rem) / 1.65 var(--shop-letter);
+  color: var(--shop-pen);
+  background:
+    linear-gradient(90deg, transparent 0 calc(100% - 1px), rgb(44 36 51 / 0.04) 0) 0 0 / 2rem 100%,
+    var(--shop-paper);
+  border-radius: inherit;
+}
+
+.letterhead {
+  margin-bottom: 1.4rem;
+  padding-bottom: 0.7rem;
+  text-align: center;
+  border-bottom: 1px solid rgb(44 36 51 / 0.35);
+}
+
+.letterhead-title {
+  margin: 0;
+  font-size: 1.5em;
+  font-weight: 700;
+  color: #4a3563;
+}
+
+.letterhead-sub {
+  margin: 0.1rem 0 0;
+  font-size: 0.82em;
+  font-style: italic;
+}
+
+.line {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.line.date {
+  margin-bottom: 1.65em;
+}
+
+/* The ink: written in the paper's own colour. */
+.letter-sheet .ink span {
+  color: var(--shop-paper);
+}
+
+/* Under the lamp: violet paper, the printed words dim, the ink glowing. Only the torch's
+   circle of this layer shows, unless the lamp is switched on. */
+.letter-uv {
+  position: absolute;
+  inset: 0;
+  color: #5d4b74;
+  background:
+    radial-gradient(circle at var(--x) var(--y), rgb(177 140 255 / 0.28), transparent 14rem),
+    var(--shop-uv-paper);
+  clip-path: circle(0 at var(--x) var(--y));
+  transition: clip-path 0.08s linear;
+  pointer-events: none;
+}
+
+.letter-uv .letterhead {
+  border-color: rgb(177 140 255 / 0.3);
+}
+
+.letter-uv .letterhead-title {
+  color: #6a5784;
+}
+
+.letter-uv .ink span {
+  color: var(--shop-glow);
+  text-shadow:
+    0 0 4px #c9a8ff,
+    0 0 12px #8b5cf6;
+}
+
+.letter.is-decoded .letter-uv .ink span {
+  color: #ffe6f2;
+  text-shadow:
+    0 0 4px #ffb3d6,
+    0 0 12px var(--shop-pink);
+}
+
+.letter.has-torch .letter-uv {
+  clip-path: circle(5.5rem at var(--x) var(--y));
+}
+
+.letter.is-lit .letter-uv {
+  clip-path: circle(150% at 50% 50%);
+  transition: clip-path 0.5s ease-out;
+}
+
+/* ---- how a detective catches it ------------------------------------------------------ */
+
+/* Select all: every line gets a bar as long as its text, the blank ones included. */
+.letter.caught-select .letter-sheet:not(.letter-uv) :is(.line, .letterhead-title, .letterhead-sub) span,
+.letter.caught-select .letter-sheet:not(.letter-uv) .letterhead p {
+  background: #a9c7f2;
+}
+
+.letter.caught-select .letter-sheet:not(.letter-uv) .ink span {
+  color: #a9c7f2;
+}
+
+/* Spellcheck: red squiggles under words nobody can see. */
+.letter.caught-spell .ink span {
+  text-decoration: underline wavy #d3263c;
+  text-decoration-skip-ink: none;
+  text-underline-offset: 4px;
+}
+
+/* Save as plain text: no colours, no fonts, nothing hidden. */
+.letter.caught-plain .letter-sheet:not(.letter-uv) {
+  font-family: var(--shop-type);
+  background: #fff;
+}
+
+.letter.caught-plain .letter-sheet:not(.letter-uv) .ink span {
+  color: var(--shop-pen);
+}
+
+.letter.caught-plain .letterhead {
+  text-align: left;
+  border: 0;
+}
+
+/* ---- the controls --------------------------------------------------------------------- */
+
+.controls {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.panel {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.9rem;
+  background: rgb(0 0 0 / 0.22);
+  border: 1px solid rgb(177 140 255 / 0.25);
+  border-radius: 0.8rem;
+}
+
+.panel-help {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--page-soft);
+}
+
+.field {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.field-label {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+body.ink input[type="text"],
+body.ink textarea {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  font: 400 1rem/1.45 var(--shop-letter);
+  color: var(--shop-pen);
+  background: var(--shop-paper);
+  border: 2px solid var(--shop-paper-edge);
+  border-radius: 0.35rem;
+}
+
+body.ink #key,
+body.ink #new-key,
+body.ink #find-key,
+body.ink #type-secret {
+  font-family: var(--shop-type);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+body.ink input::placeholder,
+body.ink textarea::placeholder {
+  font-family: var(--body, system-ui, sans-serif);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #8a7f92;
+  opacity: 1;
+}
+
+body.ink textarea {
+  resize: vertical;
+}
+
+.lamp-button,
+.shop-button,
+.paper-button,
+.toggle,
+.link-button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.lamp-button {
+  padding: 0.8rem 1rem;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--shop-glow);
+  background: #4b2a6b;
+  border: 2px solid var(--shop-uv);
+  border-radius: 0.7rem;
+  transition: box-shadow 0.2s, background 0.2s;
+}
+
+.lamp-button[aria-pressed="true"] {
+  color: var(--shop-night);
+  background: var(--shop-uv);
+  box-shadow:
+    0 0 12px rgb(177 140 255 / 0.8),
+    0 0 30px rgb(139 92 246 / 0.6);
+}
+
+.lamp-button.small {
+  padding: 0.5rem 0.9rem;
+  font-size: 0.95rem;
+}
+
+.shop-button {
+  justify-self: start;
+  padding: 0.6rem 1.1rem;
+  font-weight: 800;
+  color: #3b0d24;
+  background: var(--shop-pink);
+  border: 0;
+  border-radius: 2rem;
+  box-shadow: 0 3px 0 #b23a73;
+}
+
+.shop-button:active {
+  translate: 0 2px;
+  box-shadow: 0 1px 0 #b23a73;
+}
+
+.paper-button {
+  padding: 0.45rem 0.95rem;
+  font-weight: 700;
+  color: var(--shop-glow);
+  background: transparent;
+  border: 2px solid var(--shop-line);
+  border-radius: 2rem;
+}
+
+.link-button {
+  justify-self: start;
+  padding: 0;
+  font-weight: 700;
+  color: var(--link);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+body.ink button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+body.ink [hidden] {
+  display: none !important;
+}
+
+.caught {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.toggle {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--shop-glow);
+  background: transparent;
+  border: 1.5px solid var(--shop-line);
+  border-radius: 0.4rem;
+}
+
+.toggle[aria-pressed="true"] {
+  color: var(--shop-night);
+  background: var(--shop-glow);
+  border-color: var(--shop-glow);
+}
+
+.shop-status {
+  min-height: 1.5em;
+  margin: 0.9rem 0;
+  line-height: 1.5;
+}
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+/* ---- the cipher strip: key over ink over what it reads ---------------------------------- */
+
+.strip {
+  margin: 0 0 1rem;
+  padding: 0.8rem;
+  overflow-x: auto;
+  background: rgb(0 0 0 / 0.25);
+  border-radius: 0.6rem;
+}
+
+.strip-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.strip-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 2px;
+  font: 700 0.95rem/1 var(--shop-type);
+  white-space: nowrap;
+}
+
+.strip-tag {
+  flex: 0 0 3.4rem;
+  font: 600 0.78rem var(--body, system-ui, sans-serif);
+  color: var(--page-soft);
+}
+
+.cell {
+  display: inline-grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.6rem;
+  border-radius: 0.2rem;
+}
+
+.cell.gap {
+  width: 0.6rem;
+}
+
+.key-row .cell:not(.gap) {
+  color: #3b0d24;
+  background: var(--shop-pink);
+}
+
+.ink-row .cell:not(.gap) {
+  color: var(--shop-night);
+  background: var(--shop-uv);
+}
+
+.plain-row .cell:not(.gap) {
+  color: var(--shop-pen);
+  background: var(--shop-paper);
+}
+
+/* ---- write your own, the typewriter, the detector ------------------------------------------ */
+
+.desk,
+.typewriter,
+.detector {
+  margin-top: 2rem;
+  padding: 1.25rem clamp(0.9rem, 3vw, 1.6rem) 1.4rem;
+  background: rgb(255 255 255 / 0.04);
+  border: 1px solid rgb(177 140 255 / 0.25);
+  border-radius: 1rem;
+}
+
+.desk-help {
+  max-width: 40rem;
+  margin: -0.4rem 0 1rem;
+  line-height: 1.55;
+  color: var(--page-soft);
+}
+
+.desk-form {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.desk-row {
+  display: grid;
+  grid-template-columns: minmax(0, 14rem) 1fr;
+  gap: 1rem;
+  align-items: end;
+}
+
+@media (max-width: 36rem) {
+  .desk-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.check {
+  display: flex;
+  gap: 0.5rem;
+  align-items: start;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.check input {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.1rem;
+  accent-color: var(--shop-pink);
+}
+
+.room {
+  margin: -0.3rem 0 0;
+  padding-left: 0.7rem;
+  font-size: 0.95rem;
+  border-left: 4px solid var(--shop-uv);
+}
+
+.room.is-short {
+  border-color: var(--shop-pink);
+  font-weight: 700;
+}
+
+/* The typewriter card: an index card from the lost property box. */
+.type-card {
+  margin-bottom: 0.9rem;
+  padding: 1.2rem 1.2rem 1.4rem;
+  color: #1e1a22;
+  background:
+    linear-gradient(180deg, transparent 2.1rem, #e0526c 2.1rem calc(2.1rem + 1.5px), transparent 0),
+    repeating-linear-gradient(180deg, transparent 0 1.6rem, rgb(80 120 200 / 0.18) 1.6rem calc(1.6rem + 1px)),
+    #fdfbf4;
+  border-radius: 0.2rem;
+  transition: background-color 0.3s;
+}
+
+.type-line {
+  margin: 0.9rem 0 0;
+  font: 400 clamp(0.92rem, 3vw, 1.1rem) / 1.6 var(--shop-type);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.type-ink {
+  color: #fdfbf4;
+}
+
+.type-card.is-lit {
+  color: #5d4b74;
+  background: var(--shop-uv-paper);
+}
+
+.type-card.is-lit .type-ink {
+  color: var(--shop-glow);
+  font-weight: 700;
+  text-shadow:
+    0 0 4px #c9a8ff,
+    0 0 12px #8b5cf6;
+}
+
+.drop {
+  display: grid;
+  place-items: center;
+  gap: 0.5rem;
+  padding: 1.4rem 1rem;
+  text-align: center;
+  border: 2px dashed var(--shop-line);
+  border-radius: 0.8rem;
+  cursor: pointer;
+}
+
+.drop.is-over {
+  border-color: var(--shop-uv);
+  background: rgb(177 140 255 / 0.1);
+}
+
+.found {
+  margin: 0 0 1rem;
+  padding-left: 1.4rem;
+  font: 400 0.98rem/1.6 var(--shop-letter);
+  color: var(--shop-glow);
+}
+
+.find-key {
+  display: grid;
+  grid-template-columns: minmax(0, 18rem) auto;
+  gap: 0.6rem;
+  align-items: end;
+}
+
+/* ---- the about panel -------------------------------------------------------------------- */
+
+body.ink .about {
+  max-width: 42rem;
+  margin: 2.5rem auto 1rem;
+  line-height: 1.65;
+}
+
+body.ink .about h2 {
+  font: 700 1.4rem var(--shop-letter);
+  color: var(--shop-glow);
+}
+
+body.ink .site-foot {
+  color: var(--page-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-sign {
+    animation: none;
+  }
+
+  .letter-uv,
+  .letter.is-lit .letter-uv,
+  .lamp-button,
+  .type-card {
+    transition: none;
+  }
+}
+
+.typewriter .tools {
+  margin-bottom: 1.1rem;
+}

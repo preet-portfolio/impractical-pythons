@@ -29,3 +29,6 @@ export const pierTelegraphSources = byName(
 export const postcardRackSources = byName(
   import.meta.glob("../../../projects/07_postcard_rack/*.py", { query: "?raw", import: "default", eager: true }),
 );
+export const invisibleInkSources = byName(
+  import.meta.glob("../../../projects/08_invisible_ink/*.py", { query: "?raw", import: "default", eager: true }),
+);
