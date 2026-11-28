@@ -139,3 +139,24 @@ walking each proto-persona through the page. Summarised here in our own words.
 **Left for later:** letting senders add a couple of their own code words, a muted-by-default
 sound for the stamp, and showing the Python inside the page.
 
+
+## The night clerk and the rail fence (Pier Telegraph, part 3)
+
+Notes from building the rest of chapter 4 into the stall, walked through with the
+proto-personas.
+
+- **A brute force that "just answers" would have been a lie.** Plain rules ranked the right
+  route anywhere from 1st to 1,400th, because the clerk can't tell one ordinary word from
+  another. Instead of hiding that, the page makes it the game: you give the clerk hunches
+  (word pairs you're sure of), it does the counting. Three hunches put the answer in its top
+  five for every daily telegram, and a test keeps it that way.
+- **Hunches are taps, not typing.** The telegram's words are chips: tap one, then the word you
+  think follows it. On a phone that's two taps per hunch, with no spelling to get wrong.
+- **The clerk's answer goes back on the rack.** "Try this route" loads a reading into the
+  Crack counter, and the visitor still presses Check, so the DELIVERED stamp is still theirs.
+- **Big numbers need a picture.** The key-count chart shows ticket rolls on a log scale with
+  the real numbers beside them, and it's a real table for screen readers.
+- **Four counters on one page need signposts.** Brass tabs under the sign jump to each one and
+  stay in reach; on a phone they shrink to one row.
+- **The dictionary is heavy.** It loads only when the rail fence first needs words, with a
+  line in the office's voice while it does.

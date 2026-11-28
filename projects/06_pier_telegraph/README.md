@@ -13,6 +13,8 @@ harmless filler like PEBBLE and KITE.
 
 Every day a new telegram is waiting on the counter, and nobody wrote down its route. Crack it,
 then send your own to a friend as a challenge link: they have to crack your route to read it.
+Stuck? Wake the **night clerk**, who tries every route at once. Out on the promenade the field
+clerks use a quicker cipher, the **rail fence**, which zigzags letters between two railings.
 
 ## Play
 
@@ -23,6 +25,12 @@ uv run python projects/06_pier_telegraph/main.py --cipher "tell under BUCKET on 
 uv run python projects/06_pier_telegraph/main.py --encrypt "Meet the manager at midnight"
 uv run python projects/06_pier_telegraph/main.py --encrypt "Meet the manager by the pier" --cols 2 --key "2 -1"
 uv run python projects/06_pier_telegraph/main.py --today                 # today's puzzle
+uv run python projects/06_pier_telegraph/main.py --night-clerk --hunch "gull won" --hunch "and nobody"
+uv run python projects/06_pier_telegraph/main.py --rail "Let us cross the pier"
+uv run python projects/06_pier_telegraph/main.py --unrail "LTSRS TEIRE UCOSH PE"
+uv run python projects/06_pier_telegraph/main.py --unrail "..." --rails 3
+uv run python projects/06_pier_telegraph/main.py --crack-rails           # the intercepted one
+uv run python projects/06_pier_telegraph/main.py --sniff "LTSRS TEIRT OTDAD ..."
 ```
 
 The easiest way of all: open `main.py`, find the block marked `YOUR TELEGRAM`, paste in the
@@ -158,7 +166,110 @@ that and checks everything, because anything can arrive in a link: a cut-off or 
 raises `ChallengeProblem` with a plain message, and the page falls back to today's telegram.
 
 Could someone cheat? They could try every possible route and compare fingerprints. That's a
-brute-force attack, and it's coming to this stall later in the chapter.
+brute-force attack, and the night clerk does exactly that (see below).
+
+## The night clerk: trying every route
+
+A route's key is an order of the columns plus an arrow for each one. `itertools.permutations`
+gives every order and `itertools.product((1, -1), repeat=cols)` every set of arrows, so
+`all_keys` is two nested loops over them. Both hand out one answer at a time (they're lazy),
+so the clerk never builds a list of 46,080 keys in memory.
+
+How many routes is that? `cols!` orders times `2 ** cols` arrows:
+
+| Columns | 2 | 3 | 4 | 5 | 6 | 7 |
+|---|---|---|---|---|---|---|
+| Routes | 8 | 48 | 384 | 3,840 | 46,080 | 645,120 |
+
+A 12-word telegram fits racks of 2, 3, 4 and 6 columns, so the clerk tries all four: 46,520
+routes. In the browser that takes under a second. Seven columns would take about 15 times
+longer, so the clerk stops at six (`WIDEST`) and says which racks it skipped.
+
+**The catch: the clerk can't read.** `readability` scores each reading with rules a tired
+clerk would notice: filler belongs at the end, "the" comes before a thing (not before "and"),
+and a message doesn't end on "under". Those rules sort little words into jobs (`KINDS`) and
+score neighbouring pairs. They can't tell "fortune teller says" from "teller says fortune",
+because every ordinary word looks the same to them. On its own the clerk put the right answer
+anywhere from 1st to 1,400th.
+
+So the clerk takes **hunches**: pairs of words you're sure sit side by side ("ice cream",
+"at BUCKET"). `fits` throws out every route that pulls a hunch apart. One hunch cuts thousands
+of routes to hundreds; three usually leave a handful, and a test checks that three hunches put
+the answer in the clerk's top five for all 14 daily telegrams. That's how real code-breakers
+worked too: a computer to grind through the possibilities, a person to guess a likely word or
+phrase (a *crib*).
+
+`expand` also fixed a quiet bug in waiting: a message about a real sandcastle used to look like
+SANDCASTLE the filler. The office writes code words and filler in capitals, so the clerk
+compares words exactly, capitals and all.
+
+## Breaking the seal
+
+A challenge link's seal needs no hunches. `crack_seal` tries routes until one has the same
+SHA-256 fingerprint, and stops there. A 12-word telegram falls in a few hundred tries. A
+fingerprint is only as safe as the number of answers it could stand for: 46,520 is nothing to
+a computer. Real passwords and keys have so many possibilities that trying them all would take
+longer than the age of the universe. That's the whole trick.
+
+## The rail fence
+
+The field cipher in `rail_fence.py` works on letters, not words. `prepare` keeps only the
+letters, in capitals (`unicodedata.normalize("NFKD", ...)` splits é into e plus an accent mark
+first, so the e survives). Then the letters zigzag between two rails:
+
+```
+L T S R S T E I R       top rail
+ E U C O S H P E        bottom rail
+```
+
+The telegram is the top rail then the bottom one, in groups of five: "Let us cross the pier"
+goes out as `LTSRS TEIRE UCOSH PE`.
+
+`zigzag_rows(length, rails)` says which rail each letter sits on. The pattern down and back up
+(`0 1 2 1` for three rails) repeats, so `pattern[i % len(pattern)]` finds any letter's place.
+Encrypting reads the letters rail by rail.
+
+Decrypting two rails is a neat trick: the top rail holds the 1st, 3rd, 5th... letters, so it
+has the extra one when the count is odd. `math.ceil(len(cipher) / 2)` finds where to cut, and
+`itertools.zip_longest` stitches the halves back together, filling the short bottom rail with
+`""` instead of stopping early as `zip` would. `zigzag_decrypt` does any number of rails: count
+how many letters landed on each rail, slice the cipher into those runs, then walk the zigzag
+taking the next letter from whichever rail the walk is on. A test checks the two agree.
+
+Senders on the pier always use two rails. The intercepted telegram used three, and nobody
+knows that until they try. `crack_rails` tries 2 to 8 rails: just 7 tries, against 3,840 for a
+five-column route.
+
+## Putting the gaps back
+
+Rail fence letters arrive with no spaces. `word_gaps.split_words` puts them back using the
+shared 60,000-word dictionary, with **dynamic programming**: work left to right, and for every
+position remember only the best way to split the letters up to there. Each answer is built
+from a shorter one plus one more word, so nothing is worked out twice. "Best" is a tuple,
+`(letters covered, -pieces, everyday words)`, which Python compares item by item, so `max`
+tries each rule in turn:
+
+1. cover as many letters with real words as possible;
+2. then use the fewest pieces ("seagulls", not "sea gulls");
+3. then prefer everyday words ("pier at", not "pie rat"; "is under", not "i sunder").
+
+Letters no word explains stay in capitals, so nothing is lost. `coverage` (the share of
+letters inside real words) is how the cracker scores each rail count: the right one is 100%,
+the wrong ones about 50%.
+
+## Shuffled or swapped?
+
+A rail fence **shuffles** letters; a substitution cipher **swaps** each letter for another.
+`sniff.py` tells them apart before trying to crack anything. A shuffled telegram still has
+English's letters, so E, T and A still turn up most. A swapped one has the same shape on the
+wrong letters.
+
+`english_likeness` is a **chi-squared** score: for each letter, the difference between its
+count and what English would give (from `common/english.py`, shared with Letter Bars),
+squared, divided by what English would give, all added up and divided by the number of
+letters. Shuffled pier telegrams score under 0.7; swapped ones mostly 2 to 30. In between, a
+swap that happened to land on look-alike letters can pass for English, so `verdict` says
+"hard to say" there, and "too short" under 30 letters.
 
 ## Files
 
@@ -168,7 +279,11 @@ brute-force attack, and it's coming to this stall later in the chapter.
 | `codebook.py` | `CODEBOOK`, `FILLER`, `SAMPLE`, `TICKETS`, `plain_words`, `encode`, `decode`, `grid_options`, `snuggest`, `pad` |
 | `dispatches.py` | `DISPATCHES`, `telegram_number`, `plain_route_hits`, `scrambled_key`, `is_fair`, `puzzle_rack`, `dispatch`, `todays_dispatch` |
 | `challenge.py` | `fingerprint`, `make_challenge`, `looks_like_telegram`, `read_challenge`, `is_solved`, `ChallengeProblem` |
-| `main.py` | The settings block, `receive`, `send`, `show_today`, `argparse` options, friendly errors on `stderr` with exit code 1 |
+| `night_clerk.py` | `key_count`, `all_keys`, `place`, `expand`, `readability`, `fits`, `racks`, `crack_route`, `crack_seal`, `crack_rails` |
+| `rail_fence.py` | `prepare`, `zigzag_rows`, `encrypt`, `in_fives`, `two_rail_decrypt`, `zigzag_decrypt`, `decrypt`, `intercepted`, `RailProblem`, the sample messages |
+| `word_gaps.py` | `word_set`, `split_words`, `join_strays`, `coverage` |
+| `sniff.py` | `letter_shares`, `english_likeness`, `verdict`, `decide`, `explain`, `swap_letters` |
+| `main.py` | The settings block, `receive`, `send`, `show_today`, the night clerk, rail fence and sniff commands, `argparse` options, friendly errors on `stderr` with exit code 1 |
 
 ## What's new here
 
@@ -199,7 +314,18 @@ brute-force attack, and it's coming to this stall later in the chapter.
 - **`json` plus `base64.urlsafe_b64encode`** to pack data into a link, and validating
   everything that comes back out.
 - **Rounding up with `-(-a // b)`**: floor division of a negative number rounds the other
-  way.
+  way. (`math.ceil` does the same, as the rail fence shows.)
+- **`itertools.permutations` and `itertools.product`** to list every key, lazily.
+- **`math.factorial`** and the key-count explosion behind brute-force attacks.
+- **`itertools.pairwise`** for looking at neighbouring words.
+- **`itertools.zip_longest`** for pairing lists of different lengths.
+- **The `%` remainder** to repeat a pattern (the zigzag) forever.
+- **`unicodedata.normalize("NFKD")`** to take accents off letters.
+- **Dynamic programming** to split letters into words without trying every split.
+- **Tuples as scores**: `max` compares them item by item, so one tuple holds several rules.
+- **Chi-squared** to compare letter counts with English.
+- **`str.maketrans` and `str.translate`** to swap every letter at once.
+- **A `type` alias statement** (`type Hunch = ...`), Python 3.12's way to name a type.
 
 ## Try this next
 
@@ -211,13 +337,16 @@ brute-force attack, and it's coming to this stall later in the chapter.
 3. Let a challenge link carry a **hint**: how many columns the rack had, or which column
    comes first, chosen by the sender. What would you add to the payload, and does it give
    anything else away?
-4. Write `crack(cipher, cols, rows)` that tries **every** key for a rack and scores each result
-   by how many neighbouring word pairs appear in the sample messages. How many keys are there
-   for 5 columns? (Hint: orderings times directions.)
+4. Teach the night clerk more English: give `readability` a list of word pairs counted from a
+   long text (a book from Project Gutenberg) and see how many hunches it still needs.
+5. A **three-rail** sender: add a rails picker to the page, and check `crack_rails` still finds
+   the count. What happens with a message shorter than the zigzag?
+6. Make `sniff` spot a **Caesar shift** (every letter moved the same distance) and say how far,
+   by trying all 25 shifts and keeping the one with the lowest chi-squared score.
 
 ## Further reading
 
-The idea comes from the route cipher project in chapter 4 of
+The idea comes from the route cipher and rail fence cipher projects in chapter 4 of
 [*Impractical Python Projects*](https://nostarch.com/impracticalpython) by Lee Vaughan, which
-looks at how route ciphers were used on the American Civil War telegraph. The code book,
-telegrams, racks and code here are new.
+looks at how both were used on the American Civil War telegraph. The code book, telegrams,
+racks, hunches, intercepted telegram and code here are new.
