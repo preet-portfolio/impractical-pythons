@@ -185,3 +185,15 @@ proto-personas and the checklist.
 **Not met yet:** there's no result to copy or send. Writing your own hidden-note postcard (the
 book's next project, set aside for now) is the natural shareable result.
 
+**Part 2, the writing desk:** now met. The friend persona gets a link that opens on "A
+postcard for you" with the sender's name, and has to find the note with the glass; the
+sender tests their card on the desk before sending. Choices made for the personas:
+
+- **Typing is short.** One note field with a live letter count, three big position chips,
+  and optional To/From names. A phone keyboard never covers the button that matters.
+- **No dead ends.** Too short, too long or unkind notes get one plain sentence on the desk;
+  a smudged link falls back to today's card and says what happened.
+- **The answer never travels.** The link holds only the card, so the fun survives a forward.
+- **Kind words only.** Nan's words pass a stricter filter than the rest of the pier, because
+  they appear on a card the visitor didn't write word by word.
+

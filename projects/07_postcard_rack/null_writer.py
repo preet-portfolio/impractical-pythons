@@ -38,7 +38,7 @@ LONGEST_NAME = 20
 
 # Nan's list goes on a public postcard, so it is stricter than the pier's
 # filter: any word containing one of these stems is left in the bag. It
-# throws out some innocent words too ("niggle", "begun"), which is fine:
+# throws out some innocent words too ("peacock", "begun"), which is fine:
 # the list only needs enough words, not every word.
 NOT_ON_A_POSTCARD = frozenset(
     """

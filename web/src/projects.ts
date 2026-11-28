@@ -63,7 +63,7 @@ export const projects: Project[] = [
     number: 7,
     slug: "postcard-rack",
     title: "Postcard Rack",
-    line: "Every card says wish you were here, and some say something else too. Hold the reading glass over a postcard and read between the lines.",
+    line: "Every card says wish you were here, and some say something else too. Hold the reading glass over a postcard, or hide a note of your own and send it to a friend.",
     stall: "postcard",
     cue: "Spin the rack",
   },

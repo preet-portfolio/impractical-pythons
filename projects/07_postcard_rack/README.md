@@ -22,6 +22,10 @@ handwriting. On the right setting the hidden note appears on a luggage tag and t
 stamps the card "Read between the lines". **Try every setting** does what a suspicious
 jailer could have done, and there's a blank card for any text you want to test.
 
+At the **writing desk** you go the other way: type a secret note and Nan hides it in a list
+of her Scrabble words, one letter per word. Send the postcard to a friend as a link, and
+all they see is a gran showing off, until they pick up the glass.
+
 ## Play
 
 ```bash
@@ -31,10 +35,14 @@ uv run python projects/07_postcard_rack/main.py --rule capitals --lookahead 2
 uv run python projects/07_postcard_rack/main.py --file letter.txt --lookahead 4
 uv run python projects/07_postcard_rack/main.py --text "..." --rule words --lookahead 3
 uv run python projects/07_postcard_rack/main.py --scan                   # let the dictionary pick
+uv run python projects/07_postcard_rack/main.py --rule nth --lookahead 3 # every Nth word
+uv run python projects/07_postcard_rack/main.py --write "meet me by the pier" --position 3
+uv run python projects/07_postcard_rack/main.py --write "..." --position 2 --seed 7
 ```
 
 With no text given it uses today's postcard. Bad input (an unknown rule, `--lookahead 0`, a
-missing file) prints one plain line to `stderr` and exits with code 1.
+missing file, a note that's too short) prints one plain line to `stderr` and exits with
+code 1.
 
 ## Design first: the pseudocode
 
@@ -69,19 +77,26 @@ card: the page asks Python where the glass lands, then wraps each of those chara
 Stepping over spaces with `continue` gives the same count as stripping them first (the
 book's `"".join(text.split())`), but keeps every position pointing into the real text.
 
-## Three rules in one table
+## Four rules in one table
 
 ```python
 RULES = {
     "punctuation": after_punctuation,
     "words": of_each_word,
     "capitals": of_capital_words,
+    "nth": every_nth_word,
 }
 ```
 
 A dict of functions means the CLI, the scan and the web page all pick a rule by name, and
-adding a fourth rule is one line. The two word rules share `word_letters`, which uses
+adding a rule is one line. The two word rules share `word_letters`, which uses
 `re.finditer(r"[A-Za-z]+")` to find each word and its start position.
+
+`every_nth_word` is the book's "Colchester Catch" practice project: the Nth letter of every
+Nth word. Here a word is anything between spaces (`re.finditer(r"\S+")`), so "didn't" counts
+as one word, and only its letters are counted inside it. The caravan-park card hides "ghost
+train" in the 2nd letter of every 2nd word. With N = 1 this rule picks the same letters as
+"1st letter of every word", so `scan` keeps a `seen` set and shows each reading once.
 
 `string.punctuation` decides what counts as a mark: ``!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~``.
 Note the apostrophe and the hyphen are in there.
@@ -106,6 +121,47 @@ that, then coverage, then word length, with a tuple sort key. The tests check th
 postcard's own setting comes out first, and that the decoy card (the one with nothing to
 hide) has no reading at all.
 
+## Writing a note: Nan's Scrabble words
+
+Writing a null cipher is much harder than finding one. Every sentence has to make sense
+*and* put the right letter in the right place. The book's answer is a **list**: nobody
+expects a list to make sense, so any word will do. Ours is Nan bragging about her Scrabble
+words, because any odd word can be a great Scrabble word.
+
+```
+keep only the note's letters (string.ascii_letters), lower case
+check it: 6 to 40 letters, nothing rude
+group Nan's words by the letter at the chosen position (2nd, 3rd or 4th)
+for each letter of the note:
+    pick a word from that letter's group that isn't already on the card
+card = "Nan won at Scrabble again with these words: " + the words joined by ", " + "."
+```
+
+`null_writer.py` does this, and three choices make it work with the glass:
+
+- **The commas are the cipher.** Each comma restarts the count, so the glass's punctuation
+  rule reads "the 3rd letter after each punctuation mark" straight back. A test writes
+  dozens of cards and checks that `scan` ranks the right setting first every time.
+- **The cover line has no marks of its own.** "Nan won at Scrabble again with these words"
+  has no apostrophe or comma, so the count starts at the colon and no stray letters creep in.
+- **A seeded `random.Random(seed)`** picks among the words, from a *sorted* list, so the
+  same note and seed always give the same card (that's what makes it testable) and "Write
+  it again" just tries the next seed. `choose_words` is kept apart from `hide_note` so the
+  web page can group the dictionary once and reuse it for every card.
+
+**Keeping the card kind.** The dictionary is honest, and the pier's family-friendly list
+turned out to let some slurs and grim words through. Nan's words go out on a public
+postcard, so `postcard_words` is stricter: it drops any word containing a stem from
+`NOT_ON_A_POSTCARD`, plus anything `nothing_rude_inside` catches. That throws out some
+innocent words too ("peacock", "begun"), which is fine: the card only needs enough words,
+and there are still nearly 30,000.
+
+**Sending it.** `pack_card` turns the card's text and names into a link: JSON, then
+URL-safe Base64 (the same trick as the Pier Telegraph's challenge links). The note itself
+is never in the link; your friend has to find it. `unpack_card` checks every field of
+whatever arrives and raises `NoteProblem` with a plain reason, so a smudged link gets a
+friendly message instead of a crash.
+
 ## Today's postcard
 
 `todays_postcard(day)` counts days since the rack went up and cycles through the cards that
@@ -116,9 +172,10 @@ deciding. The web page passes the visitor's own date.
 
 | File | What's in it |
 |---|---|
-| `null_finder.py` | The three rules, `picked_positions`, `describe`, `read_reading` and `scan` |
-| `postcards.py` | The seven postcards (six notes and one decoy) and the daily pick |
-| `main.py` | The command line: `--lookahead`, `--rule`, `--scan`, `--today`, `--file`, `--text` |
+| `null_finder.py` | The four rules, `picked_positions`, `describe`, `read_reading` and `scan` |
+| `null_writer.py` | Hides a note in Nan's Scrabble words, and packs and unpacks postcard links |
+| `postcards.py` | The eight postcards (seven notes and one decoy) and the daily pick |
+| `main.py` | The command line: `--lookahead`, `--rule`, `--scan`, `--today`, `--write`, `--file`, `--text` |
 | `../common/word_gaps.py` | Puts the gaps back between words (shared with the Pier Telegraph) |
 
 The web page is `web/postcard-rack/index.html` with `web/src/postcard-rack-page.ts`; it runs
@@ -135,12 +192,17 @@ these exact modules in the browser with Pyodide.
 - **Scoring with more than one number**: coverage alone is fooled by short words, so word
   length breaks the tie, sorted with a tuple key.
 - **Moving shared code into `common/`** once a second project needs it.
+- **`string.ascii_letters`** to keep only the letters of a note.
+- **A seeded `random.Random`** choosing from a sorted list, for repeatable output.
+- **Hiding in a list**: why a list beats a letter for a null cipher.
+- **JSON + URL-safe Base64** to carry data in a link, checked on the way back in.
+- **A round-trip test**: write a card, then check the finder reads it back.
 
 ## Try this next
 
-1. **Write a null cipher** (the book's next project): given a note and a rule, pick words
-   from a list so the right letters land in the right places, then make it read like a real
-   postcard.
+1. **Saving Mary** (the book's other practice project): alternate the note between the 2nd
+   and 3rd letters, and slip in decoy words that carry nothing. Then teach the glass to
+   read it.
 2. **A fourth rule**: the last letter of every line, or the letter after every capital.
    Add one function to `RULES` and the page, scan and CLI pick it up.
 3. **Scan something famous**: run `--scan --file` on a poem or a song you like and see
@@ -148,6 +210,6 @@ these exact modules in the browser with Pyodide.
 
 ---
 
-Inspired by the Trevanion cipher project in
-[*Impractical Python Projects*](https://nostarch.com/impracticalpython) by Lee Vaughan. The
-postcards, rules beyond punctuation, scoring and web page are new.
+Inspired by the Trevanion cipher and list cipher projects (and the Colchester Catch practice
+project) in [*Impractical Python Projects*](https://nostarch.com/impracticalpython) by Lee
+Vaughan. The postcards, Nan's Scrabble cover, scoring, links and web page are new.
