@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Postcard Rack · Impractical Pythons</title>
+    <meta name="description" content="Every postcard says wish you were here. Some say something else too. Hold the reading glass over the card and read between the lines." />
+    <meta name="theme-color" content="#2f7fb5" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💌</text></svg>" />
+  </head>
+  <body class="postcard">
+    <a class="skip" href="#card">Skip to today's postcard</a>
+    <nav class="crumbs"><a href="/">Back to the pier</a></nav>
+
+    <main id="main">
+      <header class="shop-sign">
+        <p class="sign-greetings">Greetings from the</p>
+        <h1 class="sign-name">Postcard Rack</h1>
+        <p class="sign-lede">
+          Every card on this rack says "wish you were here". Some of them say something else as
+          well, hidden in plain sight. Hold the reading glass over a card and turn the dial until
+          the hidden note shows through.
+        </p>
+      </header>
+
+      <section class="counter" aria-labelledby="card-title">
+        <h2 id="card-title" class="counter-title">
+          <span id="card-label">Today's postcard</span>
+        </h2>
+
+        <div class="desk">
+          <article class="card" id="card" tabindex="-1" aria-describedby="card-help">
+            <div class="card-message">
+              <p class="card-to" id="card-to"></p>
+              <p class="card-text" id="card-text"></p>
+              <textarea class="card-own" id="card-own" rows="7" maxlength="1200" spellcheck="false" aria-label="Your own text to search" hidden></textarea>
+              <p class="card-from" id="card-from"></p>
+            </div>
+            <div class="card-address" aria-hidden="true">
+              <span class="stamp" id="stamp"><span class="stamp-sea"></span></span>
+              <span class="postmark" id="postmark"></span>
+              <span class="address-line"></span>
+              <span class="address-line"></span>
+              <span class="address-line"></span>
+            </div>
+            <p class="found-stamp" id="found-stamp" hidden>Read between the lines</p>
+          </article>
+
+          <div class="glass" role="group" aria-labelledby="glass-title">
+            <h3 id="glass-title" class="glass-title">The reading glass</h3>
+            <p class="glass-help" id="card-help">Count from…</p>
+            <div class="rules" id="rules"></div>
+            <p class="glass-help">…and how many letters along?</p>
+            <div class="stepper">
+              <button type="button" class="step" id="fewer" aria-label="One letter fewer" disabled>−</button>
+              <output class="offset" id="offset" aria-live="polite">1</output>
+              <button type="button" class="step" id="more" aria-label="One letter more" disabled>+</button>
+            </div>
+            <p class="setting" id="setting"></p>
+          </div>
+        </div>
+
+        <div class="tag" aria-live="polite">
+          <p class="tag-label">The glass picks out</p>
+          <p class="tag-letters" id="tag-letters">…</p>
+          <p class="tag-words" id="tag-words"></p>
+        </div>
+        <p class="shop-status" id="status" role="status" aria-live="polite">Unlocking the shop…</p>
+
+        <div class="tools">
+          <button type="button" class="glass-button" id="scan" disabled>Try every setting</button>
+        </div>
+        <ol class="scan" id="scan-list" aria-label="Every setting, best reading first"></ol>
+      </section>
+
+      <section class="rack-wrap" aria-labelledby="rack-title">
+        <h2 id="rack-title" class="rack-title">More cards on the rack</h2>
+        <p class="rack-help">Not every card hides something. That's the fun of it.</p>
+        <ul class="rack" id="rack"></ul>
+      </section>
+
+      <section class="about" aria-labelledby="about-title">
+        <h2 id="about-title">How a note hides on a postcard</h2>
+        <p>
+          Hiding a secret so well that nobody suspects there is one is called
+          <strong>steganography</strong>, from the Greek for "covered writing". The postcards here
+          use a <strong>null cipher</strong>: the hidden note isn't scrambled at all. Its letters
+          sit inside an ordinary message at places agreed in advance, and every other letter is
+          padding.
+        </p>
+        <p>
+          The famous one is a letter smuggled to a Royalist prisoner in 1642, during the English
+          Civil War. His jailers read it and found nothing odd. Counting three letters on from
+          every punctuation mark spelled out where the secret way out of the chapel was, and by
+          the next morning he was gone.
+        </p>
+        <p>
+          The punctuation rule has small print, and it matters. Every mark starts the count again,
+          so a second mark before you get there restarts it. Marks never count as letters. Spaces
+          don't count at all. An extra comma in the wrong place, and the note falls apart.
+        </p>
+        <p>
+          "Try every setting" does what a suspicious jailer could have done: try each rule and
+          each count, and check which one reads as real words. A dictionary splits the letters
+          back into words, and a reading only counts if it's real words all the way through,
+          and not just a lucky run of "a", "at" and "me". All of this is Python, running here in
+          your browser.
+          <a href="https://github.com/preet-portfolio/impractical-pythons/tree/main/projects/07_postcard_rack">Peek at the Python</a>.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-foot">
+      <p>
+        Inspired by the Trevanion cipher project in
+        <a href="https://nostarch.com/impracticalpython"><cite>Impractical Python Projects</cite></a>
+        by Lee Vaughan, a great book if you want to make your own silly, clever programs. The
+        postcards and code are new. One of the stalls on the
+        <a href="/">Impractical Pythons</a> pier.
+      </p>
+    </footer>
+    <script type="module" src="/src/postcard-rack-page.ts"></script>
+  </body>
+</html>

@@ -4,6 +4,8 @@ import "@fontsource/shrikhand/400.css";
 import "@fontsource/limelight/400.css";
 import "@fontsource/big-shoulders-display/800";
 import "@fontsource/ultra/400.css";
+import "@fontsource/titan-one/400.css";
+import "@fontsource/caveat/700.css";
 import { projects } from "./projects";
 
 const list = document.getElementById("projects")!;

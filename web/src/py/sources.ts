@@ -26,3 +26,6 @@ export const shuffleCafeSources = byName(
 export const pierTelegraphSources = byName(
   import.meta.glob("../../../projects/06_pier_telegraph/*.py", { query: "?raw", import: "default", eager: true }),
 );
+export const postcardRackSources = byName(
+  import.meta.glob("../../../projects/07_postcard_rack/*.py", { query: "?raw", import: "default", eager: true }),
+);

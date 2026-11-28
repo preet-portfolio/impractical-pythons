@@ -342,6 +342,41 @@ code {
   color: #1f2433;
 }
 
+/* A seaside postcard: summer sky over sand, a white border, "Greetings from" lettering. */
+.stall-postcard .stall-link {
+  background:
+    linear-gradient(180deg, #8fd3f4 0 55%, #2f7fb5 55% 72%, #f3d9a0 72%);
+  color: #12304a;
+  border: 7px solid #fff;
+  border-radius: 0.3rem;
+  box-shadow: 0 10px 18px -12px rgb(18 48 74 / 0.8);
+}
+
+.stall-postcard .stall-title {
+  font-family: "Titan One", "Cooper Black", serif;
+  font-weight: 400;
+  color: #ffd23f;
+  -webkit-text-stroke: 1.5px #23336b;
+  paint-order: stroke fill;
+  text-shadow: 3px 3px 0 #c8102e;
+}
+
+.stall-postcard .stall-line {
+  padding: 0.4rem 0.6rem;
+  font-family: "Caveat", "Bradley Hand", cursive;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #23336b;
+  background: rgb(251 246 234 / 0.92);
+  border-radius: 0.2rem;
+}
+
+.stall-postcard .stall-cue {
+  background: #c8102e;
+  color: #fff;
+}
+
 /* ---- the cabinet ------------------------------------------------------------------ */
 
 .crumbs {

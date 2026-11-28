@@ -17,6 +17,7 @@ export default defineConfig({
         mirrorSpells: resolve(import.meta.dirname, "mirror-spells/index.html"),
         shuffleCafe: resolve(import.meta.dirname, "shuffle-cafe/index.html"),
         pierTelegraph: resolve(import.meta.dirname, "pier-telegraph/index.html"),
+        postcardRack: resolve(import.meta.dirname, "postcard-rack/index.html"),
       },
     },
   },

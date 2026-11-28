@@ -6,7 +6,7 @@ export type Project = {
   slug: string;
   title: string;
   line: string;
-  stall: "slots" | "talk" | "rock" | "mirror" | "cafe" | "telegraph";
+  stall: "slots" | "talk" | "rock" | "mirror" | "cafe" | "telegraph" | "postcard";
   cue: string;
 };
 
@@ -58,5 +58,13 @@ export const projects: Project[] = [
     line: "Send a secret telegram, crack the one waiting on the counter, wake the night clerk to try every route, or zigzag letters along the rail fence.",
     stall: "telegraph",
     cue: "Step up to the counter",
+  },
+  {
+    number: 7,
+    slug: "postcard-rack",
+    title: "Postcard Rack",
+    line: "Every card says wish you were here, and some say something else too. Hold the reading glass over a postcard and read between the lines.",
+    stall: "postcard",
+    cue: "Spin the rack",
   },
 ];
