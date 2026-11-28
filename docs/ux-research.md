@@ -197,3 +197,16 @@ sender tests their card on the desk before sending. Choices made for the persona
 - **Kind words only.** Nan's words pass a stricter filter than the rest of the pier, because
   they appear on a card the visitor didn't write word by word.
 
+**Part 3, proper postcards:** five themes (beach, pier, rain, caravan, fish and chips) turn a
+note into a postcard that reads like a real day out, written by Python in the browser.
+
+- **One more choice, not five more fields.** "A proper postcard" reveals a row of five theme
+  chips, one already picked at random, so the visitor can still just type and press Write.
+- **The postmark and picture travel with it**, so the friend sees "Harbour Wall", not Nan's
+  club.
+- **Honest about short notes.** Testing as a visitor showed the glass calling "go to the
+  pub" luck. On desk cards the writer's settings now accept short words, the sender's own
+  note always counts, and a friend with mostly real words is told to read it themselves.
+- **Checked at 375px in dark mode and by keyboard** (arrow keys move between themes, with a
+  visible focus ring). No new motion.
+
