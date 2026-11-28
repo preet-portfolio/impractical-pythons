@@ -114,16 +114,15 @@ def words_by_letter(words: set[str] | list[str], position: int) -> dict[str, lis
     return groups
 
 
-def hide_note(
-    note: str, words: set[str] | list[str], position: int = 3, seed: int | None = None
+def choose_words(
+    letters: str, groups: dict[str, list[str]], position: int, seed: int | None = None
 ) -> list[str]:
-    """Pick one word per letter of the note, each with that letter at ``position``.
+    """Pick one word per letter from ``groups`` (made by ``words_by_letter``).
 
     No word is used twice. ``seed`` makes the choice repeatable; a new
-    seed writes the same note into a different list.
+    seed writes the same note into a different list. Kept apart from
+    ``hide_note`` so a web page can group the dictionary once and reuse it.
     """
-    letters = check_note(note)
-    groups = words_by_letter(words, position)
     rng = random.Random(seed)
     chosen: list[str] = []
     for letter in letters:
@@ -132,6 +131,13 @@ def hide_note(
             raise NoteProblem(f"Nan has no words with {letter!r} as letter {position}.")
         chosen.append(rng.choice(options))
     return chosen
+
+
+def hide_note(
+    note: str, words: set[str] | list[str], position: int = 3, seed: int | None = None
+) -> list[str]:
+    """Pick one word per letter of the note, each with that letter at ``position``."""
+    return choose_words(check_note(note), words_by_letter(words, position), position, seed)
 
 
 def write_card(chosen: list[str]) -> str:

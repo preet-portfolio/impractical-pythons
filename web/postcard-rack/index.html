@@ -73,6 +73,46 @@
         <ol class="scan" id="scan-list" aria-label="Every setting, best reading first"></ol>
       </section>
 
+      <section class="writing-desk" aria-labelledby="desk-title">
+        <div class="tiles" aria-hidden="true">
+          <span>W<sub>4</sub></span><span>R<sub>1</sub></span><span>I<sub>1</sub></span><span>T<sub>1</sub></span><span>E<sub>1</sub></span>
+        </div>
+        <h2 id="desk-title" class="desk-title">Write your own</h2>
+        <p class="desk-help">
+          Type a secret note. Nan hides it in her Scrabble words, one letter in each word, and
+          you send the postcard to a friend. All they see is a gran showing off.
+        </p>
+        <form class="desk-form" id="write-form" novalidate>
+          <label class="field field-note">
+            <span class="field-label">Your secret note</span>
+            <input id="note" type="text" maxlength="80" autocomplete="off" spellcheck="false" placeholder="meet me by the pier" aria-describedby="note-count" disabled />
+          </label>
+          <p class="note-count" id="note-count" aria-live="polite"></p>
+          <fieldset class="positions">
+            <legend class="field-label">Hide it in each word's…</legend>
+            <label class="chip"><input type="radio" name="position" value="2" /><span>2nd letter</span></label>
+            <label class="chip"><input type="radio" name="position" value="3" checked /><span>3rd letter</span></label>
+            <label class="chip"><input type="radio" name="position" value="4" /><span>4th letter</span></label>
+          </fieldset>
+          <div class="names">
+            <label class="field">
+              <span class="field-label">To</span>
+              <input id="to" type="text" maxlength="20" autocomplete="off" placeholder="Kit" disabled />
+            </label>
+            <label class="field">
+              <span class="field-label">From</span>
+              <input id="from" type="text" maxlength="20" autocomplete="off" placeholder="Sam" disabled />
+            </label>
+          </div>
+          <div class="tools">
+            <button type="submit" class="glass-button" id="write" disabled>Write the postcard</button>
+            <button type="button" class="paper-button" id="again" hidden>Write it again</button>
+            <button type="button" class="paper-button" id="send" hidden>Copy the link to send</button>
+          </div>
+          <p class="shop-status" id="desk-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
       <section class="rack-wrap" aria-labelledby="rack-title">
         <h2 id="rack-title" class="rack-title">More cards on the rack</h2>
         <p class="rack-help">Not every card hides something. That's the fun of it.</p>
@@ -98,6 +138,17 @@
           The punctuation rule has small print, and it matters. Every mark starts the count again,
           so a second mark before you get there restarts it. Marks never count as letters. Spaces
           don't count at all. An extra comma in the wrong place, and the note falls apart.
+        </p>
+        <p>
+          Writing one is much harder than finding one: every sentence has to make sense
+          <em>and</em> put the right letter in the right place. A list gets round that, because
+          nobody expects a list to make sense. That's why the writing desk uses Nan's Scrabble
+          words: any word can be a good Scrabble word, so any word can carry a letter.
+        </p>
+        <p>
+          The glass has one more trick from the same era: "Every few words" reads the 2nd letter
+          of every 2nd word, or the 3rd letter of every 3rd word, and so on. One card on the rack
+          uses it.
         </p>
         <p>
           "Try every setting" does what a suspicious jailer could have done: try each rule and

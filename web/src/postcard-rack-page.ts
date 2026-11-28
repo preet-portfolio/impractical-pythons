@@ -14,6 +14,7 @@ from pathlib import Path
 
 import decency
 import null_finder
+import null_writer
 import postcards
 import word_gaps
 import wordlist
@@ -47,7 +48,33 @@ def look(args):
 def scan(args):
     return null_finder.scan(args["text"], words())
 
-CALLS = {"rack": rack, "look": look, "scan": scan}
+def nans_words(position):
+    """Nan's word bag, grouped by the letter at each position: built once each."""
+    key = ("groups", position)
+    if key not in _cache:
+        _cache[key] = null_writer.words_by_letter(words(), position)
+    return _cache[key]
+
+def write(args):
+    position = args["position"]
+    try:
+        letters = null_writer.check_note(args["note"])
+        chosen = null_writer.choose_words(letters, nans_words(position), position, args["seed"])
+    except null_writer.NoteProblem as problem:
+        return {"problem": str(problem)}
+    text = null_writer.write_card(chosen)
+    to = null_writer.clean_name(args["to"], "you")
+    sender = null_writer.clean_name(args["sender"], "a friend")
+    return {"text": text, "to": to, "sender": sender, "letters": letters,
+            "token": null_writer.pack_card(text, to, sender)}
+
+def unpack(args):
+    try:
+        return null_writer.unpack_card(args["token"])
+    except null_writer.NoteProblem as problem:
+        return {"problem": str(problem)}
+
+CALLS = {"rack": rack, "look": look, "scan": scan, "write": write, "unpack": unpack}
 
 def _bridge(fn, args_json):
     if fn in CALLS:
@@ -77,6 +104,8 @@ type Look = {
   reads: boolean;
 };
 type Reading = Look & { rule: string; offset: number };
+type Written = { text: string; to: string; sender: string; letters: string; token: string } & { problem?: string };
+type Received = { text: string; to: string; sender: string } & { problem?: string };
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const python = new Python();
@@ -86,10 +115,14 @@ const RULE_NAMES: Record<string, string> = {
   punctuation: "Punctuation",
   words: "Every word",
   capitals: "Capital words",
+  nth: "Every few words",
 };
 const MOST = 6;
 const SHORTEST = 6; // null_finder.SHORTEST: fewer letters than this never count as a note
 const OWN = "own"; // the blank card for the visitor's own text
+const WRITTEN = "written"; // the card the visitor just wrote
+const RECEIVED = "received"; // a card that arrived in a link
+const ORDINAL: Record<number, string> = { 2: "2nd", 3: "3rd", 4: "4th" };
 
 const cardText = $("card-text");
 const cardOwn = $<HTMLTextAreaElement>("card-own");
@@ -98,6 +131,9 @@ const foundStamp = $("found-stamp");
 const scanList = $<HTMLOListElement>("scan-list");
 
 let cards: Card[] = [];
+let extras: Card[] = []; // the written and received cards: on the desk, not on the rack
+let token = ""; // the written card, packed for its link
+let seed = 0;
 let todayId = "";
 let current: Card | null = null;
 let rule = "punctuation";
@@ -213,7 +249,9 @@ async function look() {
         ? `There it is! ${current.sender} hid a note in the ${result.setting}.`
         : `Something reads in the ${result.setting}. Was it hidden on purpose, or just luck?`;
     } else {
-      status.textContent = current?.note
+      status.textContent = current?.id === RECEIVED
+        ? `${current.sender} hid a note on this card. Turn the glass to find it.`
+        : current?.note
         ? "Nothing yet. Turn the dial, or try counting from somewhere else."
         : current
           ? "Nothing reads with this setting. Maybe there's nothing to find."
@@ -263,7 +301,7 @@ async function scanAll() {
 
 /** Put a card (or the blank one) on the desk, with the glass back at the start. */
 function show(id: string) {
-  current = cards.find((card) => card.id === id) ?? null;
+  current = [...cards, ...extras].find((card) => card.id === id) ?? null;
   rule = "punctuation";
   offset = 1;
   scanList.replaceChildren();
@@ -272,7 +310,15 @@ function show(id: string) {
   cardText.hidden = own;
   const card = $("card");
   card.dataset.scene = current?.scene ?? "own";
-  $("card-label").textContent = own ? "Your own words" : id === todayId ? "Today's postcard" : `A card from ${current!.place}`;
+  $("card-label").textContent = own
+    ? "Your own words"
+    : id === todayId
+      ? "Today's postcard"
+      : id === WRITTEN
+        ? "Your postcard"
+        : id === RECEIVED
+          ? "A postcard for you"
+          : `A card from ${current!.place}`;
   // Some senders write their own "Dear ..." and "love ...": don't say it twice.
   const message = current?.text.toLowerCase() ?? "";
   $("card-to").textContent = own
@@ -284,7 +330,76 @@ function show(id: string) {
   $("postmark").textContent = own ? "YOUR TOWN" : current!.place.toUpperCase();
   renderRules();
   renderRack();
-  void look();
+  return look();
+}
+
+/** A card for the desk that isn't on the rack (one you wrote, or one that came in a link). */
+function deskCard(id: string, text: string, to: string, sender: string, note: string): Card {
+  return { id, place: "Nan's Scrabble Club", scene: "own", to, sender, text, rule: "punctuation", offset: 0, note };
+}
+
+function putOnDesk(card: Card) {
+  extras = [...extras.filter((c) => c.id !== card.id), card];
+  show(card.id);
+  $("card").focus({ preventScroll: true });
+  $("card").scrollIntoView({ behavior: calm() ? "auto" : "smooth", block: "start" });
+}
+
+const noteInput = $<HTMLInputElement>("note");
+const deskStatus = $("desk-status");
+const position = () => Number(document.querySelector<HTMLInputElement>('input[name="position"]:checked')?.value ?? 3);
+const letterCount = () => noteInput.value.replace(/[^A-Za-z]/g, "").length;
+
+function renderCount() {
+  const n = letterCount();
+  $("note-count").textContent =
+    n < SHORTEST ? `${n} letters: at least ${SHORTEST}, please` : n > 40 ? `${n} letters: 40 at most` : `${n} letters: one word of Nan's for each`;
+  $<HTMLButtonElement>("write").disabled = n < SHORTEST || n > 40;
+}
+
+async function writeCard(fresh: boolean) {
+  if (fresh) seed = Math.floor(Math.random() * 1_000_000);
+  else seed += 1;
+  const result = await python.call<Written>("write", {
+    note: noteInput.value,
+    position: position(),
+    seed,
+    to: $<HTMLInputElement>("to").value,
+    sender: $<HTMLInputElement>("from").value,
+  });
+  if (result.problem) {
+    deskStatus.textContent = result.problem;
+    return;
+  }
+  token = result.token;
+  $("again").hidden = false;
+  $("send").hidden = false;
+  deskStatus.textContent = `Done! Your note is in the ${ORDINAL[position()]} letter of each of Nan's words. Try the glass on it, then send it.`;
+  putOnDesk(deskCard(WRITTEN, result.text, result.to, result.sender, result.letters));
+}
+
+async function sendCard() {
+  const link = `${location.origin}${location.pathname}#card=${token}`;
+  try {
+    await navigator.clipboard.writeText(link);
+    deskStatus.textContent = "Link copied. Send it to a friend: they'll need the glass to read your note.";
+  } catch {
+    deskStatus.textContent = `Copy this link and send it: ${link}`;
+  }
+}
+
+/** Open a postcard that arrived in a link (#card=...), if there is one. */
+async function openFromLink() {
+  const match = /^#card=([A-Za-z0-9_-]+)$/.exec(location.hash);
+  if (!match) return false;
+  const card = await python.call<Received>("unpack", { token: match[1] });
+  if (card.problem) {
+    await show(todayId); // the glass's first look sets the status, so say this after it
+    status.textContent = card.problem;
+    return true;
+  }
+  putOnDesk(deskCard(RECEIVED, card.text, card.to, card.sender, "?"));
+  return true;
 }
 
 function renderRack() {
@@ -367,12 +482,22 @@ async function start() {
     void look();
   });
   $("scan").addEventListener("click", () => void scanAll());
+  noteInput.addEventListener("input", renderCount);
+  $("write-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    void writeCard(true);
+  });
+  $("again").addEventListener("click", () => void writeCard(false));
+  $("send").addEventListener("click", () => void sendCard());
+  for (const field of ["note", "to", "from"]) $<HTMLInputElement>(field).disabled = false;
+  renderCount();
+  window.addEventListener("hashchange", () => void openFromLink());
   cardOwn.addEventListener("input", () => {
     window.clearTimeout(timer);
     scanList.replaceChildren();
     timer = window.setTimeout(() => void look(), 200);
   });
-  show(todayId);
+  if (!(await openFromLink())) show(todayId);
 }
 
 void start();

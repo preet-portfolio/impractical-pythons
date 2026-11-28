@@ -720,6 +720,175 @@ body.postcard .counter {
     linear-gradient(180deg, #8fd3f4 0 22%, #d9d1c3 56%, #6aa9cf 70%);
 }
 
+/* ---- the writing desk: Nan's card table ---------------------------------------------- */
+
+/* Green baize, wooden letter tiles: where Nan plays her words and your note hides in them. */
+.writing-desk {
+  --baize: #1f5a43;
+  --tile: #f1dcae;
+  --tile-edge: #c9a868;
+  margin: 0 0 2.5rem;
+  padding: 1.2rem clamp(0.75rem, 3vw, 1.6rem) 1.4rem;
+  color: #f4efe2;
+  background:
+    radial-gradient(circle at 30% 20%, rgb(255 255 255 / 0.07), transparent 55%),
+    repeating-linear-gradient(45deg, rgb(0 0 0 / 0.04) 0 2px, transparent 2px 4px),
+    var(--baize);
+  border: 6px solid #7a4a26;
+  border-radius: 1rem;
+  box-shadow: inset 0 0 0 2px #5a3419, 0 16px 30px -22px rgb(18 48 74 / 0.8);
+}
+
+.tiles {
+  display: flex;
+  gap: 0.3rem;
+  margin-bottom: 0.6rem;
+}
+
+.tiles span {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  font: 400 1.25rem var(--sign);
+  color: #3a2a12;
+  background: linear-gradient(160deg, #f8e8c4, var(--tile));
+  border-radius: 0.3rem;
+  box-shadow: inset 0 -3px 0 var(--tile-edge), 0 2px 3px rgb(0 0 0 / 0.35);
+}
+
+.tiles span:nth-child(even) {
+  rotate: 4deg;
+}
+
+.tiles span:nth-child(odd) {
+  rotate: -3deg;
+}
+
+.tiles sub {
+  position: absolute;
+  right: 0.18rem;
+  bottom: 0.15rem;
+  font: 700 0.5rem system-ui, sans-serif;
+}
+
+.desk-title {
+  margin: 0;
+  font: 700 clamp(1.6rem, 5vw, 2.1rem) / 1.1 var(--hand);
+  color: var(--sun);
+}
+
+.desk-help {
+  max-width: 38rem;
+  margin: 0.3rem 0 1rem;
+  line-height: 1.5;
+}
+
+.desk-form {
+  display: grid;
+  gap: 0.8rem;
+  max-width: 38rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.field-label {
+  font-weight: 700;
+}
+
+.writing-desk input[type="text"] {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  font: 600 1.35rem/1.2 var(--hand);
+  color: var(--pen);
+  background: var(--card);
+  border: 2px solid var(--tile-edge);
+  border-radius: 0.4rem;
+}
+
+.writing-desk input[type="text"]:disabled {
+  opacity: 0.6;
+}
+
+.note-count {
+  margin: -0.4rem 0 0;
+  font-size: 0.92rem;
+  color: #d7e6dc;
+}
+
+.positions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.positions legend {
+  margin-bottom: 0.35rem;
+  padding: 0;
+}
+
+/* Each choice is a letter tile; the chosen one is lifted and inked. */
+.chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chip span {
+  display: inline-block;
+  padding: 0.5rem 0.9rem;
+  font-weight: 700;
+  color: #3a2a12;
+  background: var(--tile);
+  border-radius: 0.35rem;
+  box-shadow: inset 0 -3px 0 var(--tile-edge);
+  cursor: pointer;
+}
+
+.chip input:checked + span {
+  color: var(--card);
+  background: var(--pen);
+  box-shadow: inset 0 -3px 0 #111b3d;
+  translate: 0 -2px;
+}
+
+.chip input:focus-visible + span {
+  outline: 3px solid var(--sun);
+  outline-offset: 2px;
+}
+
+.names {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.writing-desk .glass-button {
+  color: #3a2a12;
+  background: var(--sun);
+  box-shadow: 0 3px 0 #b08a14;
+}
+
+.writing-desk .shop-status {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Seaview Caravan Park: two caravans on the grass behind the dunes. */
+.front[data-scene="caravan"] {
+  background:
+    radial-gradient(ellipse 16% 12% at 30% 62%, #fff 95%, transparent),
+    radial-gradient(ellipse 16% 12% at 68% 64%, #f6d6a8 95%, transparent),
+    linear-gradient(180deg, #a7dbf2 0 45%, #7bbf6a 45% 78%, #e9d39f 78%);
+}
+
 /* ---- the about panel ------------------------------------------------------------------ */
 
 body.postcard .about {
