@@ -55,7 +55,7 @@ def prepare(text: str) -> str:
 def check_rails(length: int, rails: int) -> None:
     """Raise ``RailProblem`` unless ``rails`` can really scramble ``length`` letters."""
     if length == 0:
-        raise RailProblem("There are no letters in that message to send.")
+        raise RailProblem("There are no letters in that message.")
     if rails < 2:
         raise RailProblem("A rail fence needs at least two rails.")
     if rails >= length:

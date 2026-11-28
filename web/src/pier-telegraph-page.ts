@@ -1,7 +1,9 @@
 import "./styles.css";
 import "./pier-telegraph.css";
 import { Python } from "./py/python";
-import { pierTelegraphSources } from "./py/sources";
+import { commonSources, pierTelegraphSources } from "./py/sources";
+// The dictionary is a big file, so it's fetched only when the rail fence first needs it.
+import wordListUrl from "../../projects/common/data/2of4brif.txt?url";
 
 // Python side of the page: called by the worker as _bridge(fn, args_json) -> JSON.
 // The page never builds a key, a grid or a challenge link itself; it only offers choices
@@ -10,10 +12,20 @@ const BRIDGE = `
 import json
 from datetime import date
 
+import time
+
 import challenge
 import codebook
+import decency
 import dispatches
+import night_clerk
+import rail_fence
 import route
+import sniff
+import word_gaps
+import wordlist
+
+_words = {}
 
 def alternating(cols):
     """Up the first column, down the next, and so on."""
@@ -87,15 +99,64 @@ def crack(args):
                       meaning=codebook.decode(words) if solved else "")
     return result
 
+def night(args):
+    """Wake the night clerk: every route, filtered by the visitor's hunches."""
+    try:
+        found = puzzle(args)
+    except challenge.ChallengeProblem as problem:
+        return {"problem": str(problem)}
+    started = time.perf_counter()
+    if args.get("seal"):
+        broken = night_clerk.crack_seal(found["cipher"], found["fingerprint"])
+        return {"seal": broken, "seconds": time.perf_counter() - started}
+    result = night_clerk.crack_route(found["cipher"], args.get("hunches") or [])
+    return result | {"seconds": time.perf_counter() - started}
+
+def load_words(args):
+    """Tidy the dictionary once: no single letters but a and i, nothing rude."""
+    words = wordlist.clean_words(wordlist.words_from_text(args["text"]))
+    _words["set"] = word_gaps.word_set(decency.family_friendly(words))
+    return {"count": len(_words["set"])}
+
+def rail(args):
+    letters = rail_fence.prepare(args["text"])
+    if len(letters) < 3:
+        return {"empty": True}
+    return {"letters": letters, "rows": rail_fence.zigzag_rows(len(letters), 2),
+            "cipher": rail_fence.in_fives(rail_fence.encrypt(letters))}
+
+def unrail(args):
+    try:
+        letters = rail_fence.decrypt(args["text"])
+    except rail_fence.RailProblem as problem:
+        return {"problem": str(problem)}
+    return {"letters": letters, "words": word_gaps.split_words(letters, _words["set"])}
+
+def crack_rails(args):
+    result = night_clerk.crack_rails(rail_fence.intercepted(), _words["set"])
+    for reading in result["readings"]:
+        reading["words"] = word_gaps.split_words(reading["letters"], _words["set"])
+    return result
+
+def samples():
+    return {
+        "book": codebook.CODEBOOK, "sample": codebook.SAMPLE, "messages": dispatches.DISPATCHES,
+        "rail_samples": rail_fence.RAIL_SAMPLES, "intercept": rail_fence.intercepted(),
+        "sniff_rail": rail_fence.in_fives(rail_fence.encrypt(dispatches.DISPATCHES[11])),
+        "sniff_swap": rail_fence.in_fives(sniff.swap_letters(dispatches.DISPATCHES[3])),
+        "key_counts": [{"cols": c, "count": night_clerk.key_count(c)} for c in range(2, 8)],
+    }
+
+CALLS = {"send": send, "crack": crack, "night": night, "load_words": load_words,
+         "rail": rail, "unrail": unrail, "crack_rails": crack_rails,
+         "sniff": lambda args: sniff.verdict(args["text"])}
+
 def _bridge(fn, args_json):
     args = json.loads(args_json)
     if fn == "book":
-        return json.dumps({"book": codebook.CODEBOOK, "sample": codebook.SAMPLE,
-                           "messages": dispatches.DISPATCHES})
-    if fn == "send":
-        return json.dumps(send(args))
-    if fn == "crack":
-        return json.dumps(crack(args))
+        return json.dumps(samples())
+    if fn in CALLS:
+        return json.dumps(CALLS[fn](args))
     raise ValueError(f"Unknown call {fn!r}")
 `;
 
@@ -128,6 +189,29 @@ type Cracked = {
   meaning?: string;
 };
 type Source = "today" | "practice" | "challenge";
+type Reading = { cols: number; rows: number; key: number[]; words: string[]; score: number };
+type Night = {
+  problem?: string;
+  tried: number;
+  fit: number;
+  racks: [number, number][];
+  too_wide: number[];
+  best: Reading[];
+  seconds: number;
+  seal?: (Reading & { tried: number }) | null;
+};
+type Book = {
+  book: Record<string, string>;
+  sample: string;
+  messages: string[];
+  rail_samples: string[];
+  intercept: string;
+  sniff_rail: string;
+  sniff_swap: string;
+  key_counts: { cols: number; count: number }[];
+};
+type RailTry = { rails: number; letters: string; coverage: number; words: string[] };
+type Sniffed = { verdict: string; reason: string; score: number; letters: number; shares: Record<string, number>; english: Record<string, number> };
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const python = new Python();
@@ -441,6 +525,10 @@ async function crack(animate = false, check = false) {
     crackCols = result.cols;
     crackKey = result.key;
     number = result.number;
+    if (result.cipher.join(" ") !== onCounter.join(" ")) {
+      onCounter = result.cipher;
+      resetNight();
+    }
     const where = source();
     $("crack-tape-label").textContent =
       where === "practice" ? "Practice tickets" : where === "challenge" ? "A telegram for you" : `Telegram No. ${result.number}, on the counter today`;
@@ -511,6 +599,313 @@ function readLink() {
   return true;
 }
 
+// ---- The night clerk -----------------------------------------------------------------------
+
+const wake = $<HTMLButtonElement>("wake");
+const sealButton = $<HTMLButtonElement>("seal");
+const nightStatus = $("night-status");
+const readings = $<HTMLOListElement>("readings");
+let onCounter: string[] = []; // the telegram on the Crack counter right now
+let hunches: [string, string][] = [];
+let firstPick: number | null = null; // the chip tapped first, waiting for its partner
+
+const count = (n: number) => n.toLocaleString("en-GB");
+
+/** A new telegram on the counter: old hunches and readings don't apply to it. */
+function resetNight() {
+  hunches = [];
+  firstPick = null;
+  readings.replaceChildren();
+  sealButton.hidden = source() !== "challenge";
+  nightStatus.textContent = "The night clerk is asleep at the desk.";
+  renderHunches();
+}
+
+function renderHunches() {
+  const words = $("hunch-words");
+  words.replaceChildren(
+    ...onCounter.map((word, i) => {
+      const chip = button(word, `hunch-word ${kind(word, false)}`, () => pickWord(i));
+      chip.setAttribute("aria-pressed", String(firstPick === i));
+      return chip;
+    }),
+  );
+  $("hunch-help").textContent =
+    firstPick === null
+      ? "Tap a word on the telegram, then the word you think comes straight after it."
+      : `Now tap the word that comes straight after “${onCounter[firstPick]}”.`;
+  $("hunch-list").replaceChildren(
+    ...hunches.map(([a, b], i) => {
+      const li = document.createElement("li");
+      li.append(`${a} ${b}`);
+      li.append(button("×", "hunch-drop", () => {
+        hunches.splice(i, 1);
+        renderHunches();
+      }, `Forget the hunch ${a} ${b}`));
+      return li;
+    }),
+  );
+}
+
+function pickWord(i: number) {
+  if (firstPick === null) firstPick = i;
+  else if (firstPick === i) firstPick = null; // tapped twice: changed their mind
+  else {
+    const pair: [string, string] = [onCounter[firstPick], onCounter[i]];
+    if (!hunches.some(([a, b]) => a === pair[0] && b === pair[1])) hunches.push(pair);
+    firstPick = null;
+  }
+  renderHunches();
+}
+
+/** Count the tally up to the real number, like the clerk's ledger filling in. */
+function tally(target: number, done: (shown: string) => string) {
+  if (calm()) {
+    nightStatus.textContent = done(count(target));
+    return;
+  }
+  const started = performance.now();
+  const step = (now: number) => {
+    const t = Math.min(1, (now - started) / 700);
+    nightStatus.textContent = done(count(Math.round(target * t * (2 - t))));
+    if (t < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function renderReading(reading: Reading, label: string) {
+  const li = document.createElement("li");
+  li.className = "reading";
+  const head = document.createElement("p");
+  head.className = "reading-head";
+  head.textContent = `${label} · ${reading.cols} × ${reading.rows} rack, route ${reading.key.join(" ")}`;
+  const slip = document.createElement("p");
+  slip.className = "reading-words";
+  for (const word of reading.words) {
+    const span = document.createElement("span");
+    span.textContent = word;
+    span.className = kind(word, false);
+    slip.append(span, " ");
+  }
+  const tryIt = button("Try this route", "paper-button", () => {
+    crackCols = reading.cols;
+    crackKey = reading.key;
+    showSolved(false);
+    crackStatus.textContent = "The night clerk's route is on the rack. Check it to see if it's right.";
+    void crack();
+    $("crack").scrollIntoView({ behavior: calm() ? "auto" : "smooth", block: "start" });
+  });
+  li.append(head, slip, tryIt);
+  return li;
+}
+
+async function wakeClerk(seal: boolean) {
+  wake.disabled = sealButton.disabled = true;
+  readings.replaceChildren();
+  nightStatus.textContent = seal ? "The night clerk is trying routes against the seal…" : "The night clerk is trying every route…";
+  try {
+    const result = await python.call<Night>("night", { source: source(), today: today(), token, hunches, seal });
+    if (result.problem) {
+      nightStatus.textContent = result.problem;
+      return;
+    }
+    const time = result.seconds < 1 ? "under a second" : `${result.seconds.toFixed(1)} seconds`;
+    if (seal) {
+      if (!result.seal) {
+        nightStatus.textContent = "No route on a rack up to six columns fits the seal. This one stays shut.";
+        return;
+      }
+      tally(result.seal.tried, (n) => `Seal broken after ${n} routes, in ${time}. No hunches needed: the fingerprint said when it was right.`);
+      readings.append(renderReading(result.seal, "The sender's route"));
+      return;
+    }
+    if (!result.racks.length) {
+      nightStatus.textContent = `This telegram only fits racks of ${result.too_wide.join(" or ")} columns. That's too many routes for one night.`;
+      return;
+    }
+    const fit = hunches.length ? ` ${count(result.fit)} of them fit your ${hunches.length === 1 ? "hunch" : "hunches"}.` : "";
+    const nudge = !hunches.length
+      ? " Without hunches the clerk is only guessing. Add a pair or two and wake it again."
+      : result.fit === 0
+        ? " None fit, so one of your hunches must be wrong. Forget one and try again."
+        : result.fit > 20
+          ? " Another hunch would narrow it down."
+          : "";
+    tally(result.tried, (n) => `The clerk tried ${n} routes in ${time}.${fit}${nudge}`);
+    result.best.forEach((reading, i) => readings.append(renderReading(reading, i === 0 ? "Best guess" : `Guess ${i + 1}`)));
+  } catch (error) {
+    console.error(error);
+    nightStatus.textContent = "The night clerk dozed off. Try that again.";
+  } finally {
+    wake.disabled = sealButton.disabled = false;
+  }
+}
+
+function renderKeyChart(counts: { cols: number; count: number }[]) {
+  const most = Math.log10(Math.max(...counts.map((c) => c.count)));
+  $("key-chart").querySelector("tbody")!.replaceChildren(
+    ...counts.map(({ cols, count: routes }) => {
+      const tr = document.createElement("tr");
+      const th = document.createElement("th");
+      th.scope = "row";
+      th.textContent = `${cols} columns`;
+      const td = document.createElement("td");
+      const roll = document.createElement("span");
+      roll.className = "roll";
+      roll.style.setProperty("--length", `${Math.max(4, (Math.log10(routes) / most) * 100)}%`);
+      roll.setAttribute("aria-hidden", "true");
+      const label = document.createElement("span");
+      label.className = "roll-count";
+      label.textContent = count(routes);
+      td.append(roll, label);
+      tr.append(th, td);
+      return tr;
+    }),
+  );
+}
+
+// ---- The rail fence -------------------------------------------------------------------------
+
+const railText = $<HTMLInputElement>("rail-text");
+const railStatus = $("rail-status");
+const unrailText = $<HTMLInputElement>("unrail-text");
+const unrailStatus = $("unrail-status");
+const railsStatus = $("rails-status");
+const sniffText = $<HTMLTextAreaElement>("sniff-text");
+let railCipher = "";
+let railTimer = 0;
+let sniffTimer = 0;
+let railSamples: string[] = [];
+let wordsReady: Promise<void> | null = null;
+
+/** Fetch and tidy the dictionary the first time the rail fence needs words. */
+function needWords(status: HTMLElement) {
+  if (!wordsReady) {
+    status.textContent = "Fetching the dictionary from the stockroom…";
+    wordsReady = fetch(wordListUrl)
+      .then((response) => {
+        if (!response.ok) throw new Error(`Dictionary: ${response.status}`);
+        return response.text();
+      })
+      .then((text) => python.call("load_words", { text }))
+      .then(() => undefined);
+    wordsReady.catch(() => (wordsReady = null)); // let a later tap try again
+  }
+  return wordsReady;
+}
+
+async function sendRail() {
+  const result = await python.call<{ empty?: boolean; letters: string; rows: number[]; cipher: string }>("rail", { text: railText.value });
+  const railings = $("railings");
+  if (result.empty) {
+    railings.replaceChildren();
+    $("rail-tape").textContent = "";
+    railCipher = "";
+    railStatus.textContent = "Write a few more letters for the rails.";
+    $<HTMLButtonElement>("rail-copy").disabled = true;
+    return;
+  }
+  railings.style.setProperty("--n", String(result.letters.length));
+  const n = result.letters.length;
+  const points = result.rows.map((row, i) => `${(i + 0.5) * 10},${row ? 30 : 10}`).join(" ");
+  const zigzag = `<svg class="zigzag" viewBox="0 0 ${n * 10} 40" preserveAspectRatio="none"><polyline points="${points}" vector-effect="non-scaling-stroke" /></svg>`;
+  railings.innerHTML = zigzag;
+  [...result.letters].forEach((letter, i) => {
+    const span = document.createElement("span");
+    span.className = `rail-letter ${result.rows[i] ? "is-bottom" : "is-top"}`;
+    span.style.gridColumn = String(i + 1);
+    span.textContent = letter;
+    railings.append(span);
+  });
+  railCipher = result.cipher;
+  $("rail-tape").textContent = result.cipher;
+  const top = result.rows.filter((r) => r === 0).length;
+  railStatus.textContent = `${n} letters: ${top} along the top railing, then ${n - top} along the bottom.`;
+  $<HTMLButtonElement>("rail-copy").disabled = false;
+}
+
+async function readRail() {
+  if (!unrailText.value.trim()) {
+    unrailStatus.textContent = "Paste a rail fence telegram first, or copy one from the railings above.";
+    return;
+  }
+  try {
+    await needWords(unrailStatus);
+    const result = await python.call<{ problem?: string; letters: string; words: string[] }>("unrail", { text: unrailText.value });
+    if (result.problem) {
+      unrailStatus.textContent = result.problem;
+      return;
+    }
+    const strays = result.words.filter((w) => w === w.toUpperCase()).length;
+    unrailStatus.textContent =
+      `Off the rails: ${result.letters}. With the gaps put back: “${result.words.join(" ")}”` +
+      (strays ? ". Capitals are letters the dictionary couldn't place." : ".");
+  } catch (error) {
+    console.error(error);
+    unrailStatus.textContent = "The dictionary didn't arrive. Check your connection and try again.";
+  }
+}
+
+async function tryRails() {
+  const tries = $<HTMLOListElement>("rail-tries");
+  try {
+    await needWords(railsStatus);
+    const result = await python.call<{ readings: RailTry[]; best: number }>("crack_rails", {});
+    tries.replaceChildren(
+      ...result.readings.map((reading, i) => {
+        const li = document.createElement("li");
+        li.className = reading.rails === result.best ? "rail-try is-best" : "rail-try";
+        if (!calm()) li.style.animationDelay = `${i * 90}ms`;
+        const head = document.createElement("p");
+        head.className = "rail-try-head";
+        const share = Math.round(reading.coverage * 100);
+        head.textContent = `${reading.rails} rails · ${share}% real words`;
+        const meter = document.createElement("span");
+        meter.className = "meter";
+        meter.style.setProperty("--share", `${share}%`);
+        meter.setAttribute("aria-hidden", "true");
+        const text = document.createElement("p");
+        text.className = "rail-try-words";
+        text.textContent = reading.words.join(" ");
+        li.append(head, meter, text);
+        return li;
+      }),
+    );
+    railsStatus.textContent = `Seven tries, and ${result.best} rails reads as plain words. A five-column route would have needed 3,840.`;
+  } catch (error) {
+    console.error(error);
+    railsStatus.textContent = "The dictionary didn't arrive. Check your connection and try again.";
+  }
+}
+
+async function sniffIt() {
+  const result = await python.call<Sniffed>("sniff", { text: sniffText.value });
+  const verdicts: Record<string, string> = {
+    shuffled: "Shuffled.",
+    swapped: "Swapped.",
+    "hard to say": "Hard to say.",
+    "too short": "Too short to tell.",
+  };
+  const meaning: Record<string, string> = {
+    shuffled: " The letters are English letters in a new order, like a rail fence.",
+    swapped: " Each letter has been swapped for a different one.",
+    "hard to say": "",
+    "too short": "",
+  };
+  $("sniff-verdict").textContent = `${verdicts[result.verdict]}${meaning[result.verdict]} ${result.reason}`;
+  const most = Math.max(14, ...Object.values(result.shares));
+  $("sniff-bars").replaceChildren(
+    ...Object.keys(result.english).map((letter) => {
+      const bar = document.createElement("span");
+      bar.className = "sniff-bar";
+      bar.style.setProperty("--share", `${(result.shares[letter] / most) * 100}%`);
+      bar.style.setProperty("--english", `${(result.english[letter] / most) * 100}%`);
+      bar.dataset.letter = letter.toUpperCase();
+      return bar;
+    }),
+  );
+}
+
 // ---- opening up -----------------------------------------------------------------------------
 
 // The first visit downloads Python, which takes a few seconds: say so, in the office's voice.
@@ -519,15 +914,18 @@ const STAGES: Record<string, string> = {
   "Loading the project": "Testing the line…",
 };
 
+let book: Book;
+
 async function start() {
   python.onProgress = (stage) => {
     sendStatus.textContent = crackStatus.textContent = STAGES[stage] ?? `${stage}…`;
   };
   try {
-    await python.init("pier_telegraph", pierTelegraphSources, BRIDGE);
-    const book = await python.call<{ book: Record<string, string>; sample: string; messages: string[] }>("book", {});
+    await python.init("pier_telegraph", { ...commonSources, ...pierTelegraphSources }, BRIDGE);
+    book = await python.call<Book>("book", {});
     codeWords = new Set(Object.keys(book.book));
     messages = book.messages;
+    railSamples = book.rail_samples;
     $("code-list").replaceChildren(
       ...Object.entries(book.book).flatMap(([code, meaning]) => {
         const dt = document.createElement("dt");
@@ -544,6 +942,7 @@ async function start() {
     return;
   }
   message.disabled = useBook.disabled = practice.disabled = another.disabled = checkButton.disabled = false;
+  startNightAndRails();
   message.addEventListener("input", () => {
     window.clearTimeout(sendTimer);
     sendTimer = window.setTimeout(() => {
@@ -612,6 +1011,53 @@ async function start() {
   await crack(true);
   if (fromLink) $("crack").scrollIntoView({ block: "start" });
   else crackStatus.textContent = "When the rack reads as a sentence, check the route.";
+}
+
+function startNightAndRails() {
+  renderKeyChart(book.key_counts);
+  wake.disabled = sealButton.disabled = false;
+  wake.addEventListener("click", () => void wakeClerk(false));
+  sealButton.addEventListener("click", () => void wakeClerk(true));
+
+  for (const id of ["rail-text", "unrail-text", "sniff-text", "rail-copy", "rail-another", "unrail", "try-rails", "sniff-rail", "sniff-swap"]) {
+    ($(id) as HTMLInputElement).disabled = false;
+  }
+  railText.value = railSamples[0];
+  railText.addEventListener("input", () => {
+    window.clearTimeout(railTimer);
+    railTimer = window.setTimeout(() => void sendRail(), 150);
+  });
+  $("rail-another").addEventListener("click", () => {
+    const others = railSamples.filter((m) => m !== railText.value);
+    railText.value = others[Math.floor(Math.random() * others.length)];
+    void sendRail();
+  });
+  $("rail-copy").addEventListener("click", () => {
+    if (!railCipher) return;
+    unrailText.value = railCipher;
+    void copy(railCipher, "Copied, and dropped into the reader below to try.", railStatus);
+  });
+  $("unrail").addEventListener("click", () => void readRail());
+  unrailText.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") void readRail();
+  });
+  $("intercept").textContent = book.intercept;
+  $("try-rails").addEventListener("click", () => void tryRails());
+  sniffText.value = book.sniff_rail;
+  sniffText.addEventListener("input", () => {
+    window.clearTimeout(sniffTimer);
+    sniffTimer = window.setTimeout(() => void sniffIt(), 200);
+  });
+  $("sniff-rail").addEventListener("click", () => {
+    sniffText.value = book.sniff_rail;
+    void sniffIt();
+  });
+  $("sniff-swap").addEventListener("click", () => {
+    sniffText.value = book.sniff_swap;
+    void sniffIt();
+  });
+  void sendRail();
+  void sniffIt();
 }
 
 void start();

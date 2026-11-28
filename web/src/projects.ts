@@ -55,7 +55,7 @@ export const projects: Project[] = [
     number: 6,
     slug: "pier-telegraph",
     title: "Pier Telegraph",
-    line: "Send a secret telegram: the clerk files your words in pigeonholes and wires them out scrambled. Then crack the one waiting on the counter.",
+    line: "Send a secret telegram, crack the one waiting on the counter, wake the night clerk to try every route, or zigzag letters along the rail fence.",
     stall: "telegraph",
     cue: "Step up to the counter",
   },
