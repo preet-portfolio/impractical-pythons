@@ -88,7 +88,7 @@ RULES: dict[str, Callable[[str, int], list[int]]] = {
 }
 
 DESCRIBE = {
-    "punctuation": "letters after each punctuation mark",
+    "punctuation": "letter after each punctuation mark",
     "words": "letter of every word",
     "capitals": "letter of every capitalised word",
 }
@@ -114,9 +114,7 @@ def hidden_letters(text: str, rule: str, offset: int) -> str:
 
 
 def describe(rule: str, offset: int) -> str:
-    """A setting in plain words: "3 letters after each punctuation mark"."""
-    if rule == "punctuation":
-        return f"{offset} {'letter' if offset == 1 else 'letters'} after each punctuation mark"
+    """A setting in plain words: "3rd letter after each punctuation mark"."""
     ordinal = {1: "1st", 2: "2nd", 3: "3rd"}.get(offset, f"{offset}th")
     return f"{ordinal} {DESCRIBE[rule]}"
 

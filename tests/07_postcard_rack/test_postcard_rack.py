@@ -76,8 +76,8 @@ def test_letter_of_capital_words():
 
 
 def test_settings_are_described_plainly():
-    assert describe("punctuation", 3) == "3 letters after each punctuation mark"
-    assert describe("punctuation", 1) == "1 letter after each punctuation mark"
+    assert describe("punctuation", 3) == "3rd letter after each punctuation mark"
+    assert describe("punctuation", 1) == "1st letter after each punctuation mark"
     assert describe("words", 2) == "2nd letter of every word"
     assert describe("capitals", 1) == "1st letter of every capitalised word"
 
@@ -140,7 +140,7 @@ def test_cli_lookahead_finds_the_offset(capsys, tmp_path):
     letter.write_text(card["text"] + "\n", encoding="utf-8")
     cli.main(["--file", str(letter), "--lookahead", "4"])
     out = capsys.readouterr().out
-    assert "3 letters after each punctuation mark: seagullstolemyhat" in out
+    assert "3rd letter after each punctuation mark: seagullstolemyhat" in out
     assert out.count("\n") == 4
 
 
