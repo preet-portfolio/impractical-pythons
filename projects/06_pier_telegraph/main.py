@@ -11,6 +11,9 @@ The same settings can come from the command line instead:
     uv run python projects/06_pier_telegraph/main.py --key "-1 2 -3 4 -5"
     uv run python projects/06_pier_telegraph/main.py --encrypt "Meet me"
     uv run python projects/06_pier_telegraph/main.py --today
+    uv run python projects/06_pier_telegraph/main.py --night-clerk --hunch "at BUCKET"
+    uv run python projects/06_pier_telegraph/main.py --rail "Meet me at noon"
+    uv run python projects/06_pier_telegraph/main.py --crack-rails
 
 The route (the key) has one number per column, counting from 1. A
 positive number reads that column top to bottom, a negative one bottom
@@ -24,10 +27,19 @@ to top::
 import argparse
 import sys
 from datetime import date
+from pathlib import Path
 
-from codebook import decode, encode, grid_options, pad, snuggest
-from dispatches import todays_dispatch
-from route import (
+# The word list and the English letter table are shared by several
+# stalls, so they live in projects/common. Python only looks next to
+# this file by default.
+sys.path.append(str(Path(__file__).resolve().parents[1] / "common"))
+
+# pylint: disable=wrong-import-position
+import rail_fence  # noqa: E402
+from codebook import decode, encode, grid_options, pad, snuggest  # noqa: E402
+from dispatches import todays_dispatch  # noqa: E402
+from night_clerk import crack_rails, crack_route  # noqa: E402
+from route import (  # noqa: E402
     TelegramProblem,
     check_grid,
     decrypt,
@@ -35,6 +47,11 @@ from route import (
     factors,
     parse_key,
 )
+from sniff import verdict  # noqa: E402
+from word_gaps import split_words, word_set  # noqa: E402
+from wordlist import read_words  # noqa: E402
+
+# pylint: enable=wrong-import-position
 
 # ============================ YOUR TELEGRAM ============================
 # The telegram exactly as it arrived: words separated by spaces.
@@ -105,6 +122,62 @@ def show_today(day: date) -> None:
     print('Crack it with --cipher "..." --cols N --key "..."')
 
 
+def todays_cipher(day: date) -> list[str]:
+    """Today's telegram as it arrives, scrambled."""
+    today = todays_dispatch(day)
+    return encrypt(today["words"], today["cols"], today["rows"], today["key"])
+
+
+def show_night_clerk(cipher: list[str], hunches: list[str]) -> None:
+    """Brute-force a route telegram and print the best five readings."""
+    pairs = []
+    for hunch in hunches:
+        pair = hunch.split()
+        if len(pair) != 2:
+            message = (
+                f'A hunch is two words that sit side by side, like "ice cream", not "{hunch}".'
+            )
+            raise TelegramProblem(message)
+        pairs.append(pair)
+    result = crack_route(cipher, pairs)
+    print(f"The night clerk tried {result['tried']:,} routes.")
+    if pairs:
+        print(f"{result['fit']:,} of them fit your hunches.")
+        if not result["fit"]:
+            print("Check the spelling, or drop a hunch: one of them must be wrong.")
+    for rank, best in enumerate(result["best"], 1):
+        route = " ".join(map(str, best["key"]))
+        print(f"{rank}. {best['cols']} × {best['rows']}, route {route} (score {best['score']})")
+        print(f"   {' '.join(best['words'])}")
+    if not pairs:
+        print('Add a hunch or two (--hunch "ice cream") to narrow it down.')
+
+
+def show_rails(cipher: str, rails: int) -> None:
+    """Read a rail fence telegram and put the gaps back."""
+    letters = rail_fence.decrypt(cipher, rails)
+    print(f"Off the rails: {letters}")
+    print(f"With the gaps back: {' '.join(split_words(letters, word_set(read_words())))}")
+
+
+def show_crack_rails(cipher: str) -> None:
+    """Try every rail count on a rail fence telegram."""
+    result = crack_rails(cipher, word_set(read_words()))
+    for reading in result["readings"]:
+        star = "  <- reads best" if reading["rails"] == result["best"] else ""
+        share = f"{reading['coverage']:.0%}"
+        print(f"{reading['rails']} rails: {share:>4} real words  {reading['letters']}{star}")
+
+
+def show_sniff(text: str) -> None:
+    """Say whether a telegram looks shuffled or swapped, and why."""
+    result = verdict(text)
+    print(
+        f"{result['verdict'].capitalize()} ({result['letters']} letters, score {result['score']})"
+    )
+    print(result["reason"])
+
+
 def main(argv: list[str] | None = None) -> None:
     """Decode the settings block's telegram, or what the command line says."""
     parser = argparse.ArgumentParser(description="Route cipher telegrams.")
@@ -114,10 +187,35 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--key", help='route, like "-1 2 -3"')
     parser.add_argument("--encrypt", metavar="TEXT", help="send a message")
     parser.add_argument("--today", action="store_true", help="today's puzzle")
+    parser.add_argument("--night-clerk", action="store_true", help="brute-force today's telegram")
+    parser.add_argument(
+        "--hunch", action="append", default=[], help='two words side by side, like "ice cream"'
+    )
+    parser.add_argument("--rail", metavar="TEXT", help="send a rail fence telegram")
+    parser.add_argument("--unrail", metavar="CIPHER", help="read a rail fence telegram")
+    parser.add_argument("--rails", type=int, default=2, help="rails (default 2)")
+    parser.add_argument(
+        "--crack-rails",
+        nargs="?",
+        const=rail_fence.intercepted(),
+        metavar="CIPHER",
+        help="try every rail count (default: the intercepted telegram)",
+    )
+    parser.add_argument("--sniff", metavar="TEXT", help="shuffled or swapped?")
     args = parser.parse_args(argv)
 
     try:
-        if args.today:
+        if args.night_clerk:
+            show_night_clerk(todays_cipher(date.today()), args.hunch)
+        elif args.rail:
+            print(rail_fence.in_fives(rail_fence.encrypt(args.rail, args.rails)))
+        elif args.unrail:
+            show_rails(args.unrail, args.rails)
+        elif args.crack_rails:
+            show_crack_rails(args.crack_rails)
+        elif args.sniff:
+            show_sniff(args.sniff)
+        elif args.today:
             show_today(date.today())
         elif args.encrypt:
             send(args.encrypt, args.cols, args.key)
