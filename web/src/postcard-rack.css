@@ -875,6 +875,54 @@ body.postcard .counter {
   outline-offset: 2px;
 }
 
+/* Which postcard? Little fronts like the rack's: the chosen one is lifted and ringed in sun. */
+.theme-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(8.5rem, 40vw), 1fr));
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.theme-card {
+  position: relative;
+  cursor: pointer;
+}
+
+.theme-card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.theme-card .front {
+  border-width: 4px;
+  padding: 0.45rem 0.55rem;
+}
+
+.theme-card .front-greet {
+  font-size: 0.95rem;
+}
+
+.theme-card .front-place {
+  font-size: 0.9rem;
+}
+
+.theme-card input:checked + .front {
+  outline: 4px solid var(--sun);
+  outline-offset: 3px;
+  translate: 0 -3px;
+  rotate: -1.5deg;
+}
+
+.theme-card input:not(:checked) + .front {
+  opacity: 0.8;
+}
+
+.theme-card input:focus-visible + .front {
+  outline: 4px dashed var(--sun);
+  outline-offset: 3px;
+}
+
 .names {
   display: grid;
   grid-template-columns: 1fr 1fr;

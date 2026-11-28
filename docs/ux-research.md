@@ -197,11 +197,15 @@ sender tests their card on the desk before sending. Choices made for the persona
 - **Kind words only.** Nan's words pass a stricter filter than the rest of the pier, because
   they appear on a card the visitor didn't write word by word.
 
-**Part 3, proper postcards:** five themes (beach, pier, rain, caravan, fish and chips) turn a
-note into a postcard that reads like a real day out, written by Python in the browser.
+**Part 3, proper postcards:** eight themes, one for each picture on the rack (beach, pier,
+rain, caravan, fish and chips, lighthouse, donkeys, arcade), turn a note into a postcard that reads like a real day out, written by Python in the browser.
 
-- **One more choice, not five more fields.** "A proper postcard" reveals a row of five theme
-  chips, one already picked at random, so the visitor can still just type and press Write.
+- **One more choice, not five more fields.** "A proper postcard" reveals the postcards to
+  write on, painted like the rack's, one already picked at random, so the visitor can still
+  just type and press Write.
+- **Every pick answers.** Testing showed a theme click doing nothing before a card was
+  written. Now a pick writes the note onto that card, rewrites a card already written, or,
+  with no note yet, says "Lighthouse walk it is. Now type your secret note and press Write."
 - **The postmark and picture travel with it**, so the friend sees "Harbour Wall", not Nan's
   club.
 - **Honest about short notes.** Testing as a visitor showed the glass calling "go to the

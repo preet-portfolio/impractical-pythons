@@ -15,6 +15,7 @@ from pathlib import Path
 import decency
 import null_finder
 import null_writer
+import postcard_themes
 import postcards
 import word_gaps
 import wordlist
@@ -34,7 +35,9 @@ def rack(args):
     words()  # warm up the dictionary while the visitor reads the card
     return {"cards": postcards.POSTCARDS, "today": today["id"],
             "number": postcards.postcard_number(date.fromisoformat(args["today"])),
-            "rules": {rule: null_finder.describe(rule, 1) for rule in null_finder.RULES}}
+            "rules": {rule: null_finder.describe(rule, 1) for rule in null_finder.RULES},
+            "themes": [{key: theme[key] for key in ("id", "name", "place", "scene")}
+                       for theme in postcard_themes.THEMES]}
 
 def trusted(args):
     """Desk cards were written on one of the writer's settings: short words count there."""
@@ -84,7 +87,7 @@ def write(args):
     return posted(null_writer.write_card(chosen), letters, args)
 
 def story(args):
-    """A proper postcard from one of the five themes."""
+    """A proper postcard from one of the themes."""
     try:
         text = null_writer.write_story(args["note"], args["theme"], args["position"], args["seed"])
     except null_writer.NoteProblem as problem:
@@ -118,7 +121,8 @@ type Card = {
   offset: number;
   note: string;
 };
-type Rack = { cards: Card[]; today: string; number: number; rules: Record<string, string> };
+type Theme = { id: string; name: string; place: string; scene: string };
+type Rack = { cards: Card[]; today: string; number: number; rules: Record<string, string>; themes: Theme[] };
 type Look = {
   positions: number[];
   letters: string;
@@ -414,6 +418,50 @@ function renderStyle() {
 
 const theme = () => document.querySelector<HTMLInputElement>('input[name="theme"]:checked')?.value ?? "beach";
 
+/** The postcards to write on: little fronts like the rack's, one radio each. */
+function renderThemes(themes: Theme[]) {
+  const pick = Math.floor(Math.random() * themes.length); // a fresh visit starts on a surprise card
+  $("theme-cards").replaceChildren(
+    ...themes.map((t, i) => {
+      const label = document.createElement("label");
+      label.className = "theme-card";
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = "theme";
+      input.value = t.id;
+      input.checked = i === pick;
+      const front = document.createElement("span");
+      front.className = "front";
+      front.dataset.scene = t.scene;
+      const name = document.createElement("span");
+      name.className = "front-greet";
+      name.textContent = t.name;
+      const place = document.createElement("span");
+      place.className = "front-place";
+      place.textContent = t.place;
+      front.append(name, place);
+      label.append(input, front);
+      return label;
+    }),
+  );
+}
+
+/**
+ * A change of card, letter or style. A written card is rewritten straight away; picking a
+ * postcard also writes the note on it, or says what the note still needs.
+ */
+function choiceChanged(event: Event) {
+  const picked = event.target as HTMLInputElement;
+  const pickedCard = picked.name === "theme";
+  const trouble = noteTrouble();
+  if (!trouble && (current?.id === WRITTEN || pickedCard)) {
+    void writeCard(current?.id === WRITTEN ? "same" : "fresh");
+  } else if (pickedCard) {
+    const name = picked.closest("label")?.querySelector(".front-greet")?.textContent ?? "That card";
+    deskStatus.textContent = `${name} it is. ${letterCount() === 0 ? "Now type your secret note and press Write." : trouble}`;
+  }
+}
+
 /** Why this note can't be written yet, in a sentence, or "" if it can. */
 function noteTrouble(): string {
   const n = letterCount();
@@ -579,19 +627,15 @@ async function start() {
   $("scan").addEventListener("click", () => void scanAll());
   noteInput.addEventListener("input", renderCount);
   for (const choice of document.querySelectorAll('input[name="style"]')) choice.addEventListener("change", renderStyle);
-  // A fresh pick of postcard starts with a surprise theme.
-  const choices = document.querySelectorAll<HTMLInputElement>('input[name="theme"]');
-  choices[Math.floor(Math.random() * choices.length)].checked = true;
+  renderThemes(rack.themes);
   $("write-form").addEventListener("submit", (event) => {
     event.preventDefault();
     void writeCard("fresh");
   });
   $("again").addEventListener("click", () => void writeCard("again"));
-  // Once a card is written, changing the theme, style or letter rewrites it straight away.
+  // Picking a card, a letter or a style writes the note on it straight away (or says what's missing).
   for (const choice of document.querySelectorAll('input[name="theme"], input[name="style"], input[name="position"]')) {
-    choice.addEventListener("change", () => {
-      if (current?.id === WRITTEN && !noteTrouble()) void writeCard("same");
-    });
+    choice.addEventListener("change", choiceChanged);
   }
   $("send").addEventListener("click", () => void sendCard());
   for (const field of ["note", "to", "from"]) $<HTMLInputElement>(field).disabled = false;
