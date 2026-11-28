@@ -160,3 +160,28 @@ proto-personas.
   stay in reach; on a phone they shrink to one row.
 - **The dictionary is heavy.** It loads only when the rail fence first needs words, with a
   line in the office's voice while it does.
+
+
+## The Postcard Rack (chapter 5, the Trevanion cipher)
+
+Notes from building the null-cipher finder as its own stall, checked against the
+proto-personas and the checklist.
+
+- **The note shows itself in place.** The book prints a line of letters per offset. Here the
+  letters the glass lands on light up inside the handwriting, so the skimmer sees the trick
+  work in one tap without reading a word of explanation.
+- **Today's card is on the desk at load, but not solved.** The glass starts on the plain
+  punctuation rule; turning it is the game. A rack of seven more cards (one a decoy with
+  nothing to find) means there's always another to try.
+- **A lucky reading isn't a win.** Short strings of "a", "at" and "me" read as 100% words. The
+  tag says so in plain words ("real words, but tiny ones. That's what luck looks like") and the
+  stamp only lands on a real note.
+- **"Try every setting" is the jailer's view.** It ranks every rule and count, and one tap sets
+  the glass to any of them, so the tinkerer can see why the winner wins.
+- **Your own words.** A blank card takes any pasted text; the friend can test a song lyric.
+- **Phones:** words never break around a magnified letter, the stamp has its own strip at the
+  foot of the card, and the rack goes two across.
+
+**Not met yet:** there's no result to copy or send. Writing your own hidden-note postcard (the
+book's next project, set aside for now) is the natural shareable result.
+
