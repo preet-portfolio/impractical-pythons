@@ -17,7 +17,7 @@ purpose: a mark there would start the count early and add stray letters.
 
 A list is easy to write but looks like a list. A "proper" postcard is
 harder: each sentence must *start* with a word that carries the next
-letter. ``write_story`` builds one from the five ready-made themes in
+letter. ``write_story`` builds one from the eight ready-made themes in
 ``postcard_themes``: every sentence is a name (chosen for its letter)
 plus a ready-written ending, so it always makes sense:
 
@@ -247,7 +247,7 @@ def pick_subjects(letters: str, position: int, rng: random.Random) -> list[str]:
 
 
 def write_story(note: str, theme_id: str, position: int = 3, seed: int | None = None) -> str:
-    """Hide ``note`` in a proper postcard from one of the five themes.
+    """Hide ``note`` in a proper postcard from one of the eight themes.
 
     For each letter: a subject with that letter at ``position``, then an
     ending from the theme. ``random.Random(seed)`` shuffles the endings
@@ -256,7 +256,7 @@ def write_story(note: str, theme_id: str, position: int = 3, seed: int | None = 
     letters = check_story_note(note)
     theme = THEMES_BY_ID.get(theme_id)
     if theme is None:
-        raise NoteProblem("Pick one of the five postcards.")
+        raise NoteProblem("Pick one of the eight postcards.")
     rng = random.Random(seed)
     endings = rng.sample(theme["endings"], len(letters))
     subjects = pick_subjects(letters, position, rng)

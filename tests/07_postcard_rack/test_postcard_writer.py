@@ -29,6 +29,7 @@ from null_writer import (
     write_story,
 )
 from postcard_themes import SUBJECTS, THEMES
+from postcards import POSTCARDS
 from word_gaps import word_set
 from wordlist import clean_words, read_words
 
@@ -136,7 +137,9 @@ def test_every_letter_has_someone_to_carry_it(position):
 
 def test_the_themes_follow_the_rules():
     """One mark per opening (at its end), none in the endings, and enough endings."""
-    assert len(THEMES) == 5
+    # One theme for each picture on the rack, so every scene can carry a note.
+    assert {theme["scene"] for theme in THEMES} == {card["scene"] for card in POSTCARDS}
+    assert len({theme["id"] for theme in THEMES}) == len(THEMES) == 8
     for theme in THEMES:
         opening = theme["opening"]
         assert opening[-1] in MARKS and not MARKS & set(opening[:-1])
@@ -171,7 +174,7 @@ def test_a_link_knows_which_postcard_it_came_from():
 def test_story_notes_and_themes_are_checked():
     with pytest.raises(NoteProblem, match=str(LONGEST_STORY_NOTE)):
         check_story_note("a" * (LONGEST_STORY_NOTE + 1))
-    with pytest.raises(NoteProblem, match="five postcards"):
+    with pytest.raises(NoteProblem, match="eight postcards"):
         write_story("meet me at noon", "moon", 3)
     with pytest.raises(NoteProblem, match="letter 2, 3, 4"):
         write_story("meet me at noon", "beach", 5)

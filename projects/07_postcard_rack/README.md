@@ -23,7 +23,7 @@ stamps the card "Read between the lines". **Try every setting** does what a susp
 jailer could have done, and there's a blank card for any text you want to test.
 
 At the **writing desk** you go the other way: type a secret note and Nan hides it in a list
-of her Scrabble words, one letter per word. Or ask for **a proper postcard** from one of five
+of her Scrabble words, one letter per word. Or ask for **a proper postcard** from one of eight
 seaside themes, with one letter hidden at the start of each sentence. Send the
 postcard to a friend as a link, and all they see is a gran showing off (or a nice day
 out), until they pick up the glass.
@@ -164,7 +164,7 @@ is never in the link; your friend has to find it. `unpack_card` checks every fie
 whatever arrives and raises `NoteProblem` with a plain reason, so a smudged link gets a
 friendly message instead of a crash.
 
-## A proper postcard, from five themes
+## A proper postcard, from eight themes
 
 A list is easy to hide in but looks like a list. A postcard that reads naturally is the
 hard version: every sentence has to make sense *and* carry the right letter. The trick is
@@ -179,8 +179,8 @@ for each letter:
 card = the theme's opening line ("Wish you were here!") + the sentences
 ```
 
-`postcard_themes.py` holds the five themes (Beach day, On the pier, Rainy day, Caravan
-holiday, Fish and chips), each with its own opening line, postmark, picture and 20 endings,
+`postcard_themes.py` holds the eight themes, one for each picture on the rack (Beach day, On the pier, Rainy day, Caravan
+holiday, Fish and chips, Lighthouse walk, Donkey rides, Arcade night), each with its own opening line, postmark, picture and 20 endings,
 plus about 210 first names and family words. `write_story` in `null_writer.py` does the rest.
 
 - **The opening line's "!" starts the count** and every full stop restarts it, so the note
@@ -214,7 +214,7 @@ deciding. The web page passes the visitor's own date.
 |---|---|
 | `null_finder.py` | The four rules, `picked_positions`, `describe`, `read_reading` and `scan` |
 | `null_writer.py` | Hides a note in Nan's Scrabble words or a themed postcard, and packs and unpacks postcard links |
-| `postcard_themes.py` | The five postcard themes and the names that carry the letters |
+| `postcard_themes.py` | The eight postcard themes and the names that carry the letters |
 | `postcards.py` | The eight postcards (seven notes and one decoy) and the daily pick |
 | `main.py` | The command line: `--lookahead`, `--rule`, `--scan`, `--today`, `--write`, `--file`, `--text` |
 | `../common/word_gaps.py` | Puts the gaps back between words (shared with the Pier Telegraph) |
@@ -257,5 +257,5 @@ these exact modules in the browser with Pyodide.
 
 Inspired by the Trevanion cipher and list cipher projects (and the Colchester Catch practice
 project) in [*Impractical Python Projects*](https://nostarch.com/impracticalpython) by Lee
-Vaughan. The postcards, Nan's Scrabble cover, the five themes, scoring, links and web
+Vaughan. The postcards, Nan's Scrabble cover, the eight themes, scoring, links and web
 page are new.
