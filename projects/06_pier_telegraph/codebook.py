@@ -35,16 +35,6 @@ SAMPLE = " ".join(
     ),
 )
 
-# The telegram on the counter waiting to be cracked: its words, grid and route.
-MYSTERY = {
-    "text": "Tell the manager the money is hidden under the lighthouse "
-    "collect it at midnight on Tuesday",
-    "cols": 5,
-    "rows": 3,
-    "key": [1, -2, 3, -4, 5],
-    "seed": 6,
-}
-
 # Practice: deckchair tickets 1 to 15 make it obvious when the route is right.
 TICKETS = {
     "words": [str(n) for n in range(1, 16)],
@@ -105,6 +95,18 @@ def grid_options(count: int, widest: int = 8) -> list[dict]:
             filler = cols * rows - count
             options.append({"cols": cols, "rows": rows, "filler": filler})
     return [option for option in options if option["filler"] < option["cols"]]
+
+
+def snuggest(options: list[dict]) -> dict:
+    """The tidiest grid: least filler, then the squarest, then the widest.
+
+    A tuple as the sort key compares its items in order, so the second
+    item only breaks ties in the first.
+    """
+    return min(
+        options,
+        key=lambda o: (o["filler"], abs(o["cols"] - o["rows"]), -o["cols"]),
+    )
 
 
 def pad(

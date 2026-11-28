@@ -1,11 +1,14 @@
 import importlib.util
 import itertools
 import random
+from datetime import date
 from pathlib import Path
 
 import pytest
 
-from codebook import CODEBOOK, MYSTERY, TICKETS, decode, encode, grid_options, pad
+from challenge import ChallengeProblem, fingerprint, is_solved, make_challenge, read_challenge
+from codebook import CODEBOOK, TICKETS, decode, encode, grid_options, pad, snuggest
+from dispatches import DISPATCHES, dispatch, plain_route_hits, telegram_number, todays_dispatch
 from route import (
     GridProblem,
     KeyProblem,
@@ -24,6 +27,9 @@ spec = importlib.util.spec_from_file_location(
 )
 cli = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(cli)
+
+
+SAMPLE_MESSAGE = "Meet the manager by the lighthouse at midnight"
 
 
 def all_keys(cols):
@@ -127,11 +133,56 @@ def test_grid_options_and_padding():
         pad(["a"] * 13, 4, 3)
 
 
-def test_mystery_telegram_is_solvable():
-    m = MYSTERY
-    words = pad(encode(m["text"]), m["cols"], m["rows"], m["seed"])
-    cipher = encrypt(words, m["cols"], m["rows"], m["key"])
-    assert decode(decrypt(cipher, m["cols"], m["rows"], m["key"])).startswith("tell the manager")
+def test_snuggest_prefers_least_filler_then_square():
+    assert snuggest(grid_options(11)) == {"cols": 4, "rows": 3, "filler": 1}
+
+
+def test_telegram_numbers_count_from_opening_day():
+    assert telegram_number(date(2026, 11, 1)) == 1
+    assert telegram_number(date(2026, 11, 28)) == 28
+    assert todays_dispatch(date(2026, 11, 28)) == dispatch(28)
+
+
+@pytest.mark.parametrize("number", range(1, len(DISPATCHES) + 1))
+def test_every_daily_telegram_is_a_fair_puzzle(number):
+    today = dispatch(number)
+    words, cols, rows, key = today["words"], today["cols"], today["rows"], today["key"]
+    assert 3 <= cols <= 5 and rows >= 3 and len(words) == cols * rows
+    # The lazy guess (straight down every column) gets almost nothing right.
+    assert plain_route_hits(words, cols, rows, key) <= max(2, len(words) // 5)
+    # Decoding gives back the message, code words swapped and filler gone.
+    plain = " ".join(encode(DISPATCHES[number - 1])).lower()
+    message = decode(decrypt(encrypt(words, cols, rows, key), cols, rows, key))
+    assert message == decode(plain.split())
+
+
+def test_daily_telegrams_are_the_same_everywhere():
+    assert dispatch(40) == dispatch(40)  # seeded, so no randomness between visitors
+    assert dispatch(40)["words"][:3] == dispatch(40 - len(DISPATCHES))["words"][:3]
+
+
+def test_challenge_round_trip():
+    words = pad(encode(SAMPLE_MESSAGE), 4, 3, seed=1)
+    token = make_challenge(words, 4, 3, [-1, 2, -3, 4])
+    assert set(token) <= set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_")
+    challenge = read_challenge(token)
+    assert challenge["cipher"] == encrypt(words, 4, 3, [-1, 2, -3, 4])
+    assert is_solved(words, challenge["fingerprint"])
+    assert not is_solved(challenge["cipher"], challenge["fingerprint"])
+    assert "manager" not in token and fingerprint(words) == challenge["fingerprint"]
+
+
+@pytest.mark.parametrize(
+    ("token", "message"),
+    [
+        ("not base64 at all!", "smudged"),
+        ("e30", "smudged"),  # {} has no telegram in it
+        (make_challenge(list("abcde"), 5, 1, [1, 2, 3, 4, 5]), "can read"),  # 5 is prime
+    ],
+)
+def test_bad_challenge_links_are_explained(token, message):
+    with pytest.raises(ChallengeProblem, match=message):
+        read_challenge(token)
 
 
 def test_cli_decodes_the_settings_block(capsys):
@@ -146,6 +197,18 @@ def test_cli_sends_a_telegram_that_comes_back(capsys):
     telegram = lines[2].removeprefix("Telegram: ")
     cli.main(["--cipher", telegram, "--cols", "4", "--key", "-1 2 -3 4"])
     assert "meet the manager at midnight by the pier" in capsys.readouterr().out
+
+
+def test_cli_wants_three_words(capsys):
+    with pytest.raises(SystemExit):
+        cli.main(["--encrypt", "Hello there"])
+    assert "at least three words" in capsys.readouterr().err
+
+
+def test_cli_shows_todays_telegram(capsys):
+    cli.main(["--today"])
+    out = capsys.readouterr().out
+    assert out.startswith("Telegram No. ") and "Column counts that fit" in out
 
 
 def test_cli_explains_a_bad_key_and_exits_1(capsys):

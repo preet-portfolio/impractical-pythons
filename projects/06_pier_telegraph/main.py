@@ -10,6 +10,7 @@ The same settings can come from the command line instead:
 
     uv run python projects/06_pier_telegraph/main.py --key "-1 2 -3 4 -5"
     uv run python projects/06_pier_telegraph/main.py --encrypt "Meet me"
+    uv run python projects/06_pier_telegraph/main.py --today
 
 The route (the key) has one number per column, counting from 1. A
 positive number reads that column top to bottom, a negative one bottom
@@ -22,8 +23,10 @@ to top::
 
 import argparse
 import sys
+from datetime import date
 
-from codebook import decode, encode, grid_options, pad
+from codebook import decode, encode, grid_options, pad, snuggest
+from dispatches import todays_dispatch
 from route import (
     TelegramProblem,
     check_grid,
@@ -51,12 +54,6 @@ def alternating_key(cols: int) -> list[int]:
     return [-(n + 1) if n % 2 == 0 else n + 1 for n in range(cols)]
 
 
-def snugness(option: dict) -> tuple:
-    """Sort key for grids: least filler, then the squarest, then widest."""
-    cols, rows = option["cols"], option["rows"]
-    return option["filler"], abs(cols - rows), -cols
-
-
 def receive(cipher_text: str, cols: int, rows: int, key_text: str) -> None:
     """Decode a telegram and print what it says, or explain what's wrong."""
     cipher = cipher_text.split()
@@ -77,8 +74,10 @@ def send(text: str, cols: int | None, key_text: str | None) -> None:
     """Code, pad and scramble a message, and print the telegram."""
     coded = encode(text)
     options = grid_options(len(coded))
+    if not options:  # 2 words: a 2 × 1 or 1 × 2 rack hides nothing
+        raise TelegramProblem("A telegram needs at least three words.")
     if cols is None:  # the snuggest grid: least filler, then the squarest
-        option = min(options, key=snugness)
+        option = snuggest(options)
     else:
         option = next((o for o in options if o["cols"] == cols), None)
         if option is None:
@@ -95,6 +94,17 @@ def send(text: str, cols: int | None, key_text: str | None) -> None:
     print(f"Telegram: {' '.join(encrypt(words, cols, rows, key))}")
 
 
+def show_today(day: date) -> None:
+    """Print the telegram waiting on the counter today, ready to crack."""
+    today = todays_dispatch(day)
+    words, cols, rows = today["words"], today["cols"], today["rows"]
+    cipher = encrypt(words, cols, rows, today["key"])
+    print(f"Telegram No. {today['number']}: {' '.join(cipher)}")
+    fit = ", ".join(map(str, factors(len(cipher))))
+    print(f"{len(cipher)} words. Column counts that fit: {fit}")
+    print('Crack it with --cipher "..." --cols N --key "..."')
+
+
 def main(argv: list[str] | None = None) -> None:
     """Decode the settings block's telegram, or what the command line says."""
     parser = argparse.ArgumentParser(description="Route cipher telegrams.")
@@ -103,10 +113,13 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--rows", type=int, help="rows in the grid")
     parser.add_argument("--key", help='route, like "-1 2 -3"')
     parser.add_argument("--encrypt", metavar="TEXT", help="send a message")
+    parser.add_argument("--today", action="store_true", help="today's puzzle")
     args = parser.parse_args(argv)
 
     try:
-        if args.encrypt:
+        if args.today:
+            show_today(date.today())
+        elif args.encrypt:
             send(args.encrypt, args.cols, args.key)
         else:
             cols = args.cols or COLS
