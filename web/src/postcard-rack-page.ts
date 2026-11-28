@@ -6,7 +6,7 @@ import { commonSources, postcardRackSources } from "./py/sources";
 import wordListUrl from "../../projects/common/data/2of4brif.txt?url";
 
 // Python side of the page: called by the worker as _bridge(fn, args_json) -> JSON.
-// The page never finds a letter itself: it asks Python where the glass lands.
+// The page never finds a letter itself: it asks Python where the secret is.
 const BRIDGE = `
 import json
 from datetime import date
@@ -68,7 +68,7 @@ def where(text):
     theme = null_writer.theme_of(text)
     if theme:
         return {"place": theme["place"], "scene": theme["scene"]}
-    return {"place": "Nan's Scrabble Club", "scene": "own"}
+    return {"place": "Nan's Scrabble Club", "scene": "club"}
 
 def posted(text, letters, args):
     """A finished card, ready for the desk and packed for its link."""
@@ -141,13 +141,6 @@ const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as 
 const python = new Python();
 const calm = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-const RULE_NAMES: Record<string, string> = {
-  punctuation: "Punctuation",
-  words: "Every word",
-  capitals: "Capital words",
-  nth: "Every few words",
-};
-const MOST = 6;
 const SHORTEST = 6; // null_finder.SHORTEST: fewer letters than this never count as a note
 const OWN = "own"; // the blank card for the visitor's own text
 const WRITTEN = "written"; // the card the visitor just wrote
@@ -160,7 +153,6 @@ const cardText = $("card-text");
 const cardOwn = $<HTMLTextAreaElement>("card-own");
 const status = $("status");
 const foundStamp = $("found-stamp");
-const scanList = $<HTMLOListElement>("scan-list");
 
 let cards: Card[] = [];
 let extras: Card[] = []; // the written and received cards: on the desk, not on the rack
@@ -168,10 +160,8 @@ let token = ""; // the written card, packed for its link
 let seed = 0;
 let todayId = "";
 let current: Card | null = null;
-let rule = "punctuation";
-let offset = 1;
 let request = 0;
-let timer = 0;
+let revealed = false;
 
 const text = () => (current ? current.text : cardOwn.value);
 /** Whether the card came from the writing desk (written here, or arrived in a link). */
@@ -229,26 +219,6 @@ function renderText(message: string, picked: number[]) {
   flush();
 }
 
-function renderRules() {
-  $("rules").replaceChildren(
-    ...Object.keys(RULE_NAMES).map((name) => {
-      const b = button(RULE_NAMES[name], "rule", () => {
-        rule = name;
-        renderRules();
-        void look();
-      });
-      b.setAttribute("aria-pressed", String(name === rule));
-      return b;
-    }),
-  );
-}
-
-function renderOffset() {
-  $("offset").textContent = String(offset);
-  $<HTMLButtonElement>("fewer").disabled = offset <= 1;
-  $<HTMLButtonElement>("more").disabled = offset >= MOST;
-}
-
 function stamp(show: boolean) {
   foundStamp.hidden = !show;
   foundStamp.classList.remove("is-landing");
@@ -258,104 +228,89 @@ function stamp(show: boolean) {
   }
 }
 
-/** What the luggage tag says about the letters: a note, a fluke, or soup. */
-const MOSTLY_WORDS = 0.6; // on a card from a friend, this much real words is worth a second look
+const MOSTLY_WORDS = 0.6; // on a card from a friend, this much real words is worth showing
 
-function verdict(result: Look) {
-  if (result.reads) return `“${result.words.join(" ")}”`;
-  const share = Math.round(result.coverage * 100);
-  if (current?.id === RECEIVED && result.coverage >= MOSTLY_WORDS && result.letters.length >= SHORTEST) {
-    return `“${result.words.join(" ")}”: mostly real words. Names and words like OK aren't in the glass's dictionary, so read it yourself.`;
+/** Where the secret is, if there is one: the card's own answer, or Python's best guess. */
+async function findSecret(): Promise<{ rule: string; offset: number; words: string } | null> {
+  if (current && current.id !== RECEIVED) {
+    return current.rule ? { rule: current.rule, offset: current.offset, words: current.note } : null;
   }
-  if (share < 95) return `Alphabet soup: only ${share}% of it makes words.`;
-  if (result.letters.length < SHORTEST) return `“${result.words.join(" ")}”, but that's too few letters to call it a message.`;
-  return `“${result.words.join(" ")}”: real words, but tiny ones. That's what luck looks like.`;
+  // A card from a friend, or the visitor's own words: try every way of hiding and keep the best.
+  const readings = await python.call<Reading[]>("scan", { text: text(), desk: onDesk() });
+  const best = readings[0];
+  if (!best) return null;
+  const friend = current?.id === RECEIVED && best.coverage >= MOSTLY_WORDS;
+  return best.reads || friend ? { rule: best.rule, offset: best.offset, words: best.words.join(" ") } : null;
 }
 
-async function look() {
+function hideSecret() {
+  revealed = false;
+  if (current) renderText(current.text, []);
+  $("secret").hidden = true;
+  $("reveal").textContent = current ? "Reveal the secret" : "Check for a secret";
+  stamp(false);
+}
+
+/** Light up the hidden letters and say the note in plain words, or say there's nothing. */
+async function reveal() {
+  if (revealed) {
+    hideSecret();
+    return;
+  }
   const mine = ++request;
-  renderOffset();
   try {
-    const result = await python.call<Look>("look", { text: text(), rule, offset, desk: onDesk() });
+    const secret = await findSecret();
     if (mine !== request) return;
-    $("setting").textContent = `Reading the ${result.setting}.`;
-    if (current) renderText(current.text, result.positions);
-    $("tag-letters").textContent = result.letters || "Nothing here: this setting picks no letters.";
-    // The sender knows their own note, so it counts even if a word isn't in the dictionary ("ok").
-    const ownNote = current?.id === WRITTEN && result.letters === current.note;
-    const reads = result.reads || ownNote;
-    $("tag-words").textContent = !result.letters ? "" : ownNote ? `“${result.words.join(" ").toLowerCase()}”` : verdict(result);
-    $("tag-words").classList.toggle("is-found", reads);
-    stamp(reads);
-    if (reads) {
-      status.textContent = current
-        ? `There it is! ${who(current)} hid a note in the ${result.setting}.`
-        : `Something reads in the ${result.setting}. Was it hidden on purpose, or just luck?`;
-    } else {
-      status.textContent = current?.id === RECEIVED
-        ? `${who(current)} hid a note on this card. Turn the glass to find it.`
-        : current?.note
-        ? "Nothing yet. Turn the dial, or try counting from somewhere else."
-        : current
-          ? "Nothing reads with this setting. Maybe there's nothing to find."
-          : "Type or paste any text on the card, then turn the dial.";
+    revealed = true;
+    $("secret").hidden = false;
+    $("reveal").textContent = current ? "Hide the secret" : "Hide it again";
+    if (!secret) {
+      $("secret-label").textContent = "No secret here";
+      $("secret-words").textContent = current
+        ? "Just a lovely day at the seaside. Not every card hides something."
+        : "Nothing hidden that we can see. Maybe it's just what it says.";
+      $("secret-how").textContent = "";
+      $("secret-words").classList.remove("is-found");
+      status.textContent = "";
+      stamp(false);
+      return;
     }
+    const where = await python.call<Look>("look", { text: text(), rule: secret.rule, offset: secret.offset, desk: onDesk() });
+    if (mine !== request) return;
+    if (current) renderText(current.text, where.positions);
+    $("secret-label").textContent = current?.id === WRITTEN ? "Your secret note" : "The secret note";
+    $("secret-words").textContent = `“${secret.words.toLowerCase()}”`;
+    $("secret-words").classList.add("is-found");
+    $("secret-how").textContent = `Hidden in the ${where.setting}.`;
+    status.textContent = current?.id === WRITTEN ? "There's your note, hiding in plain sight." : "There it is!";
+    stamp(Boolean(current));
   } catch (error) {
     console.error(error);
-    status.textContent = "The glass slipped. Try that again.";
+    status.textContent = "That didn't work. Try again.";
   }
 }
 
-async function scanAll() {
-  try {
-    const readings = await python.call<Reading[]>("scan", { text: text(), desk: onDesk() });
-    const found = readings.filter((r) => r.reads);
-    scanList.replaceChildren(
-      ...readings.slice(0, 6).map((reading) => {
-        const li = document.createElement("li");
-        li.className = reading.reads ? "scan-row is-found" : "scan-row";
-        const head = document.createElement("p");
-        head.className = "scan-head";
-        head.textContent = `${reading.setting}: ${Math.round(reading.coverage * 100)}% real words`;
-        const words = document.createElement("p");
-        words.className = "scan-words";
-        words.textContent = reading.words.join(" ");
-        const use = button("Set the glass to this", "paper-button", () => {
-          rule = reading.rule;
-          offset = reading.offset;
-          renderRules();
-          void look();
-          $("card").scrollIntoView({ behavior: calm() ? "auto" : "smooth", block: "center" });
-        });
-        li.append(head, words, use);
-        return li;
-      }),
-    );
-    const best = readings[0];
-    status.textContent = found.length
-      ? `Tried ${readings.length} settings. ${found.length === 1 ? "One reads" : `${found.length} read`} as real words.`
-      : current?.id === RECEIVED && best && best.coverage >= MOSTLY_WORDS
-        ? `Tried ${readings.length} settings. The best is the ${best.setting}: not every word is in the glass's dictionary, so have a look yourself.`
-        : readings.length
-        ? `Tried ${readings.length} settings and none reads as a message. It might just be a postcard.`
-        : "Not enough letters on the card to try anything yet.";
-  } catch (error) {
-    console.error(error);
-    status.textContent = "The glass slipped. Try that again.";
-  }
+/** What the desk says about the card before the secret is revealed. */
+function invitation(): string {
+  if (!current) return "Paste a letter, a poem or a song, then check it for a hidden note.";
+  if (current.id === RECEIVED) return `${who(current)} hid a note on this card. Can you spot it? Reveal it when you give up.`;
+  if (current.id === WRITTEN) return "Here's your card. Reveal the secret to see your note shine through.";
+  return "Does this card hide a note? Read it closely, then reveal the secret.";
 }
 
-/** Put a card (or the blank one) on the desk, with the glass back at the start. */
+/** Put a card (or the blank one) on the desk, painted like its front, with its secret hidden. */
 function show(id: string) {
   current = [...cards, ...extras].find((card) => card.id === id) ?? null;
-  rule = "punctuation";
-  offset = 1;
-  scanList.replaceChildren();
+  ++request; // forget any reveal still on its way for the last card
   const own = !current;
   cardOwn.hidden = !own;
   cardText.hidden = own;
   const card = $("card");
   card.dataset.scene = current?.scene ?? "own";
+  const picture = $("card-picture");
+  picture.dataset.scene = current?.scene ?? "own";
+  picture.hidden = own;
+  $("picture-place").textContent = current?.place ?? "";
   $("card-label").textContent = own
     ? "Your own words"
     : id === todayId
@@ -374,15 +329,16 @@ function show(id: string) {
       : `Dear ${current!.to},`;
   $("card-from").textContent = own || message.includes("love ") ? "" : `Love from ${current!.sender} x`;
   $("postmark").textContent = own ? "YOUR TOWN" : current!.place.toUpperCase();
-  renderRules();
   renderRack();
-  return look();
+  hideSecret();
+  status.textContent = invitation();
 }
 
 /** A card for the desk that isn't on the rack (one you wrote, or one that came in a link). */
-function deskCard(id: string, card: Received, note: string): Card {
+function deskCard(id: string, card: Received, secret: { offset: number; note: string } | null): Card {
   const { text, to, sender, place, scene } = card;
-  return { id, place, scene, to, sender, text, rule: "punctuation", offset: 0, note };
+  const rule = secret ? "punctuation" : null; // a friend's card: no answer, so the reveal searches
+  return { id, place, scene, to, sender, text, rule, offset: secret?.offset ?? 0, note: secret?.note ?? "" };
 }
 
 function putOnDesk(card: Card) {
@@ -510,8 +466,8 @@ async function writeCard(mode: "fresh" | "again" | "same") {
     const where = story()
       ? `the ${ORDINAL[position()]} letter of each sentence's first word`
       : `the ${ORDINAL[position()]} letter of each of Nan's words`;
-    deskStatus.textContent = `Done! Your note is in ${where}. Try the glass on it, then send it.`;
-    putOnDesk(deskCard(WRITTEN, result, result.letters));
+    deskStatus.textContent = `Done! Your note is in ${where}. Reveal the secret to check it, then send it.`;
+    putOnDesk(deskCard(WRITTEN, result, { offset: position(), note: noteInput.value.trim().replace(/\s+/g, " ") }));
   } catch (error) {
     console.error(error);
     deskStatus.textContent = "The pen slipped. Try that again.";
@@ -525,7 +481,7 @@ async function sendCard() {
   const link = `${location.origin}${location.pathname}#card=${token}`;
   try {
     await navigator.clipboard.writeText(link);
-    deskStatus.textContent = "Link copied. Send it to a friend: they'll need the glass to read your note.";
+    deskStatus.textContent = "Link copied. Send it to a friend: the note stays hidden until they find it.";
   } catch {
     deskStatus.textContent = `Copy this link and send it: ${link}`;
   }
@@ -537,11 +493,11 @@ async function openFromLink() {
   if (!match) return false;
   const card = await python.call<Received>("unpack", { token: match[1] });
   if (card.problem) {
-    await show(todayId); // the glass's first look sets the status, so say this after it
+    show(todayId);
     status.textContent = card.problem;
     return true;
   }
-  putOnDesk(deskCard(RECEIVED, card, "?"));
+  putOnDesk(deskCard(RECEIVED, card, null));
   return true;
 }
 
@@ -615,16 +571,8 @@ async function start() {
   }
   cards = rack.cards;
   todayId = rack.today;
-  $<HTMLButtonElement>("scan").disabled = false;
-  $("fewer").addEventListener("click", () => {
-    offset = Math.max(1, offset - 1);
-    void look();
-  });
-  $("more").addEventListener("click", () => {
-    offset = Math.min(MOST, offset + 1);
-    void look();
-  });
-  $("scan").addEventListener("click", () => void scanAll());
+  $<HTMLButtonElement>("reveal").disabled = false;
+  $("reveal").addEventListener("click", () => void reveal());
   noteInput.addEventListener("input", renderCount);
   for (const choice of document.querySelectorAll('input[name="style"]')) choice.addEventListener("change", renderStyle);
   renderThemes(rack.themes);
@@ -642,9 +590,7 @@ async function start() {
   renderStyle();
   window.addEventListener("hashchange", () => void openFromLink());
   cardOwn.addEventListener("input", () => {
-    window.clearTimeout(timer);
-    scanList.replaceChildren();
-    timer = window.setTimeout(() => void look(), 200);
+    if (revealed) hideSecret(); // new words: the old answer no longer fits
   });
   if (!(await openFromLink())) show(todayId);
 }

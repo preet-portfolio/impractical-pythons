@@ -197,6 +197,15 @@ sender tests their card on the desk before sending. Choices made for the persona
 - **Kind words only.** Nan's words pass a stricter filter than the rest of the pier, because
   they appear on a card the visitor didn't write word by word.
 
+**Part 4, simpler:** the reading glass is gone. Watching the page as a visitor, a line of raw
+letters ("absw") and a rule-and-dial panel meant nothing to people, so the desk now has one
+button.
+
+- **One button, plain words.** "Reveal the secret" lights the letters and says the note
+  ("ghost train") plus where it hid, or "Just a lovely day at the seaside" on a decoy.
+- **The rack card you pick restyles the desk card**: its picture across the top, its own
+  paper and ink, so a click visibly changes something.
+
 **Part 3, proper postcards:** eight themes, one for each picture on the rack (beach, pier,
 rain, caravan, fish and chips, lighthouse, donkeys, arcade), turn a note into a postcard that reads like a real day out, written by Python in the browser.
 

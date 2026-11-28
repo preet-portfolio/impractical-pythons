@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>The Postcard Rack · Impractical Pythons</title>
-    <meta name="description" content="Every postcard says wish you were here. Some say something else too. Hold the reading glass over the card and read between the lines." />
+    <meta name="description" content="Every postcard says wish you were here. Some say something else too. Read between the lines, reveal the secret, or hide a note of your own." />
     <meta name="theme-color" content="#2f7fb5" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💌</text></svg>" />
   </head>
@@ -18,8 +18,7 @@
         <h1 class="sign-name">Postcard Rack</h1>
         <p class="sign-lede">
           Every card on this rack says "wish you were here". Some of them say something else as
-          well, hidden in plain sight. Hold the reading glass over a card and turn the dial until
-          the hidden note shows through.
+          well, hidden in plain sight. Pick a card, read it closely, then reveal the secret.
         </p>
       </header>
 
@@ -29,11 +28,15 @@
         </h2>
 
         <div class="desk">
-          <article class="card" id="card" tabindex="-1" aria-describedby="card-help">
+          <article class="card" id="card" tabindex="-1" aria-describedby="status">
+            <div class="card-picture front" id="card-picture" aria-hidden="true">
+              <span class="front-greet">Greetings from</span>
+              <span class="front-place" id="picture-place"></span>
+            </div>
             <div class="card-message">
               <p class="card-to" id="card-to"></p>
               <p class="card-text" id="card-text"></p>
-              <textarea class="card-own" id="card-own" rows="7" maxlength="1200" spellcheck="false" aria-label="Your own text to search" hidden></textarea>
+              <textarea class="card-own" id="card-own" rows="7" maxlength="1200" spellcheck="false" aria-label="Your own text to check" hidden></textarea>
               <p class="card-from" id="card-from"></p>
             </div>
             <div class="card-address" aria-hidden="true">
@@ -45,32 +48,17 @@
             </div>
             <p class="found-stamp" id="found-stamp" hidden>Read between the lines</p>
           </article>
-
-          <div class="glass" role="group" aria-labelledby="glass-title">
-            <h3 id="glass-title" class="glass-title">The reading glass</h3>
-            <p class="glass-help" id="card-help">Count from…</p>
-            <div class="rules" id="rules"></div>
-            <p class="glass-help">…and how many letters along?</p>
-            <div class="stepper">
-              <button type="button" class="step" id="fewer" aria-label="One letter fewer" disabled>−</button>
-              <output class="offset" id="offset" aria-live="polite">1</output>
-              <button type="button" class="step" id="more" aria-label="One letter more" disabled>+</button>
-            </div>
-            <p class="setting" id="setting"></p>
-          </div>
         </div>
 
-        <div class="tag" aria-live="polite">
-          <p class="tag-label">The glass picks out</p>
-          <p class="tag-letters" id="tag-letters">…</p>
-          <p class="tag-words" id="tag-words"></p>
-        </div>
         <p class="shop-status" id="status" role="status" aria-live="polite">Unlocking the shop…</p>
-
         <div class="tools">
-          <button type="button" class="glass-button" id="scan" disabled>Try every setting</button>
+          <button type="button" class="glass-button reveal-button" id="reveal" disabled>Reveal the secret</button>
         </div>
-        <ol class="scan" id="scan-list" aria-label="Every setting, best reading first"></ol>
+        <div class="tag" id="secret" aria-live="polite" hidden>
+          <p class="tag-label" id="secret-label">The secret note</p>
+          <p class="tag-words" id="secret-words"></p>
+          <p class="tag-how" id="secret-how"></p>
+        </div>
       </section>
 
       <section class="writing-desk" aria-labelledby="desk-title">
@@ -156,13 +144,13 @@
           words: any word can be a good Scrabble word, so any word can carry a letter.
         </p>
         <p>
-          The glass has one more trick from the same era: "Every few words" reads the 2nd letter
-          of every 2nd word, or the 3rd letter of every 3rd word, and so on. One card on the rack
-          uses it.
+          The rack's cards use a few rules from the same era: letters after punctuation, the
+          first letter of every word or of every capital word, and the 2nd letter of every 2nd
+          word (or the 3rd of every 3rd). Hold on to that last one: one card uses it.
         </p>
         <p>
-          "Try every setting" does what a suspicious jailer could have done: try each rule and
-          each count, and check which one reads as real words. A dictionary splits the letters
+          On a card from a friend or your own words, "Reveal" does what a suspicious jailer could
+          have done: try every rule and every count, and keep the one that reads as real words. A dictionary splits the letters
           back into words, and a reading only counts if it's real words all the way through,
           and not just a lucky run of "a", "at" and "me". All of this is Python, running here in
           your browser.

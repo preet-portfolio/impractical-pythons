@@ -16,17 +16,20 @@ punctuation mark spelled out where to find the way out of the chapel, and by mor
 was gone. Every postcard on this rack was written for this stall; none of them copy that
 letter.
 
-On the web page you hold a **reading glass** over a card: pick what to count from, turn
-the dial for how many letters along, and the letters it lands on light up in the
-handwriting. On the right setting the hidden note appears on a luggage tag and the shop
-stamps the card "Read between the lines". **Try every setting** does what a suspicious
-jailer could have done, and there's a blank card for any text you want to test.
+On the web page you pick a card from the rack and it lands on the desk, painted like its
+front (its picture, paper and ink). Read it closely, then press **Reveal the secret**: the
+hidden letters light up in the handwriting, the note appears in plain words on a luggage
+tag with where it was hiding, and the shop stamps the card "Read between the lines". On a
+card from a friend or your own pasted words, Reveal does what a suspicious jailer could
+have done: Python tries every rule and count and keeps the one that reads as real words.
+(An earlier version had a reading glass with rule buttons and a dial; it was cut because
+a line of raw letters like "absw" meant nothing to visitors.)
 
 At the **writing desk** you go the other way: type a secret note and Nan hides it in a list
 of her Scrabble words, one letter per word. Or ask for **a proper postcard** from one of eight
 seaside themes, with one letter hidden at the start of each sentence. Send the
 postcard to a friend as a link, and all they see is a gran showing off (or a nice day
-out), until they pick up the glass.
+out), until they press Reveal.
 
 ## Play
 
@@ -73,7 +76,7 @@ apostrophe in "it's" restarts the count and the note falls apart. A test checks 
 The book's version returns the hidden letters. `after_punctuation(text, offset)` returns
 their **positions** in the original text instead, and `hidden_letters` builds the letters
 from those. That one change is what lets the web page light up the exact letters on the
-card: the page asks Python where the glass lands, then wraps each of those characters in a
+card: the page asks Python where the secret letters are, then wraps each of those characters in a
 `<mark>`.
 
 Stepping over spaces with `continue` gives the same count as stripping them first (the
